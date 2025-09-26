@@ -1,9 +1,12 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
-const sequelize = new Sequelize('lilerp_db', 'postgres', 'password', {
-  host: 'localhost',
-  dialect: 'postgres',
+if (!process.env.DATABASE_URL) {
+  console.error('❌ DATABASE_URL environment variable is not set. Please check your .env file.');
+  process.exit(1);
+}
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
   pool: {
     max: 5,
