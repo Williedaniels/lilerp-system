@@ -1,7 +1,8 @@
 # LILERP API Documentation
 
 ## 🔗 Base URL
-```
+
+```sh
 Development: http://localhost:3001/api
 Production: https://your-domain.com/api
 ```
@@ -11,6 +12,7 @@ Production: https://your-domain.com/api
 Most endpoints require authentication using JWT tokens.
 
 ### Login
+
 ```http
 POST /auth/login
 Content-Type: application/json
@@ -22,6 +24,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -35,6 +38,7 @@ Content-Type: application/json
 ```
 
 ### Register
+
 ```http
 POST /auth/register
 Content-Type: application/json
@@ -50,6 +54,7 @@ Content-Type: application/json
 ## 📞 IVR Endpoints
 
 ### Voice Webhook
+
 ```http
 POST /ivr/voice
 Content-Type: application/x-www-form-urlencoded
@@ -62,6 +67,7 @@ Digits=1
 ```
 
 **Response (TwiML):**
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -71,6 +77,7 @@ Digits=1
 ```
 
 ### SMS Webhook
+
 ```http
 POST /ivr/sms
 Content-Type: application/x-www-form-urlencoded
@@ -82,6 +89,7 @@ Body=Emergency at Ganta village
 ```
 
 ### Recording Handler
+
 ```http
 POST /ivr/recording
 Content-Type: application/x-www-form-urlencoded
@@ -94,6 +102,7 @@ RecordingDuration=45
 ## 🚨 Incident Management
 
 ### Create Incident
+
 ```http
 POST /incidents
 Authorization: Bearer <token>
@@ -112,6 +121,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -134,12 +144,14 @@ Content-Type: application/json
 ```
 
 ### Get Incidents
+
 ```http
 GET /incidents?page=1&limit=10&status=Open&urgency=High
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -167,12 +179,14 @@ Authorization: Bearer <token>
 ```
 
 ### Get Single Incident
+
 ```http
 GET /incidents/123
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -212,6 +226,7 @@ Authorization: Bearer <token>
 ```
 
 ### Update Incident Status
+
 ```http
 PUT /incidents/123/status
 Authorization: Bearer <token>
@@ -226,12 +241,14 @@ Content-Type: application/json
 ## 👥 Responder Management
 
 ### Get Responders
+
 ```http
 GET /responders?type=chief&location=Nimba
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -251,6 +268,7 @@ Authorization: Bearer <token>
 ```
 
 ### Create Responder
+
 ```http
 POST /responders
 Authorization: Bearer <token>
@@ -267,6 +285,7 @@ Content-Type: application/json
 ```
 
 ### Notify Responders
+
 ```http
 POST /responders/notify
 Authorization: Bearer <token>
@@ -283,6 +302,7 @@ Content-Type: application/json
 ## 💬 Response Management
 
 ### Add Response
+
 ```http
 POST /incidents/123/responses
 Authorization: Bearer <token>
@@ -296,6 +316,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -312,6 +333,7 @@ Content-Type: application/json
 ```
 
 ### Get Responses
+
 ```http
 GET /incidents/123/responses
 Authorization: Bearer <token>
@@ -320,12 +342,14 @@ Authorization: Bearer <token>
 ## 📊 Analytics & Reports
 
 ### Dashboard Statistics
+
 ```http
 GET /analytics/dashboard
 Authorization: Bearer <token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -356,6 +380,7 @@ Authorization: Bearer <token>
 ```
 
 ### Monthly Report
+
 ```http
 GET /analytics/monthly?year=2025&month=9
 Authorization: Bearer <token>
@@ -364,6 +389,7 @@ Authorization: Bearer <token>
 ## 🔔 Notification System
 
 ### Send Notification
+
 ```http
 POST /notifications/send
 Authorization: Bearer <token>
@@ -379,6 +405,7 @@ Content-Type: application/json
 ```
 
 ### Get Notification History
+
 ```http
 GET /notifications?page=1&limit=20
 Authorization: Bearer <token>
@@ -387,6 +414,7 @@ Authorization: Bearer <token>
 ## 📍 Location Services
 
 ### Geocode Address
+
 ```http
 POST /location/geocode
 Authorization: Bearer <token>
@@ -398,6 +426,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -410,6 +439,7 @@ Content-Type: application/json
 ```
 
 ### Reverse Geocode
+
 ```http
 POST /location/reverse-geocode
 Authorization: Bearer <token>
@@ -424,12 +454,14 @@ Content-Type: application/json
 ## 🔍 Search & Filtering
 
 ### Search Incidents
+
 ```http
 GET /search/incidents?q=boundary&location=Ganta&dateFrom=2025-09-01&dateTo=2025-09-30
 Authorization: Bearer <token>
 ```
 
 ### Advanced Filters
+
 ```http
 POST /incidents/filter
 Authorization: Bearer <token>
@@ -467,6 +499,7 @@ Content-Type: application/json
 ## ❌ Error Responses
 
 ### Standard Error Format
+
 ```json
 {
   "success": false,
@@ -482,6 +515,7 @@ Content-Type: application/json
 ```
 
 ### Common Error Codes
+
 - `VALIDATION_ERROR` - Invalid input data
 - `UNAUTHORIZED` - Missing or invalid authentication
 - `FORBIDDEN` - Insufficient permissions
@@ -492,12 +526,14 @@ Content-Type: application/json
 ## 🔄 Rate Limiting
 
 All endpoints are rate limited:
+
 - **Authentication:** 5 requests per minute
 - **IVR Webhooks:** 100 requests per minute
 - **General API:** 60 requests per minute
 - **Search/Analytics:** 30 requests per minute
 
 Rate limit headers:
+
 ```
 X-RateLimit-Limit: 60
 X-RateLimit-Remaining: 45
@@ -507,6 +543,7 @@ X-RateLimit-Reset: 1632150000
 ## 📝 Webhooks
 
 ### Incident Status Change
+
 ```http
 POST https://your-webhook-url.com/incident-status
 Content-Type: application/json
@@ -528,6 +565,7 @@ Content-Type: application/json
 ```
 
 ### New Response Added
+
 ```http
 POST https://your-webhook-url.com/new-response
 Content-Type: application/json
@@ -553,6 +591,7 @@ Content-Type: application/json
 ## 🧪 Testing
 
 ### Test with cURL
+
 ```bash
 # Login
 curl -X POST http://localhost:3001/api/auth/login \
@@ -572,6 +611,7 @@ curl -X POST http://localhost:3001/api/incidents \
 ```
 
 ### Postman Collection
+
 Import the provided Postman collection for comprehensive API testing.
 
 ---
