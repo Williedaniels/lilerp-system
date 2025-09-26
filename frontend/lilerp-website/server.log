@@ -1,0 +1,53 @@
+
+> lilerp-website@0.0.0 dev
+> vite
+
+
+  VITE v6.3.5  ready in 484 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+
+  #  Node.js[34277]: void node::ResetStdio() at ../src/node.cc:760
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xf95cf7 node::Assert(node::AssertionInfo const&) [node]
+ 2: 0xf42264  [node]
+ 3: 0x7f918bc45495  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x7f918bc45610 on_exit [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0xe98a4f node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [node]
+ 6: 0xf01e4f node::Environment::Exit(node::ExitCode) [node]
+ 7: 0x1d755e2  [node]
+
+  #  Node.js[34277]: void node::ResetStdio() at ../src/node.cc:760
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+Segmentation fault
+
+  #  Node.js[34265]: void node::ResetStdio() at ../src/node.cc:760
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xf95cf7 node::Assert(node::AssertionInfo const&) [npm run dev]
+ 2: 0xf42264  [npm run dev]
+ 3: 0x7f1186e45495  [/lib/x86_64-linux-gnu/libc.so.6]
+ 4: 0x7f1186e45610 on_exit [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0xe98a4f node::DefaultProcessExitHandlerInternal(node::Environment*, node::ExitCode) [npm run dev]
+ 6: 0xf01e4f node::Environment::Exit(node::ExitCode) [npm run dev]
+ 7: 0x1d755e2  [npm run dev]
+
+  #  Node.js[34265]: void node::ResetStdio() at ../src/node.cc:760
+  #  Assertion failed: !(err != 0) || (err == -1 && (*__errno_location ()) == 1)
+
+----- Native stack trace -----
+
+ 1: 0xf95cf7 node::Assert(node::AssertionInfo const&) [npm run dev]
+ 2: 0xf42264  [npm run dev]
+ 3: 0xf42982 node::TrapWebAssemblyOrContinue(int, siginfo_t*, void*) [npm run dev]
+ 4: 0x7f1186e42520  [/lib/x86_64-linux-gnu/libc.so.6]
