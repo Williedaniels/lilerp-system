@@ -57,7 +57,7 @@ function App() {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-16">
             <Badge className="mb-4 bg-green-100 text-green-800 hover:bg-green-200">
-              🚀 Now Live in Nimba County
+               Now Live in Nimba County
             </Badge>
             <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
               Emergency Response for
@@ -586,9 +586,7 @@ function App() {
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center space-x-3 mb-4">
-                <div className="bg-green-600 p-2 rounded-lg">
-                  <Shield className="h-6 w-6 text-white" />
-                </div>
+                <img src={lilerpLogo} alt="LILERP Logo" className="h-10 w-10" />
                 <div>
                   <h3 className="text-lg font-bold">LILERP</h3>
                   <p className="text-sm text-gray-400">Emergency Response for Rural Liberia</p>
