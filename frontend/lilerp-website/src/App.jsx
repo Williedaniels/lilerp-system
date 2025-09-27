@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button.jsx'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
+import lilerpLogo from './assets/logo.png'
 import { Badge } from '@/components/ui/badge.jsx'
 import { Phone, Shield, Users, MapPin, Clock, AlertTriangle, CheckCircle, Globe, Smartphone, HeadphonesIcon } from 'lucide-react'
 import './App.css'
@@ -15,9 +16,7 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <div className="bg-green-600 p-2 rounded-lg">
-                <Shield className="h-8 w-8 text-white" />
-              </div>
+              <img src={lilerpLogo} alt="LILERP Logo" className="h-12 w-12" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">LILERP</h1>
                 <p className="text-sm text-gray-600">Liberia Integrated Land Registry & Emergency Response Platform</p>
