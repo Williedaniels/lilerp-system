@@ -182,7 +182,7 @@ pnpm run dev     # Start on port 5173
 - **LILERP Hotline:** +231-123-HELP (simulated)
 - **Developer:** Willie B. Daniels
 - **Institution:** African Leadership University
-- **Email:** <w.daniels@alustudent.com> (example)
+- **Email:** <w.daniels@alustudent.com>
 
 ## License
 

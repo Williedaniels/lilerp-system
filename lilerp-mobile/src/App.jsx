@@ -153,7 +153,7 @@ function App() {
             className="w-full bg-red-600 hover:bg-red-700 text-white py-6 text-lg font-semibold"
           >
             <AlertTriangle className="mr-3 h-6 w-6" />
-            🚨 Report Land Dispute Emergency
+            Report Land Dispute Emergency
           </Button>
 
           <div className="grid grid-cols-2 gap-4">
