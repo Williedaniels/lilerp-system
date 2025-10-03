@@ -1,0 +1,24 @@
+require('dotenv').config();
+const { sequelize } = require('./models');
+
+async function showSchema() {
+  try {
+    // Show all tables
+    const tables = await sequelize.getQueryInterface().showAllTables();
+    console.log('📊 Database Tables:', tables);
+    
+    // Describe each table
+    for (const table of tables) {
+      console.log(`\n🔍 Table: ${table}`);
+      const description = await sequelize.getQueryInterface().describeTable(table);
+      console.table(description);
+    }
+    
+    process.exit(0);
+  } catch (error) {
+    console.error('Error:', error);
+    process.exit(1);
+  }
+}
+
+showSchema();
