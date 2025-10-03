@@ -1,12 +1,10 @@
 # LILERP Design Documentation
 
-## 🎨 Overview
+## Overview
 
 This document presents the complete design system for LILERP (Liberia Integrated Land Registry & Emergency Response Platform), including wireframes, style guide, and design specifications for consistent implementation across all platforms.
 
-## 📐 Wireframe Design
 
-### Landing Page Wireframe
 
 ![LILERP Wireframe](designs/lilerp-wireframe.png)
 
@@ -66,11 +64,11 @@ The wireframe follows a clean, professional layout optimized for emergency respo
 - Minimal cognitive load for users
 - Focus on essential information
 
-## 🎨 Style Guide
+## Style Guide
 
 ### Brand Identity
 
-![LILERP Style Guide](designs/lilerp-style-guide.png)
+![LILERP Style Guide](../assignment/assets/lilerp-style-guide.png)
 
 **Color Palette**
 
@@ -167,7 +165,7 @@ The wireframe follows a clean, professional layout optimized for emergency respo
 - Flexible grid system for different screen sizes
 - Touch-friendly interface elements
 
-## 📱 Platform-Specific Applications
+## Platform-Specific Applications
 
 ### Website Implementation
 
@@ -190,7 +188,7 @@ The wireframe follows a clean, professional layout optimized for emergency respo
 - Status indicators and progress feedback
 - Emergency-focused color coding
 
-## 🔧 Technical Specifications
+## Technical Specifications
 
 ### CSS Variables
 
@@ -255,30 +253,30 @@ The wireframe follows a clean, professional layout optimized for emergency respo
 }
 ```
 
-## 📋 Design Checklist
+## Design Checklist
 
 ### Visual Consistency
 
-- [ ] All colors match the defined palette
-- [ ] Typography follows the established hierarchy
-- [ ] Button styles are consistent across platforms
-- [ ] Spacing follows the grid system
-- [ ] Icons maintain consistent style and size
+- [x] All colors match the defined palette
+- [x] Typography follows the established hierarchy
+- [x] Button styles are consistent across platforms
+- [x] Spacing follows the grid system
+- [x] Icons maintain consistent style and size
 
 ### Accessibility Compliance
 
-- [ ] Color contrast ratios meet WCAG AA standards
-- [ ] Text is readable at minimum 16px size
-- [ ] Interactive elements meet minimum touch target size
-- [ ] Focus states are clearly visible
-- [ ] Alternative text provided for all images
+- [x] Color contrast ratios meet WCAG AA standards
+- [x] Text is readable at minimum 16px size
+- [x] Interactive elements meet minimum touch target size
+- [x] Focus states are clearly visible
+- [x] Alternative text provided for all images
 
 ### Emergency Context Appropriateness
 
-- [ ] Professional, trustworthy appearance
-- [ ] Clear information hierarchy
-- [ ] Minimal cognitive load for stressed users
-- [ ] Cultural sensitivity in design choices
-- [ ] Appropriate for rural, low-literacy contexts
+- [x] Professional, trustworthy appearance
+- [x] Clear information hierarchy
+- [x] Minimal cognitive load for stressed users
+- [x] Cultural sensitivity in design choices
+- [x] Appropriate for rural, low-literacy contexts
 
 This comprehensive design system ensures consistent, accessible, and culturally appropriate implementation of LILERP across all platforms while maintaining the professional standards required for emergency response services.

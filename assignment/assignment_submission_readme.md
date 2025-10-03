@@ -17,7 +17,7 @@
 
 *Note: This is a local development package. For actual deployment, the code should be pushed to a GitHub repository.*
 
-## Figma UI
+## Figma UI Design
 
 **Figma URL** `https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=r9zedkD2in6Tm2vM-1`
 
