@@ -107,7 +107,7 @@ TWILIO_AUTH_TOKEN=your-twilio-token
 
 **Voice Interface Flow:**
 
-```
+```txt
 Incoming Call → Welcome Message → Main Menu
 ├── Press 1: Report Land Dispute
 │   ├── Record Location
@@ -329,10 +329,25 @@ To create comprehensive Figma mockups for LILERP:
 
 ### Web Interface
 
-- **Homepage**: Clean, professional landing page with clear value proposition
-- **Features Section**: Icons and descriptions of key capabilities
-- **Statistics Dashboard**: Visual representation of system impact
-- **Contact Form**: Partnership inquiry form for NGOs and government
+#### Homepage
+
+![Homepage Screenshot](./assets/Overview-Page.png)
+*Clean, professional landing page with clear value proposition*
+
+#### Features Section  
+
+![Features Section](./assets/Features-Page.png)
+*Icons and descriptions of key capabilities*
+
+#### Demo Page
+
+![Demo Page Screenshot](./assets/Demo-Page.png)
+*Visual representation of system impact*
+
+#### Contact Page
+
+![Contact Page Screenshot](./assets/Contact-Page.png)
+*Partnership inquiry form for NGOs and government
 
 ### Mobile Application
 
@@ -347,87 +362,6 @@ To create comprehensive Figma mockups for LILERP:
 - **Menu Navigation**: Clear options for different emergency types
 - **Recording Interface**: Voice capture with visual feedback
 - **Confirmation**: Incident ID and next steps
-
-## Video Demo Guidelines
-
-### Demo Structure (5-10 minutes)
-
-#### Introduction (30 seconds)
-
-- Brief project overview and problem statement
-- Target audience and geographic focus
-- Key innovation highlights
-
-#### System Architecture (1 minute)
-
-- Show system components and how they connect
-- Explain multi-platform approach
-- Highlight voice-first design philosophy
-
-#### Backend Demonstration (2 minutes)
-
-- **API Endpoints**: Show Postman collection testing key endpoints
-- **Database Schema**: Demonstrate data relationships and structure
-- **Authentication**: Show JWT token generation and validation
-- **IVR Integration**: Explain Twilio webhook handling
-
-#### Frontend Demonstration (2 minutes)
-
-- **Website Tour**: Navigate through all sections
-- **Responsive Design**: Show mobile and desktop views
-- **Interactive Elements**: Demonstrate forms and user interactions
-- **Performance**: Show loading times and smooth transitions
-
-#### Mobile App Demonstration (2 minutes)
-
-- **Emergency Reporting**: Complete flow from start to finish
-- **Voice Recording**: Show audio capture and playback
-- **GPS Integration**: Demonstrate location services
-- **Report Tracking**: Show status updates and notifications
-
-#### IVR System Simulation (1.5 minutes)
-
-- **Call Flow**: Simulate incoming call and menu navigation
-- **Voice Prompts**: Play sample audio prompts
-- **Recording Process**: Show how voice recordings are captured
-- **Database Integration**: Show how calls create incident records
-
-#### Impact and Future Plans (1 minute)
-
-- **Problem Solved**: Summarize how the system addresses rural emergency response gaps
-- **Scalability**: Discuss expansion plans and additional features
-- **Community Impact**: Highlight potential benefits for rural communities
-
-### Technical Demonstration Tips
-
-- **Screen Recording**: Use high-quality screen recording software
-- **Audio Quality**: Ensure clear narration throughout
-- **Smooth Transitions**: Edit out loading times and technical delays
-- **Visual Aids**: Use arrows, highlights, and annotations to guide viewer attention
-- **Real Data**: Use realistic test data that demonstrates actual use cases
-
-### Demo Script Outline
-
-```
-"Welcome to LILERP - a voice-based emergency response system for rural Liberia.
-
-[Show system architecture diagram]
-The system consists of three main components: a Node.js backend with PostgreSQL database, a React-based website, and a mobile Progressive Web App, all integrated with Twilio's IVR system.
-
-[Switch to Postman]
-Let me demonstrate the backend API. Here I'm creating a new incident report through our REST API...
-
-[Switch to website]
-The landing page provides an overview of the system and allows partnerships with NGOs and government agencies...
-
-[Switch to mobile app]
-The mobile app enables tech-savvy users to report emergencies with voice recording and GPS location...
-
-[Show IVR simulation]
-Most importantly, the IVR system allows illiterate users to report emergencies using just their voice...
-
-This system bridges the gap between traditional conflict resolution and modern emergency response, serving rural communities that have been historically underserved by technology solutions."
-```
 
 ## Code Files Structure
 
@@ -478,26 +412,6 @@ lilerp-system/
 ├── DEPLOYMENT.md
 └── DEMO_GUIDE.md
 ```
-
-## Assignment Criteria Alignment
-
-### Review Requirements & Tools (5 pts)
-
-- **Clear Understanding**: Comprehensive analysis of rural emergency response challenges
-- **Appropriate Tools**: Node.js/Express backend, React frontend, PostgreSQL database, Twilio IVR
-- **Effective Utilization**: Proper implementation of authentication, database relationships, and API design
-
-### Development Environment Setup (5 pts)
-
-- **Flawless Configuration**: Complete setup scripts and documentation
-- **Efficient Workflow**: Hot reload, automated testing, and development tools
-- **Seamless Operation**: All components work together without configuration issues
-
-### Navigation & Layout Structures (5 pts)
-
-- **Clear and Logical**: Intuitive voice menu structure and web navigation
-- **Effortless Interaction**: Simple 3-level IVR menu, responsive web design
-- **Professional Design**: Consistent styling and user experience across platforms
 
 ## Technical Specifications
 
