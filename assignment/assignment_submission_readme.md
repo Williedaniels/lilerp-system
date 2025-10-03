@@ -268,13 +268,19 @@ Incoming Call → Welcome Message → Main Menu
 
 ### Technical Deep Dive (5 minutes)
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.loom.com/share/17468703c9a949b295cb6a4b672f90a8?sid=128b9852-2637-43a9-ab67-16943ad57860" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+<video src="video/technical-demo.mp4" controls muted style="max-width: 100%;"></video>  
+
+[🔗 Watch on Loom](https://www.loom.com/share/17468703c9a949b295cb6a4b672f90a8)
 
 *Complete walkthrough of the LILERP emergency response system*
 
+---
+
 ### Complete System Demonstration (4 minutes)
 
-<div style="position: relative; padding-bottom: 56.25%; height: 0;"><iframe src="https://www.loom.com/share/6ad68038b7464a25b51a7230209e10d9?sid=eb540daa-a648-4e72-9368-587533a7c277" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe></div>
+<video src="video/system-demo.mp4" controls muted style="max-width: 100%;"></video>  
+
+[🔗 Watch on Loom](https://www.loom.com/share/6ad68038b7464a25b51a7230209e10d9)
 
 *Technical implementation and architecture overview*
 
