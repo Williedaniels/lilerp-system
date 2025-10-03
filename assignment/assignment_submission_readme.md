@@ -17,6 +17,12 @@
 
 *Note: This is a local development package. For actual deployment, the code should be pushed to a GitHub repository.*
 
+## Figma UI
+
+**Figma URL** `https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=r9zedkD2in6Tm2vM-1`
+
+*Note: Anyone with the link is a viewer.*
+
 ## Environment Setup and Project Installation
 
 ### Prerequisites
@@ -347,21 +353,47 @@ To create comprehensive Figma mockups for LILERP:
 #### Contact Page
 
 ![Contact Page Screenshot](./assets/Contact-Page.png)
-*Partnership inquiry form for NGOs and government
+*Partnership inquiry form for NGOs and government*
 
 ### Mobile Application
 
-- **Emergency Reporting**: Simple form with voice recording capability
-- **Location Services**: GPS integration for precise incident mapping
-- **Report Tracking**: Status updates and communication with responders
-- **Direct Calling**: One-touch calling to emergency services and chiefs
+#### Home Screen
+
+![Home Screen Screenshot](./assets/Home-Screen.png)
+
+*Main dashboard showing emergency hotline number, quick report button, and recent activity feed for easy access to critical functions*
+
+#### Report Screen
+
+![Report Screen Screenshot](./assets/Report-Screen.png)
+
+*Emergency reporting interface with voice recording capability, location detection, and incident type selection for land disputes*
+
+#### My Report Screen
+
+![My Report Screen Screenshot](./assets/My-Report-Screen.png)
+
+*User's personal report history showing submission status, tracking IDs, and resolution progress for transparency and follow-up*
+
+#### Profile Screen
+
+![Profile Screen Screenshot](./assets/Profile-Screen.png)
+
+*User profile management with contact information, preferred language settings, and emergency contact configuration for personalized service*
 
 ### IVR System Flow
 
-- **Welcome Screen**: Visual representation of voice prompts
-- **Menu Navigation**: Clear options for different emergency types
-- **Recording Interface**: Voice capture with visual feedback
-- **Confirmation**: Incident ID and next steps
+#### Menu Nagivation
+
+![IVR Dialer Screenshot](./assets/IVR-Dialer.png)
+
+*Clear options for different emergency types*
+
+#### Recording Interface
+
+![IVR Recording Interface Screenshot](./assets/IVR-Recorder.png)
+
+*Voice capture with visual feedback*
 
 ## Code Files Structure
 
