@@ -1,15 +1,15 @@
-# LILERP Video Demo Script (Updated)
+# LILERP Video Demo Script
 
-## 🎬 Demo Overview
+## Demo Overview
 
 **Duration:** 7-8 minutes  
 **Focus:** Functionality demonstration with minimal introduction  
 **Target:** Technical evaluation of full-stack implementation  
-**Note:** No admin dashboard - website is project-focused
+**Note:** website is project-focused
 
 ---
 
-## 📝 Detailed Script
+## Detailed Script
 
 ### Opening (30 seconds)
 
@@ -257,7 +257,7 @@ curl -X POST http://localhost:3001/api/ivr/incoming-call \
 
 ---
 
-## 🎥 Recording Guidelines
+## Recording Guidelines
 
 ### What to Actually Show
 
