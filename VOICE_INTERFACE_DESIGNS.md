@@ -24,7 +24,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### 1. IVR Flow Diagram
 
-![IVR Flow Diagram](designs/ivr-flow-diagram.png)
+![IVR Flow Diagram](./assignment/assets/IVR-Flow-Diagram.png)
 
 **Purpose**: Complete system flow showing all user paths and decision points
 
@@ -45,7 +45,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### 2. Voice Menu Level 1 - Welcome Screen
 
-![Voice Menu Level 1](designs/voice-menu-level1.png)
+![Voice Menu Level 1](./assignment/assets/voice-menu-level1.png)
 
 **Purpose**: Initial user interaction with clear, simple options
 
@@ -69,7 +69,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### 3. Voice Menu Level 2 - Incident Type Selection
 
-![Voice Menu Level 2](designs/voice-menu-level2.png)
+![Voice Menu Level 2](./assignment/assets/IVR-Dialer.png)
 
 **Purpose**: Categorize the type of land dispute for appropriate response
 
@@ -93,7 +93,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### 4. Voice Recording Interface
 
-![Voice Recording Interface](designs/voice-recording-interface.png)
+![Voice Recording Interface](./assignment/assets/IVR-Recorder.png)
 
 **Purpose**: Capture detailed emergency information through voice recording
 
@@ -117,7 +117,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### 5. IVR System Architecture
 
-![IVR System Architecture](designs/ivr-system-architecture.png)
+![IVR System Architecture](./assignment/assets/chapter3_system_architecture.png)
 
 **Purpose**: Technical overview of system components and data flow
 
@@ -141,7 +141,7 @@ This document presents the complete voice interface design for LILERP's Interact
 
 ### Voice Menu Structure
 
-```
+```txt
 Level 1: Welcome
 ├── Press 1: Report Land Dispute Emergency
 │   ├── Level 2: Incident Type Selection
