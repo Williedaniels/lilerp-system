@@ -1,10 +1,10 @@
 # LILERP Demo Guide
 
-## 🎬 System Demonstration
+## System Demonstration
 
 This guide provides step-by-step instructions for demonstrating the LILERP system to stakeholders, judges, or potential users.
 
-## 🎯 Demo Objectives
+## Demo Objectives
 
 1. **Show accessibility** for illiterate users through voice interface
 2. **Demonstrate integration** between traditional and modern systems
@@ -12,7 +12,7 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 4. **Prove technical feasibility** with working prototypes
 5. **Illustrate impact potential** for rural Liberian communities
 
-## 📱 Demo Scenarios
+## Demo Scenarios
 
 ### Scenario 1: Illiterate Farmer Emergency Call
 
@@ -20,7 +20,8 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 **Situation:** Neighbor is claiming her family's ancestral land  
 **Challenge:** Cannot read/write, only speaks Mano and basic English  
 
-#### Demo Script:
+#### Demo Script
+
 ```
 1. "Mama Fatu picks up her basic phone and dials +231-123-HELP"
 2. [Play IVR audio] "Welcome to LILERP Emergency Response..."
@@ -33,6 +34,7 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 ```
 
 **Key Points:**
+
 - No smartphone required
 - Voice-only interaction
 - Automatic GPS location (if available)
@@ -44,7 +46,8 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 **Situation:** Witnessing violent land dispute escalation  
 **Advantage:** Can use mobile app for detailed reporting  
 
-#### Demo Steps:
+#### Demo Steps
+
 1. **Open mobile app** on smartphone/browser
 2. **Navigate to "Report Emergency"**
 3. **Select "Violence/Threats" with High urgency**
@@ -55,6 +58,7 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 8. **Show real-time updates** as responders coordinate
 
 **Key Features Demonstrated:**
+
 - Modern mobile interface
 - Voice recording for detailed descriptions
 - GPS integration for precise location
@@ -67,7 +71,8 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 **Situation:** Receiving and coordinating emergency response  
 **Tools:** SMS notifications, web dashboard (optional)  
 
-#### Demo Flow:
+#### Demo Flow
+
 1. **Receive SMS alert** about new incident
 2. **Call reporter** using provided phone number
 3. **Coordinate with other responders** (police, NGO)
@@ -76,14 +81,16 @@ This guide provides step-by-step instructions for demonstrating the LILERP syste
 6. **Follow up** until resolution
 
 **Integration Points:**
+
 - Respects traditional governance structures
 - Provides modern communication tools
 - Maintains cultural protocols
 - Enables coordination with formal authorities
 
-## 🖥️ Technical Demo Setup
+## Technical Demo Setup
 
 ### Prerequisites
+
 ```bash
 # 1. Start backend server
 cd backend
@@ -102,12 +109,14 @@ npm run seed-demo-data
 ```
 
 ### Demo Environment
-- **Backend:** http://localhost:3001
-- **Website:** http://localhost:5173
-- **Mobile App:** http://localhost:5174 (different port)
+
+- **Backend:** <http://localhost:3001>
+- **Website:** <http://localhost:5173>
+- **Mobile App:** <http://localhost:5174> (different port)
 - **Test Phone:** Use Twilio test credentials
 
 ### Demo Data
+
 ```json
 {
   "incidents": [
@@ -139,29 +148,35 @@ npm run seed-demo-data
 }
 ```
 
-## 🎤 Presentation Script
+## Presentation Script
 
 ### Opening (2 minutes)
+>
 > "Good morning. I'm Willie Daniels, and I'm excited to present LILERP - the Liberia Integrated Land Registry and Emergency Response Platform. This system addresses a critical gap in rural Liberia: emergency response for land disputes."
 
 ### Problem Statement (3 minutes)
+>
 > "In rural Liberia, land disputes are a major source of conflict. The 2003-2018 civil war was partly fueled by land issues. Today, 64% of rural Liberians lack access to emergency services. Existing solutions like My Watchman cost $20-50 per month - unaffordable for rural communities earning $1-2 per day."
 
 ### Solution Overview (5 minutes)
+>
 > "LILERP provides a voice-first emergency response system specifically designed for illiterate users. It integrates traditional governance structures with modern technology, respecting cultural protocols while providing 24/7 emergency access."
 
 ### Live Demo (10 minutes)
+
 1. **IVR Call Simulation** (3 minutes)
 2. **Mobile App Walkthrough** (4 minutes)
 3. **Backend Dashboard** (3 minutes)
 
 ### Impact & Future (3 minutes)
+>
 > "LILERP can reduce emergency response time from hours to minutes, extend coverage to rural areas, and prevent land disputes from escalating to violence. Future phases include blockchain integration, AI-powered analytics, and nationwide deployment."
 
 ### Q&A (7 minutes)
+
 Common questions and prepared answers below.
 
-## ❓ Frequently Asked Questions
+## Frequently Asked Questions
 
 ### Technical Questions
 
@@ -193,9 +208,10 @@ A: We're exploring partnerships with the Liberia Land Authority, international N
 **Q: What about scalability?**
 A: The system is designed for cloud deployment and can scale to handle thousands of concurrent users. The architecture supports nationwide expansion with minimal additional infrastructure.
 
-## 📊 Demo Metrics & KPIs
+## Demo Metrics & KPIs
 
 ### Success Metrics to Highlight
+
 - **Response Time:** <2 minutes vs. current hours/days
 - **Coverage:** 24/7 availability vs. business hours only
 - **Accessibility:** Works on basic phones vs. smartphone-only
@@ -203,32 +219,37 @@ A: The system is designed for cloud deployment and can scale to handle thousands
 - **Cultural Fit:** Integrates traditional governance vs. bypasses it
 
 ### Technical Performance
+
 - **System Uptime:** 99.9% availability target
 - **Call Success Rate:** >95% for IVR interactions
 - **Mobile App Performance:** <3 second load times
 - **Database Response:** <100ms for API calls
 - **Notification Delivery:** <30 seconds for SMS alerts
 
-## 🎥 Video Demo Script
+## Video Demo Script
 
 ### 30-Second Elevator Pitch
+>
 > "LILERP is a voice-based emergency response system for land disputes in rural Liberia. Illiterate farmers can call a simple hotline, report emergencies in their local language, and receive immediate help from traditional chiefs and formal authorities. It's accessible, affordable, and culturally appropriate."
 
 ### 2-Minute Technical Demo
+
 1. **Show IVR call flow** (30 seconds)
 2. **Demonstrate mobile app** (45 seconds)
 3. **Highlight integration features** (30 seconds)
 4. **Present impact statistics** (15 seconds)
 
 ### 5-Minute Comprehensive Demo
+
 1. **Problem context** (60 seconds)
 2. **Solution overview** (90 seconds)
 3. **Live system demonstration** (120 seconds)
 4. **Impact and future plans** (30 seconds)
 
-## 📋 Demo Checklist
+## Demo Checklist
 
 ### Before the Demo
+
 - [ ] Test all systems and connections
 - [ ] Prepare demo data and scenarios
 - [ ] Charge devices and test audio
@@ -237,6 +258,7 @@ A: The system is designed for cloud deployment and can scale to handle thousands
 - [ ] Prepare for common questions
 
 ### During the Demo
+
 - [ ] Speak clearly and at appropriate pace
 - [ ] Engage audience with questions
 - [ ] Handle technical issues gracefully
@@ -245,6 +267,7 @@ A: The system is designed for cloud deployment and can scale to handle thousands
 - [ ] Collect feedback and contact information
 
 ### After the Demo
+
 - [ ] Follow up with interested stakeholders
 - [ ] Document feedback and suggestions
 - [ ] Update system based on input
@@ -252,27 +275,31 @@ A: The system is designed for cloud deployment and can scale to handle thousands
 - [ ] Schedule follow-up meetings
 - [ ] Thank participants for their time
 
-## 🤝 Stakeholder-Specific Demos
+## Stakeholder-Specific Demos
 
 ### For Government Officials
+
 - Emphasize policy compliance and legal framework
 - Show integration with existing systems
 - Highlight cost-effectiveness and scalability
 - Demonstrate data analytics and reporting
 
 ### For NGO Partners
+
 - Focus on community impact and accessibility
 - Show cultural sensitivity and local ownership
 - Emphasize partnership opportunities
 - Demonstrate monitoring and evaluation features
 
 ### For Traditional Authorities
+
 - Respect cultural protocols and hierarchy
 - Show how technology enhances their role
 - Emphasize simplicity and ease of use
 - Demonstrate immediate practical benefits
 
 ### For Technical Audiences
+
 - Deep dive into architecture and APIs
 - Show code quality and documentation
 - Demonstrate security and performance

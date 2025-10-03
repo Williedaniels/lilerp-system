@@ -1,10 +1,11 @@
 # LILERP Deployment Guide
 
-## 🚀 Production Deployment Options
+## Production Deployment Options
 
 ### Option 1: Cloud Deployment (Recommended)
 
 #### Backend Deployment (Heroku/Railway)
+
 ```bash
 # 1. Prepare backend for production
 cd backend
@@ -22,6 +23,7 @@ git push heroku main
 ```
 
 #### Frontend Deployment (Vercel/Netlify)
+
 ```bash
 # 1. Build website
 cd frontend/lilerp-website
@@ -39,6 +41,7 @@ vercel --prod
 ### Option 2: VPS Deployment
 
 #### Server Requirements
+
 - **OS:** Ubuntu 20.04+ or CentOS 8+
 - **RAM:** 2GB minimum, 4GB recommended
 - **Storage:** 20GB SSD
@@ -46,6 +49,7 @@ vercel --prod
 - **Network:** 100Mbps connection
 
 #### Installation Steps
+
 ```bash
 # 1. Update system
 sudo apt update && sudo apt upgrade -y
@@ -72,6 +76,7 @@ sudo nano /etc/nginx/sites-available/lilerp
 ```
 
 #### Nginx Configuration
+
 ```nginx
 server {
     listen 80;
@@ -101,9 +106,10 @@ server {
 }
 ```
 
-## 🔧 Environment Configuration
+## Environment Configuration
 
 ### Backend Environment Variables
+
 ```bash
 # Database
 DATABASE_URL=sqlite:./database/lilerp.db
@@ -131,6 +137,7 @@ CORS_ORIGIN=https://your-frontend-domain.com
 ```
 
 ### Frontend Environment Variables
+
 ```bash
 # API Configuration
 VITE_API_BASE_URL=https://your-backend-domain.com/api
@@ -140,14 +147,16 @@ VITE_TWILIO_PHONE=+1234567890
 VITE_GA_TRACKING_ID=GA_MEASUREMENT_ID
 ```
 
-## 📱 Twilio IVR Setup
+## Twilio IVR Setup
 
 ### 1. Create Twilio Account
-- Sign up at https://www.twilio.com
+
+- Sign up at <https://www.twilio.com>
 - Get Account SID and Auth Token
 - Purchase a phone number
 
 ### 2. Configure Webhook
+
 ```bash
 # Set webhook URL in Twilio Console
 Webhook URL: https://your-backend-domain.com/api/ivr/voice
@@ -155,6 +164,7 @@ HTTP Method: POST
 ```
 
 ### 3. TwiML Application
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <Response>
@@ -165,15 +175,17 @@ HTTP Method: POST
 </Response>
 ```
 
-## 🗄️ Database Setup
+## Database Setup
 
 ### SQLite (Development)
+
 ```bash
 # Automatic setup - no additional configuration needed
 npm run db:sync
 ```
 
 ### PostgreSQL (Production)
+
 ```bash
 # 1. Install PostgreSQL
 sudo apt install postgresql postgresql-contrib
@@ -188,9 +200,10 @@ GRANT ALL PRIVILEGES ON DATABASE lilerp TO lilerp_user;
 DATABASE_URL=postgresql://lilerp_user:secure_password@localhost:5432/lilerp
 ```
 
-## 🔒 Security Checklist
+## Security Checklist
 
 ### SSL/TLS Configuration
+
 ```bash
 # Install Certbot for Let's Encrypt
 sudo apt install certbot python3-certbot-nginx
@@ -204,6 +217,7 @@ sudo crontab -e
 ```
 
 ### Firewall Setup
+
 ```bash
 # Configure UFW
 sudo ufw allow ssh
@@ -212,6 +226,7 @@ sudo ufw enable
 ```
 
 ### Security Headers
+
 ```nginx
 # Add to nginx configuration
 add_header X-Frame-Options "SAMEORIGIN" always;
@@ -221,9 +236,10 @@ add_header Referrer-Policy "no-referrer-when-downgrade" always;
 add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
 ```
 
-## 📊 Monitoring & Logging
+## Monitoring & Logging
 
 ### PM2 Monitoring
+
 ```bash
 # Monitor processes
 pm2 monit
@@ -236,6 +252,7 @@ pm2 restart lilerp-backend
 ```
 
 ### Log Rotation
+
 ```bash
 # Install logrotate configuration
 sudo nano /etc/logrotate.d/lilerp
@@ -254,9 +271,10 @@ sudo nano /etc/logrotate.d/lilerp
 }
 ```
 
-## 🔄 Backup Strategy
+## Backup Strategy
 
 ### Database Backup
+
 ```bash
 # SQLite backup
 cp database/lilerp.db backups/lilerp-$(date +%Y%m%d).db
@@ -266,6 +284,7 @@ pg_dump lilerp > backups/lilerp-$(date +%Y%m%d).sql
 ```
 
 ### Automated Backup Script
+
 ```bash
 #!/bin/bash
 # backup.sh
@@ -289,11 +308,12 @@ find $BACKUP_DIR -name "*.tar.gz" -mtime +30 -delete
 # Add to crontab: 0 2 * * * /path/to/backup.sh
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
 #### Backend Won't Start
+
 ```bash
 # Check logs
 pm2 logs lilerp-backend
@@ -305,6 +325,7 @@ pm2 restart lilerp-backend
 ```
 
 #### Database Connection Issues
+
 ```bash
 # Check database status
 sudo systemctl status postgresql
@@ -314,6 +335,7 @@ npm run db:reset
 ```
 
 #### Twilio Webhook Issues
+
 ```bash
 # Test webhook locally with ngrok
 npm install -g ngrok
@@ -325,6 +347,7 @@ ngrok http 3001
 ### Performance Optimization
 
 #### Database Optimization
+
 ```sql
 -- Add indexes for better performance
 CREATE INDEX idx_incidents_created_at ON incidents(created_at);
@@ -333,6 +356,7 @@ CREATE INDEX idx_responses_incident_id ON responses(incident_id);
 ```
 
 #### Nginx Caching
+
 ```nginx
 # Add to nginx configuration
 location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
@@ -344,6 +368,7 @@ location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
 ## 📞 Support
 
 For deployment support:
+
 - **Technical Issues:** Check logs and error messages
 - **Twilio Setup:** Refer to Twilio documentation
 - **Server Configuration:** Consult hosting provider documentation

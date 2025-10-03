@@ -7,7 +7,7 @@ Development: http://localhost:3001/api
 Production: https://your-domain.com/api
 ```
 
-## 🔐 Authentication
+## Authentication
 
 Most endpoints require authentication using JWT tokens.
 
@@ -51,7 +51,7 @@ Content-Type: application/json
 }
 ```
 
-## 📞 IVR Endpoints
+## IVR Endpoints
 
 ### Voice Webhook
 
@@ -99,7 +99,7 @@ RecordingUrl=https://api.twilio.com/recordings/RE123456789
 RecordingDuration=45
 ```
 
-## 🚨 Incident Management
+## Incident Management
 
 ### Create Incident
 
@@ -238,7 +238,7 @@ Content-Type: application/json
 }
 ```
 
-## 👥 Responder Management
+## Responder Management
 
 ### Get Responders
 
@@ -299,7 +299,7 @@ Content-Type: application/json
 }
 ```
 
-## 💬 Response Management
+## Response Management
 
 ### Add Response
 
@@ -339,7 +339,7 @@ GET /incidents/123/responses
 Authorization: Bearer <token>
 ```
 
-## 📊 Analytics & Reports
+## Analytics & Reports
 
 ### Dashboard Statistics
 
@@ -386,7 +386,7 @@ GET /analytics/monthly?year=2025&month=9
 Authorization: Bearer <token>
 ```
 
-## 🔔 Notification System
+## Notification System
 
 ### Send Notification
 
@@ -411,7 +411,7 @@ GET /notifications?page=1&limit=20
 Authorization: Bearer <token>
 ```
 
-## 📍 Location Services
+## Location Services
 
 ### Geocode Address
 
@@ -451,7 +451,7 @@ Content-Type: application/json
 }
 ```
 
-## 🔍 Search & Filtering
+## Search & Filtering
 
 ### Search Incidents
 
@@ -496,7 +496,7 @@ Content-Type: application/json
 }
 ```
 
-## ❌ Error Responses
+## Error Responses
 
 ### Standard Error Format
 
@@ -523,7 +523,7 @@ Content-Type: application/json
 - `RATE_LIMITED` - Too many requests
 - `SERVER_ERROR` - Internal server error
 
-## 🔄 Rate Limiting
+## Rate Limiting
 
 All endpoints are rate limited:
 
@@ -540,7 +540,7 @@ X-RateLimit-Remaining: 45
 X-RateLimit-Reset: 1632150000
 ```
 
-## 📝 Webhooks
+## Webhooks
 
 ### Incident Status Change
 
@@ -588,7 +588,7 @@ Content-Type: application/json
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ### Test with cURL
 
