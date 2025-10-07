@@ -118,3 +118,244 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom responsive styles */
+@layer utilities {
+  /* Ensure full height on all screen sizes */
+  .min-h-screen {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+  
+  /* Responsive container adjustments */
+  .responsive-container {
+    @apply w-full;
+  }
+  
+  /* Mobile-first responsive padding */
+  .responsive-padding {
+    @apply p-4;
+  }
+  
+  @screen lg {
+    .responsive-padding {
+      @apply p-8;
+    }
+  }
+  
+  /* Smooth transitions for responsive elements */
+  .responsive-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Desktop sidebar styles */
+  .desktop-sidebar {
+    @apply hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:shadow-lg lg:z-30;
+  }
+  
+  /* Main content area adjustments */
+  .main-content {
+    @apply w-full;
+  }
+  
+  @screen lg {
+    .main-content {
+      @apply ml-64;
+    }
+  }
+  
+  /* Mobile bottom navigation */
+  .mobile-bottom-nav {
+    @apply lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg z-40;
+  }
+  
+  /* Responsive grid adjustments */
+  .responsive-grid {
+    @apply grid grid-cols-1 gap-4;
+  }
+  
+  @screen md {
+    .responsive-grid {
+      @apply grid-cols-2 gap-6;
+    }
+  }
+  
+  @screen lg {
+    .responsive-grid {
+      @apply gap-8;
+    }
+  }
+  
+  @screen xl {
+    .responsive-grid {
+      @apply grid-cols-3;
+    }
+  }
+  
+  /* Card hover effects */
+  .card-hover {
+    @apply hover:shadow-lg hover:scale-[1.02] transition-all duration-200;
+  }
+  
+  /* Button responsive sizing */
+  .btn-responsive {
+    @apply py-3 px-4 text-sm;
+  }
+  
+  @screen lg {
+    .btn-responsive {
+      @apply py-4 px-6 text-base;
+    }
+  }
+  
+  /* Text responsive sizing */
+  .text-responsive-sm {
+    @apply text-xs;
+  }
+  
+  @screen lg {
+    .text-responsive-sm {
+      @apply text-sm;
+    }
+  }
+  
+  .text-responsive-base {
+    @apply text-sm;
+  }
+  
+  @screen lg {
+    .text-responsive-base {
+      @apply text-base;
+    }
+  }
+  
+  .text-responsive-lg {
+    @apply text-base;
+  }
+  
+  @screen lg {
+    .text-responsive-lg {
+      @apply text-lg;
+    }
+  }
+  
+  .text-responsive-xl {
+    @apply text-lg;
+  }
+  
+  @screen lg {
+    .text-responsive-xl {
+      @apply text-xl;
+    }
+  }
+  
+  .text-responsive-2xl {
+    @apply text-xl;
+  }
+  
+  @screen lg {
+    .text-responsive-2xl {
+      @apply text-2xl;
+    }
+  }
+  
+  /* Mobile menu styles */
+  .mobile-menu {
+    @apply lg:hidden;
+  }
+  
+  /* Desktop-only elements */
+  .desktop-only {
+    @apply hidden lg:block;
+  }
+  
+  /* Mobile-only elements */
+  .mobile-only {
+    @apply lg:hidden;
+  }
+  
+  /* Responsive spacing */
+  .space-responsive {
+    @apply space-y-4;
+  }
+  
+  @screen lg {
+    .space-responsive {
+      @apply space-y-6;
+    }
+  }
+  
+  /* Responsive max width containers */
+  .container-responsive {
+    @apply max-w-full mx-auto px-4;
+  }
+  
+  @screen sm {
+    .container-responsive {
+      @apply max-w-2xl;
+    }
+  }
+  
+  @screen md {
+    .container-responsive {
+      @apply max-w-4xl px-6;
+    }
+  }
+  
+  @screen lg {
+    .container-responsive {
+      @apply max-w-6xl px-8;
+    }
+  }
+  
+  @screen xl {
+    .container-responsive {
+      @apply max-w-7xl;
+    }
+  }
+}
+
+/* Ensure proper scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile viewport adjustments */
+@supports (height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+}
+
+/* Responsive image handling */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .mobile-bottom-nav,
+  .desktop-sidebar,
+  .mobile-menu {
+    display: none !important;
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
