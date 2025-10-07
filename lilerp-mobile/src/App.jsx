@@ -173,7 +173,7 @@ function App() {
 
   // Mobile Header Component
   const MobileHeader = ({ title, subtitle, bgColor = 'bg-green-600' }) => (
-    <div className={`lg:hidden ${bgColor} text-white p-4 rounded-b-lg shadow-lg`}>
+    <div className={`lg:hidden ${bgColor} text-white pt-safe-top pt-4 p-4 rounded-b-lg shadow-lg`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <button 
@@ -277,9 +277,9 @@ function App() {
 
   // Main Content Wrapper
   const ContentWrapper = ({ children }) => (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pt-safe-top lg:pt-0">
       <DesktopNavigation />
-      <div className="lg:ml-64">
+      <div className="lg:ml-64 pb-16 lg:pb-0"> {/* Added pb-16 for mobile bottom nav padding */}
         {children}
       </div>
       <MobileBottomNav />

@@ -313,6 +313,22 @@
       @apply max-w-7xl;
     }
   }
+  
+  /* Safe area support for iOS devices */
+  .pt-safe-top {
+    padding-top: env(safe-area-inset-top, 1rem);
+  }
+
+  /* Alternative approach with more specific mobile spacing */
+  @media (max-width: 1023px) {
+    .mobile-safe-header {
+      padding-top: max(env(safe-area-inset-top), 1rem);
+    }
+    
+    .mobile-safe-content {
+      padding-top: max(env(safe-area-inset-top), 0.5rem);
+    }
+  }
 }
 
 /* Ensure proper scrolling behavior */
