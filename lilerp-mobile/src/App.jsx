@@ -277,9 +277,9 @@ function App() {
 
   // Main Content Wrapper
   const ContentWrapper = ({ children }) => (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pt-safe-top lg:pt-0">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <DesktopNavigation />
-      <div className="lg:ml-64 pb-16 lg:pb-0"> {/* Added pb-16 for mobile bottom nav padding */}
+      <div className="lg:ml-64 pb-16 lg:pb-0 pt-safe-top lg:pt-0">
         {children}
       </div>
       <MobileBottomNav />
