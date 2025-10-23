@@ -1247,23 +1247,43 @@ app.post('/api/ivr/handle-transcription', async (req, res) => {
   }
 });
 
-// Initiate outbound call to user
+// Update the initiate-call endpoint (around line 1252)
+
 app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
   try {
     const { phoneNumber } = req.body;
+    
+    console.log('📞 Received call request for:', phoneNumber);
     
     if (!phoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
     }
 
-    // Validate phone number format (must include country code)
-    const cleanPhone = phoneNumber.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-      return res.status(400).json({ error: 'Invalid phone number format' });
+    // Clean phone number but preserve the + if it exists
+    let formattedPhone = phoneNumber.trim();
+    
+    // If it already starts with +, use it as-is
+    if (formattedPhone.startsWith('+')) {
+      console.log('✅ Phone already formatted with country code:', formattedPhone);
+    } 
+    // If it starts with a digit, add + to the beginning
+    else {
+      const cleanPhone = formattedPhone.replace(/\D/g, '');
+      
+      // Check if it's a US number (10 digits) or international
+      if (cleanPhone.length === 10) {
+        formattedPhone = `+1${cleanPhone}`;  // US number
+      } else if (cleanPhone.length > 10) {
+        formattedPhone = `+${cleanPhone}`;    // International with country code
+      } else {
+        return res.status(400).json({ 
+          error: 'Invalid phone number format. Must include country code or be 10 digits.',
+          received: phoneNumber
+        });
+      }
     }
 
-    // Format phone number with country code if missing
-    const formattedPhone = cleanPhone.startsWith('1') ? `+${cleanPhone}` : `+1${cleanPhone}`;
+    console.log('📱 Formatted phone for Twilio:', formattedPhone);
 
     // Make call using Twilio
     const call = await twilioClient.calls.create({
@@ -1274,7 +1294,7 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
       statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed']
     });
 
-    console.log(`📞 Call initiated to ${formattedPhone}, SID: ${call.sid}`);
+    console.log(`✅ Call initiated to ${formattedPhone}, SID: ${call.sid}`);
 
     res.json({
       success: true,
@@ -1284,7 +1304,7 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Call initiation error:', error);
+    console.error('❌ Call initiation error:', error);
     res.status(500).json({ 
       error: 'Failed to initiate call',
       details: error.message 
