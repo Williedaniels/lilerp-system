@@ -23,7 +23,55 @@
 
 *Note: Anyone with the link is a viewer.*
 
-## Environment Setup and Project Installation
+## Quick Start Guide
+
+### 🚀 Get Started in 3 Steps
+
+#### Step 1: Install Fixes (1 minute)
+
+```bash
+cd lilerp-system
+chmod +x INSTALL_FIXES.sh
+./INSTALL_FIXES.sh
+```
+
+This will:
+
+- ✅ Backup your current files
+- ✅ Install all improvements
+- ✅ Install dependencies
+
+#### Step 2: Start Backend (Required)
+
+```bash
+cd backend
+npm install
+node server.js
+```
+
+Backend runs on: **<http://localhost:3001>**
+
+#### Step 3: Start Mobile App
+
+```bash
+cd lilerp-mobile
+npm install --legacy-peer-deps
+npm run dev
+```
+
+Mobile app runs on: **<http://localhost:5173>**
+
+#### Step 4: Start LILERP Website
+
+```bash
+cd frontend/lilerp-website
+npm install --legacy-peer-deps
+npm run dev
+```
+
+---
+
+## Or Setup the Environment and Project Installation the old-fashion way
 
 ### Prerequisites
 

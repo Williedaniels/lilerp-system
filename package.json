@@ -1,0 +1,12 @@
+{
+  "name": "lilerp-system",
+  "version": "2.0.0",
+  "description": "LILERP Backend API",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "cd backend && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
