@@ -24,7 +24,7 @@
 - Create your own account via registration
 - Or use: `admin@lilerp.org` / `admin123` (Responder access)
 
-**☎️ IVR Hotline**: `+1 (762) 248-5141`
+**IVR Hotline**: `+1 (762) 248-5141`
 
 ---
 
@@ -52,6 +52,35 @@ cd lilerp-mobile
 npm test
 ```
 
+### Backend Test Results
+
+![Backend Test Results](./assets/backend_test_results.png)
+
+**Test Coverage:**
+
+- ✅ User registration with validation
+- ✅ Login with valid credentials
+- ✅ Error handling for invalid credentials
+- ✅ Duplicate email prevention
+
+**Incidents Endpoints:**
+
+- ✅ Create new incident with authentication
+- ✅ Retrieve all incidents
+- ✅ Retrieve user-specific incidents
+- ✅ Get incident by ID
+- ✅ 404 handling for non-existent incidents
+- **All 7 tests passing (100%)**
+
+**Run tests locally:**
+
+```bash
+cd backend
+npm test
+```
+
+---
+
 ## GitHub Repository
 
 **Repository URL:** https://github.com/Williedaniels/lilerp-system
@@ -64,7 +93,7 @@ npm test
 
 ## Quick Start Guide
 
-### 🚀 Get Started in 3 Steps
+### Get Started in 3 Steps
 
 #### Step 1: Install Fixes (1 minute)
 
