@@ -420,7 +420,7 @@ function App() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -431,9 +431,9 @@ function App() {
       const data = await response.json()
       
       if (response.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('lilerp_token', data.token)
+        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+        localStorage.setItem('lilerp_user', JSON.stringify(data.user))
         setUser(data.user)
         setIsAuthenticated(true)
         setCurrentScreen('home')
@@ -464,7 +464,7 @@ function App() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${API_URL}/auth/register`, {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -481,9 +481,9 @@ function App() {
       const data = await response.json()
       
       if (response.ok) {
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('refreshToken', data.refreshToken)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('lilerp_token', data.token)
+        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+        localStorage.setItem('lilerp_user', JSON.stringify(data.user))
         setUser(data.user)
         setIsAuthenticated(true)
         setCurrentScreen('home')
@@ -500,9 +500,9 @@ function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
+    localStorage.removeItem('lilerp_token')
+    localStorage.removeItem('lilerp_refreshToken')
+    localStorage.removeItem('lilerp_user')
     localStorage.removeItem('reports')
     setUser(null)
     setIsAuthenticated(false)
