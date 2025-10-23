@@ -26,6 +26,32 @@
 
 **☎️ IVR Hotline**: `+1 (762) 248-5141`
 
+---
+
+## Testing
+
+### Frontend Tests (lilerp-mobile)
+
+**Test Framework:** Vitest + React Testing Library
+
+**Test Results:**
+
+![Frontend Test Results](./assets/lilerp-mobile_tests_results.png)
+
+**Test Coverage:**
+
+- ✅ App Component - Splash screen rendering
+- ✅ App Component - Proper app structure validation
+- ✅ App Component - LocalStorage initialization
+- **All 3 tests passing (100%)**
+
+**Run tests locally:**
+
+```bash
+cd lilerp-mobile
+npm test
+```
+
 ## GitHub Repository
 
 **Repository URL:** https://github.com/Williedaniels/lilerp-system
