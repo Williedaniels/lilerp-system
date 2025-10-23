@@ -1,0 +1,1082 @@
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button.jsx'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
+import { Input } from '@/components/ui/input.jsx'
+import { Textarea } from '@/components/ui/textarea.jsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
+import { API_URL } from '@/lib/config'
+import { 
+  Phone, 
+  Shield, 
+  Users, 
+  MapPin, 
+  Clock, 
+  AlertTriangle, 
+  CheckCircle, 
+  Navigation,
+  Menu,
+  X,
+  Eye,
+  EyeOff,
+  LogIn,
+  LogOut,
+  Loader,
+  Bell,
+  Activity,
+  BarChart3,
+  Map,
+  MessageSquare,
+  UserCheck,
+  Calendar,
+  TrendingUp,
+  Filter,
+  Search,
+  MoreVertical,
+  PhoneCall,
+  MessageCircle,
+  CheckSquare,
+  XCircle,
+  Play,
+  Pause,
+  ExternalLink,
+  Home,
+  User
+} from 'lucide-react'
+
+function ResponderDashboard() {
+  // Core state
+  const [currentScreen, setCurrentScreen] = useState('splash')
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [responder, setResponder] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  
+  // UI state
+  const [showPassword, setShowPassword] = useState(false)
+  const [selectedReport, setSelectedReport] = useState(null)
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  
+  // Forms
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: ''
+  })
+
+  // Reports data
+  const [emergencyReports, setEmergencyReports] = useState([])
+  const [stats, setStats] = useState({
+    totalReports: 0,
+    pendingReports: 0,
+    inProgressReports: 0,
+    resolvedToday: 0
+  })
+
+  // Splash screen and authentication check
+  useEffect(() => {
+    const initializeApp = async () => {
+      const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
+      
+      const token = localStorage.getItem('responderToken')
+      const savedResponder = localStorage.getItem('responder')
+      
+      if (token && savedResponder) {
+        try {
+          const response = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.user.isResponder) {
+              setResponder(data.user)
+              setIsAuthenticated(true)
+              
+              // Fetch reports
+              fetchReports(token)
+              
+              await minSplashTime
+              setCurrentScreen('dashboard')
+            } else {
+              localStorage.removeItem('responderToken')
+              localStorage.removeItem('responder')
+              await minSplashTime
+              setCurrentScreen('login')
+            }
+          } else {
+            localStorage.removeItem('responderToken')
+            localStorage.removeItem('responder')
+            await minSplashTime
+            setCurrentScreen('login')
+          }
+        } catch (error) {
+          console.error('Auth check failed:', error)
+          await minSplashTime
+          setCurrentScreen('login')
+        }
+      } else {
+        await minSplashTime
+        setCurrentScreen('login')
+      }
+      
+      setIsLoading(false)
+    }
+    
+    initializeApp()
+  }, [])
+
+  // Fetch reports from server
+  const fetchReports = async (token) => {
+    try {
+      const authToken = token || localStorage.getItem('responderToken')
+      const response = await fetch(`${API_URL}/incidents`, {
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const reports = data.incidents || data.reports || data || []
+        setEmergencyReports(reports)
+        
+        // Calculate stats
+        const pending = reports.filter(r => r.status === 'pending').length
+        const inProgress = reports.filter(r => r.status === 'in_progress').length
+        const today = new Date().toDateString()
+        const resolvedToday = reports.filter(r => {
+          return r.status === 'resolved' && 
+                 new Date(r.resolvedAt).toDateString() === today
+        }).length
+        
+        setStats({
+          totalReports: reports.length,
+          pendingReports: pending,
+          inProgressReports: inProgress,
+          resolvedToday
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error)
+    }
+  }
+
+  // Refresh token
+  const refreshToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('responderRefreshToken')
+      if (!refreshToken) {
+        handleLogout()
+        return
+      }
+
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        localStorage.setItem('responderToken', data.token)
+        localStorage.setItem('responderRefreshToken', data.refreshToken)
+        return data.token
+      } else {
+        handleLogout()
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error)
+      handleLogout()
+    }
+  }
+
+  // Authentication handlers
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    setIsLoading(true)
+    
+    try {
+      const response = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginForm)
+      })
+      
+      const data = await response.json()
+      
+      if (response.ok) {
+        if (data.user.isResponder) {
+          localStorage.setItem('responderToken', data.token)
+          localStorage.setItem('responderRefreshToken', data.refreshToken)
+          localStorage.setItem('responder', JSON.stringify(data.user))
+          setResponder(data.user)
+          setIsAuthenticated(true)
+          setCurrentScreen('dashboard')
+          
+          // Fetch reports
+          fetchReports(data.token)
+          
+          alert('Login successful!')
+        } else {
+          alert('This account is not authorized as a responder')
+        }
+      } else {
+        alert(data.message || 'Login failed')
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      alert('Login failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('responderToken')
+    localStorage.removeItem('responderRefreshToken')
+    localStorage.removeItem('responder')
+    setResponder(null)
+    setIsAuthenticated(false)
+    setCurrentScreen('login')
+    setEmergencyReports([])
+  }
+
+  // Report actions
+  const handleAssignReport = async (reportId) => {
+    try {
+      const token = localStorage.getItem('responderToken')
+      const response = await fetch(`${API_URL}/incidents/${reportId}/assign`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        alert('Report assigned successfully!')
+        fetchReports()
+      } else {
+        alert('Failed to assign report')
+      }
+    } catch (error) {
+      console.error('Error assigning report:', error)
+      alert('Failed to assign report')
+    }
+  }
+
+  const handleUpdateStatus = async (reportId, newStatus) => {
+    try {
+      const token = localStorage.getItem('responderToken')
+      const response = await fetch(`${API_URL}/incidents/${reportId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      })
+
+      if (response.ok) {
+        alert('Status updated successfully!')
+        fetchReports()
+        if (selectedReport && selectedReport.id === reportId) {
+          setSelectedReport({ ...selectedReport, status: newStatus })
+        }
+      } else {
+        alert('Failed to update status')
+      }
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Failed to update status')
+    }
+  }
+
+  const handleCallReporter = (phoneNumber) => {
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`
+    } else {
+      alert('Phone number not available')
+    }
+  }
+
+  const handleViewOnMap = (location) => {
+    if (location?.coordinates) {
+      const { lat, lng } = location.coordinates
+      window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
+    } else {
+      alert('Location coordinates not available')
+    }
+  }
+
+  // Format date
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+  }
+
+  // Filter reports
+  const filteredReports = emergencyReports.filter(report => {
+    const matchesStatus = filterStatus === 'all' || report.status === filterStatus
+    const matchesSearch = searchTerm === '' || 
+      report.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.location?.address?.toLowerCase().includes(searchTerm.toLowerCase())
+    
+    return matchesStatus && matchesSearch
+  })
+
+  // Splash Screen
+  if (currentScreen === 'splash') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mb-8">
+            <Shield className="w-24 h-24 text-white mx-auto mb-4 animate-pulse" />
+            <h1 className="text-4xl font-bold text-white mb-2">LILERP</h1>
+            <p className="text-blue-100 text-lg">Responder Dashboard</p>
+            <p className="text-blue-100">Emergency Response System</p>
+          </div>
+          <Loader className="w-8 h-8 text-white animate-spin mx-auto" />
+        </div>
+      </div>
+    )
+  }
+
+  // Login Screen
+  if (currentScreen === 'login') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+            <CardTitle className="text-2xl">Responder Login</CardTitle>
+            <CardDescription>Access the emergency response dashboard</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Email</label>
+                <Input
+                  type="email"
+                  placeholder="responder@lilerp.org"
+                  value={loginForm.email}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-2">Password</label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? (
+                  <><Loader className="w-4 h-4 mr-2 animate-spin" /> Logging in...</>
+                ) : (
+                  <><LogIn className="w-4 h-4 mr-2" /> Login</>
+                )}
+              </Button>
+              
+              <div className="text-center">
+                <a
+                  href="/"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  ← Back to main app
+                </a>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // Main Dashboard
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Shield className="w-8 h-8" />
+              <div>
+                <h1 className="text-xl font-bold">LILERP Responder</h1>
+                <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
+              </div>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
+              <button
+                onClick={() => setCurrentScreen('dashboard')}
+                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
+                  currentScreen === 'dashboard' ? 'text-white' : 'text-blue-200'
+                }`}
+              >
+                <BarChart3 className="w-5 h-5" />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={() => setCurrentScreen('reports')}
+                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
+                  currentScreen === 'reports' ? 'text-white' : 'text-blue-200'
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>Reports</span>
+                {stats.pendingReports > 0 && (
+                  <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+                )}
+              </button>
+              <button
+                onClick={() => setCurrentScreen('profile')}
+                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
+                  currentScreen === 'profile' ? 'text-white' : 'text-blue-200'
+                }`}
+              >
+                <User className="w-5 h-5" />
+                <span>Profile</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 text-blue-200 hover:text-white transition"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </nav>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+        {/* Dashboard Screen */}
+        {currentScreen === 'dashboard' && (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                Welcome, {responder?.name}!
+              </h2>
+              <p className="text-gray-600">
+                Emergency Response Dashboard
+              </p>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Total Reports</p>
+                      <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
+                    </div>
+                    <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Pending</p>
+                      <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
+                    </div>
+                    <Clock className="w-12 h-12 text-red-600 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">In Progress</p>
+                      <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
+                    </div>
+                    <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Resolved Today</p>
+                      <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
+                    </div>
+                    <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Quick Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={() => setCurrentScreen('reports')}
+                  className="h-20 text-lg"
+                >
+                  <AlertTriangle className="w-6 h-6 mr-2" />
+                  View All Reports
+                </Button>
+                <Button
+                  onClick={() => {
+                    setFilterStatus('pending')
+                    setCurrentScreen('reports')
+                  }}
+                  className="h-20 text-lg"
+                  variant="outline"
+                >
+                  <Clock className="w-6 h-6 mr-2" />
+                  Pending Reports
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Recent Reports */}
+            {emergencyReports.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Emergency Reports</CardTitle>
+                  <CardDescription>Latest reports requiring attention</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {emergencyReports.slice(0, 5).map(report => (
+                      <div
+                        key={report.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                        onClick={() => {
+                          setSelectedReport(report)
+                          setCurrentScreen('report-detail')
+                        }}
+                      >
+                        <div className="flex-1">
+                          <p className="font-medium">{report.type || report.title}</p>
+                          <p className="text-sm text-gray-600">
+                            {report.location?.address || report.location}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {formatDate(report.createdAt)}
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge
+                            variant={
+                              report.status === 'resolved' ? 'success' :
+                              report.status === 'in_progress' ? 'warning' :
+                              'default'
+                            }
+                          >
+                            {report.status}
+                          </Badge>
+                          <Badge variant="outline">
+                            {report.priority}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+
+        {/* Reports Screen */}
+        {currentScreen === 'reports' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Emergency Reports</h2>
+                <p className="text-gray-600">Manage and respond to emergencies</p>
+              </div>
+            </div>
+
+            {/* Filters */}
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        type="text"
+                        placeholder="Search reports..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-full md:w-48">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Reports List */}
+            {filteredReports.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No reports found</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {filteredReports.map(report => (
+                  <Card key={report.id} className="hover:shadow-lg transition cursor-pointer">
+                    <CardContent className="p-6" onClick={() => {
+                      setSelectedReport(report)
+                      setCurrentScreen('report-detail')
+                    }}>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <h3 className="font-bold text-lg">
+                              {report.type || report.title}
+                            </h3>
+                            <Badge
+                              variant={
+                                report.priority === 'critical' ? 'destructive' :
+                                report.priority === 'high' ? 'warning' :
+                                'default'
+                              }
+                            >
+                              {report.priority}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {report.description}
+                          </p>
+                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
+                            <span className="flex items-center">
+                              <MapPin className="w-4 h-4 mr-1.5" />
+                              {report.location?.address || report.location}
+                            </span>
+                            <span className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1.5" />
+                              {formatDate(report.createdAt)}
+                            </span>
+                            {report.reporter?.name && (
+                              <span className="flex items-center">
+                                <User className="w-4 h-4 mr-1.5" />
+                                {report.reporter.name}
+                              </span>
+                            )}
+                            {report.reporter?.phone && (
+                              <span className="flex items-center">
+                                <Phone className="w-4 h-4 mr-1.5" />
+                                {report.reporter.phone}
+                              </span>
+                            )}
+                            {report.reporter?.community && (
+                              <span className="flex items-center">
+                                <Users className="w-4 h-4 mr-1.5" />
+                                {report.reporter.community}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <Badge
+                          variant={
+                            report.status === 'resolved' ? 'success' :
+                            report.status === 'in_progress' ? 'warning' :
+                            'default'
+                          }
+                        >
+                          {report.status}
+                        </Badge>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 pt-4 border-t">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setSelectedReport(report)
+                            setCurrentScreen('report-detail')
+                          }}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          View Details
+                        </Button>
+                        {report.reporter?.phone && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleCallReporter(report.reporter.phone)
+                            }}
+                          >
+                            <PhoneCall className="w-4 h-4 mr-1" />
+                            Call Reporter
+                          </Button>
+                        )}
+                        {report.location?.coordinates && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleViewOnMap(report.location)
+                            }}
+                          >
+                            <Map className="w-4 h-4 mr-1" />
+                            View on Map
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Report Detail Screen */}
+        {currentScreen === 'report-detail' && selectedReport && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center space-x-4 mb-6">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentScreen('reports')}
+              >
+                ← Back to Reports
+              </Button>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <CardTitle className="text-2xl mb-2">
+                      {selectedReport.type || selectedReport.title}
+                    </CardTitle>
+                    <div className="flex flex-wrap gap-2">
+                      <Badge
+                        variant={
+                          selectedReport.status === 'resolved' ? 'success' :
+                          selectedReport.status === 'in_progress' ? 'warning' :
+                          'default'
+                        }
+                      >
+                        {selectedReport.status}
+                      </Badge>
+                      <Badge
+                        variant={
+                          selectedReport.priority === 'critical' ? 'destructive' :
+                          selectedReport.priority === 'high' ? 'warning' :
+                          'default'
+                        }
+                      >
+                        {selectedReport.priority} priority
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Reporter Information */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Reporter Information</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div>
+                      <p className="text-sm text-gray-600">Name</p>
+                      <p className="font-medium">{selectedReport.reporter?.name || 'Anonymous'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Phone</p>
+                      <div className="flex items-center space-x-2">
+                        <p className="font-medium">{selectedReport.reporter?.phone || 'N/A'}</p>
+                        {selectedReport.reporter?.phone && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleCallReporter(selectedReport.reporter.phone)}
+                          >
+                            <PhoneCall className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Community</p>
+                      <p className="font-medium">{selectedReport.reporter?.community || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Reported At</p>
+                      <p className="font-medium">{formatDate(selectedReport.createdAt)}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Description</h3>
+                  <p className="text-gray-700 p-4 bg-gray-50 rounded-lg">
+                    {selectedReport.description}
+                  </p>
+                </div>
+
+                {/* Location */}
+                <div>
+                  <h3 className="font-bold text-lg mb-3">Location</h3>
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="flex items-center text-gray-700 mb-2">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          {selectedReport.location?.address || selectedReport.location}
+                        </p>
+                        {selectedReport.location?.coordinates && (
+                          <p className="text-sm text-gray-600">
+                            Coordinates: {selectedReport.location.coordinates.lat.toFixed(4)}, {selectedReport.location.coordinates.lng.toFixed(4)}
+                          </p>
+                        )}
+                      </div>
+                      {selectedReport.location?.coordinates && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewOnMap(selectedReport.location)}
+                        >
+                          <Map className="w-4 h-4 mr-1" />
+                          View on Map
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Voice Recording */}
+                {selectedReport.voiceRecording && (
+                  <div>
+                    <h3 className="font-bold text-lg mb-3">Voice Recording</h3>
+                    <div className="p-4 bg-gray-50 rounded-lg">
+                      <audio 
+                        src={`${API_URL}${selectedReport.voiceRecording}`} 
+                        controls 
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Voice Transcription */}
+                {selectedReport.voiceTranscription && (
+                  <div>
+                    <h3 className="font-bold text-lg mb-3">Voice Transcription</h3>
+                    <p className="text-gray-700 p-4 bg-blue-50 rounded-lg">
+                      {selectedReport.voiceTranscription}
+                    </p>
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="pt-6 border-t">
+                  <h3 className="font-bold text-lg mb-3">Actions</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {selectedReport.status === 'pending' && (
+                      <>
+                        <Button
+                          onClick={() => handleUpdateStatus(selectedReport.id, 'in_progress')}
+                          className="w-full"
+                        >
+                          <Activity className="w-4 h-4 mr-2" />
+                          Start Working
+                        </Button>
+                        <Button
+                          onClick={() => handleAssignReport(selectedReport.id)}
+                          variant="outline"
+                          className="w-full"
+                        >
+                          <UserCheck className="w-4 h-4 mr-2" />
+                          Assign to Me
+                        </Button>
+                      </>
+                    )}
+                    {selectedReport.status === 'in_progress' && (
+                      <Button
+                        onClick={() => handleUpdateStatus(selectedReport.id, 'resolved')}
+                        className="w-full"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Mark as Resolved
+                      </Button>
+                    )}
+                    {selectedReport.reporter?.phone && (
+                      <Button
+                        onClick={() => handleCallReporter(selectedReport.reporter.phone)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <PhoneCall className="w-4 h-4 mr-2" />
+                        Call Reporter
+                      </Button>
+                    )}
+                    {selectedReport.location?.coordinates && (
+                      <Button
+                        onClick={() => handleViewOnMap(selectedReport.location)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        <Map className="w-4 h-4 mr-2" />
+                        Navigate
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Profile Screen */}
+        {currentScreen === 'profile' && (
+          <div className="max-w-2xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <User className="w-6 h-6" />
+                  <span>Responder Profile</span>
+                </CardTitle>
+                <CardDescription>Your account information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm text-gray-600">Name</label>
+                    <p className="font-medium">{responder?.name}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Email</label>
+                    <p className="font-medium">{responder?.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Phone</label>
+                    <p className="font-medium">{responder?.phone}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Community</label>
+                    <p className="font-medium">{responder?.community}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-gray-600">Role</label>
+                    <Badge>{responder?.role}</Badge>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => window.location.href = '/'}
+                  >
+                    <Home className="w-4 h-4 mr-2" />
+                    Go to Main App
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    className="w-full md:hidden"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
+        <div className="flex justify-around items-center h-16">
+          <button
+            onClick={() => setCurrentScreen('dashboard')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <BarChart3 className="w-6 h-6" />
+            <span className="text-xs mt-1">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setCurrentScreen('reports')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'reports' || currentScreen === 'report-detail' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <div className="relative">
+              <AlertTriangle className="w-6 h-6" />
+              {stats.pendingReports > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">{stats.pendingReports}</Badge>
+              )}
+            </div>
+            <span className="text-xs mt-1">Reports</span>
+          </button>
+          <button
+            onClick={() => setCurrentScreen('profile')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <User className="w-6 h-6" />
+            <span className="text-xs mt-1">Profile</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  )
+}
+
+export default ResponderDashboard

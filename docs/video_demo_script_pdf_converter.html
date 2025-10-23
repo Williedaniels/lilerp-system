@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LILERP Video Demo Script</title>
+    <style>
+        @page {
+            margin: 2cm;
+            size: A4;
+        }
+        
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .overview {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .overview-item {
+            margin: 8px 0;
+        }
+        
+        .overview-label {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        h2 {
+            color: #34495e;
+            font-size: 22px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+        }
+        
+        .screen-note {
+            background: #fff3cd;
+            padding: 10px 15px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        .dialogue {
+            margin: 15px 0;
+            line-height: 1.8;
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        
+        .highlight-box {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        .checklist {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .checklist-item {
+            margin: 8px 0;
+        }
+        
+        .checklist-item::before {
+            content: "☐ ";
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(to right, #2c3e50, transparent);
+            margin: 30px 0;
+        }
+        
+        .emphasis {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            background: #2c3e50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .print-button:hover {
+            background: #34495e;
+        }
+        
+        @media print {
+            .print-button {
+                display: none;
+            }
+            
+            body {
+                padding: 0;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">Print to PDF</button>
+    
+    <div class="header">
+        <h1>LILERP Video Demo Script</h1>
+    </div>
+    
+    <div class="overview">
+        <h2 style="margin-top: 0; border: none;">Demo Overview</h2>
+        <div class="overview-item"><span class="overview-label">Duration:</span> 7-8 minutes</div>
+        <div class="overview-item"><span class="overview-label">Focus:</span> Functionality demonstration with minimal introduction</div>
+        <div class="overview-item"><span class="overview-label">Target:</span> Technical evaluation of full-stack implementation</div>
+        <div class="overview-item"><span class="overview-label">Note:</span> website is project-focused</div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h2>Detailed Script</h2>
+    
+    <h3>Opening (30 seconds)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: System Architecture Diagram]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "This is LILERP - a voice-based emergency response system for rural Liberia. The system addresses land disputes through three integrated components: a Node.js backend with PostgreSQL database, a React project website, and a mobile Progressive Web App, all connected through Twilio's IVR system for voice-based emergency reporting."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Transition to live demo]</strong>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Backend API Demonstration (2 minutes)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Terminal/Postman]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Let me start by demonstrating the backend API functionality."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show server startup]</strong>
+    </div>
+    
+    <div class="code-block">
+cd backend && npm start
+    </div>
+    
+    <div class="dialogue">
+        "The server starts on port 3001 with PostgreSQL database connection."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Switch to Postman]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "First, I'll register a new user through our authentication system."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[POST /api/auth/register]</strong>
+    </div>
+    
+    <div class="code-block">
+{
+  "username": "demo_responder",
+  "password": "password123",
+  "role": "responder"
+}
+    </div>
+    
+    <div class="dialogue">
+        "The system returns a JWT token for authenticated requests."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show login endpoint]</strong>
+    </div>
+    
+    <div class="code-block">
+{
+  "username": "demo_responder",
+  "password": "password123"
+}
+    </div>
+    
+    <div class="dialogue">
+        "Now I'll create an incident report using the authenticated token."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[POST /api/incidents with Bearer token]</strong>
+    </div>
+    
+    <div class="code-block">
+{
+  "caller_number": "+231123456789",
+  "location": "Ganta Village, Nimba County",
+  "incident_type": "Land Boundary Dispute",
+  "description": "Neighbor dispute over ancestral land boundaries"
+}
+    </div>
+    
+    <div class="dialogue">
+        "The incident is created with a unique ID and stored in PostgreSQL with proper relationships."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[GET /api/incidents to show retrieval]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "I can retrieve all incidents with full details including reporter information and timestamps."
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <h3>Database Schema Demonstration (45 seconds)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Database client or terminal with psql]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The database schema includes three main tables with proper relationships."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show Users table]</strong>
+    </div>
+    
+    <div class="code-block">
+SELECT * FROM users LIMIT 3;
+    </div>
+    
+    <div class="dialogue">
+        "Users table stores authentication and role information."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show Incidents table]</strong>
+    </div>
+    
+    <div class="code-block">
+SELECT * FROM incidents LIMIT 3;
+    </div>
+    
+    <div class="dialogue">
+        "Incidents table contains emergency reports with foreign key to the reporter."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show Responses table]</strong>
+    </div>
+    
+    <div class="code-block">
+SELECT * FROM responses LIMIT 3;
+    </div>
+    
+    <div class="dialogue">
+        "Responses table tracks responder actions linked to specific incidents."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show a JOIN query]</strong>
+    </div>
+    
+    <div class="code-block">
+SELECT i.*, u.username FROM incidents i 
+JOIN users u ON i.reporter_id = u.id;
+    </div>
+    
+    <div class="dialogue">
+        "The relationships allow complex queries joining incident data with user information."
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Project Website Demonstration (1.5 minutes)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Browser at localhost:5173]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The React-based website serves as a project showcase and information portal."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Navigate through homepage]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The landing page explains LILERP's purpose - addressing emergency response gaps for land disputes in rural Liberia. This is designed as a project presentation and partnership outreach tool."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Scroll through features section]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The features section highlights our key innovations: voice-first design for illiterate users, multi-platform accessibility, and integration with traditional governance structures."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show statistics section]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "This section presents the research context - showing the scale of land disputes in Nimba County and why emergency response is needed."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Demonstrate contact form]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The contact form allows NGOs, government agencies, and potential partners to inquire about implementation or collaboration."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show mobile responsiveness]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The entire site is fully responsive, working seamlessly across desktop, tablet, and mobile devices."
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <h3>Mobile App Demonstration (1.5 minutes)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Browser at localhost:5174]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The mobile Progressive Web App provides emergency reporting capabilities for smartphone users."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show emergency reporting form]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Users can report land dispute emergencies through this intuitive form interface."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Demonstrate form fields]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The form captures essential information: location, incident type, and detailed description with clear validation and user feedback."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show voice recording simulation]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "In production, this integrates with device microphone for voice recordings - crucial for illiterate users who can't type descriptions."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show GPS location feature]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "GPS integration automatically captures precise coordinates, essential for rural areas where addresses may not exist."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Navigate to report tracking]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Users can track their submitted reports and receive status updates from responders and traditional chiefs."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show direct calling interface]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Emergency calling features provide immediate access to local chiefs and emergency services when situations escalate."
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>IVR System Integration (1.5 minutes)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Code editor showing IVR routes]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The core innovation is our IVR system - making emergency reporting accessible to illiterate users through voice calls."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show /api/ivr/incoming-call endpoint]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "When someone calls the emergency number, this endpoint generates TwiML responses with culturally appropriate voice prompts."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show voice menu structure in code]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The system uses a simple 3-level menu structure: Welcome message, incident type selection, and voice recording for details."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show recording handlers]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Each step captures voice recordings for location, incident type, and description - then processes them into structured incident reports."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show database integration]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Voice calls create the same incident records as web and mobile reports, ensuring all channels feed into the same response system."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Simulate call flow with Postman]</strong>
+    </div>
+    
+    <div class="code-block">
+curl -X POST http://localhost:3001/api/ivr/incoming-call \
+  -d "From=+231123456789&To=+231987654321"
+    </div>
+    
+    <div class="dialogue">
+        "This simulates an incoming call and returns the TwiML response that Twilio uses to guide the caller through the voice menu."
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <h3>System Integration Demonstration (45 seconds)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Split view showing multiple components]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "All components work together seamlessly. Whether someone reports through voice call, website form, or mobile app, everything feeds into the same PostgreSQL database."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show data consistency]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "An incident created through the API immediately appears accessible through all interfaces, ensuring responders get complete information regardless of how it was reported."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Demonstrate authentication flow]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The JWT authentication system provides secure access for responders and administrators across all platforms."
+    </div>
+    
+    <div class="screen-note">
+        <strong>[Show error handling]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "The system includes comprehensive error handling, input validation, and graceful degradation for poor connectivity scenarios common in rural areas."
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Technical Highlights (30 seconds)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Code overview/file structure]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "Key technical achievements demonstrated:"
+    </div>
+    
+    <div class="highlight-box">
+        <ul>
+            <li>"RESTful API design with proper HTTP status codes and error handling"</li>
+            <li>"JWT-based authentication with role-based access control"</li>
+            <li>"PostgreSQL database with normalized schema and foreign key relationships"</li>
+            <li>"Responsive React frontend with TailwindCSS for mobile-first design"</li>
+            <li>"Progressive Web App with offline capabilities for poor connectivity"</li>
+            <li>"Twilio integration enabling voice-based emergency reporting for illiterate users"</li>
+        </ul>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Closing (15 seconds)</h3>
+    
+    <div class="screen-note">
+        <strong>[Screen: Voice interface designs/system architecture]</strong>
+    </div>
+    
+    <div class="dialogue">
+        "LILERP demonstrates a complete full-stack solution addressing real-world challenges in rural emergency response. By prioritizing voice-based accessibility and cultural integration, the system bridges traditional governance with modern technology, providing emergency services for historically underserved communities."
+    </div>
+    
+    <div class="page-break"></div>
+    
+    <h2>Recording Guidelines</h2>
+    
+    <h3>What to Actually Show</h3>
+    
+    <div class="highlight-box">
+        <strong>Backend Demo:</strong>
+        <ul>
+            <li>Terminal with server startup</li>
+            <li>Postman collection with all API endpoints</li>
+            <li>Database queries showing relationships</li>
+            <li>Authentication flow with JWT tokens</li>
+        </ul>
+    </div>
+    
+    <div class="highlight-box">
+        <strong>Website Demo:</strong>
+        <ul>
+            <li>Project overview and research context</li>
+            <li>Features and innovation highlights</li>
+            <li>Statistics showing problem scope</li>
+            <li>Contact form for partnerships</li>
+            <li>Mobile responsiveness</li>
+        </ul>
+    </div>
+    
+    <div class="highlight-box">
+        <strong>Mobile App Demo:</strong>
+        <ul>
+            <li>Emergency reporting form</li>
+            <li>Voice recording interface (simulated)</li>
+            <li>GPS location picker</li>
+            <li>Report tracking dashboard</li>
+            <li>Direct calling features</li>
+        </ul>
+    </div>
+    
+    <div class="highlight-box">
+        <strong>IVR System Demo:</strong>
+        <ul>
+            <li>Code walkthrough of voice endpoints</li>
+            <li>TwiML response generation</li>
+            <li>Simulated call flow with curl/Postman</li>
+            <li>Database integration from voice calls</li>
+        </ul>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Technical Setup</h3>
+    
+    <ul>
+        <li><strong>Screen Resolution:</strong> 1920x1080 minimum</li>
+        <li><strong>Frame Rate:</strong> 30fps</li>
+        <li><strong>Audio Quality:</strong> Clear narration with noise cancellation</li>
+        <li><strong>Recording Software:</strong> OBS Studio or similar</li>
+    </ul>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Key Points to Emphasize</h3>
+    
+    <ol>
+        <li><span class="emphasis">Voice-first design</span> for accessibility</li>
+        <li><span class="emphasis">Full-stack integration</span> across all components</li>
+        <li><span class="emphasis">Real-world problem solving</span> for rural communities</li>
+        <li><span class="emphasis">Technical sophistication</span> with proper architecture</li>
+        <li><span class="emphasis">Cultural sensitivity</span> in design choices</li>
+    </ol>
+    
+    <div class="section-divider"></div>
+    
+    <h3>Demo Data Preparation</h3>
+    
+    <div class="checklist">
+        <div class="checklist-item">Clean database with realistic sample data</div>
+        <div class="checklist-item">Postman collection with all endpoints tested</div>
+        <div class="checklist-item">Test user accounts for different roles</div>
+        <div class="checklist-item">Ensure all services start without errors</div>
+        <div class="checklist-item">Prepare backup screenshots for technical issues</div>
+    </div>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 8px; font-style: italic;">
+        This updated script accurately reflects your actual system - a project-focused website rather than an admin dashboard, which is exactly appropriate for a capstone demonstration.
+    </div>
+</body>
+</html>
