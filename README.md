@@ -1,4 +1,4 @@
-# LILERP - Assignment Submission Package
+# LILERP - Liberia Integrated Land Registry & Emergency Response Platform
 
 ## Project Description
 
@@ -11,17 +11,30 @@
 - **Cultural integration** with traditional governance structures
 - **Emergency response** specifically for land disputes
 
+## Live Deployment
+
+**Production URLs:**
+
+- **Mobile Application**: https://lilerp-system.vercel.app
+- **Public Website**: https://lilerp-web.vercel.app
+- **Backend API**: https://lilerp-backend.onrender.com
+
+**Test Credentials:**
+
+- Create your own account via registration
+- Or use: `admin@lilerp.org` / `admin123` (Responder access)
+
+**☎️ IVR Hotline**: `+1 (762) 248-5141`
+
 ## GitHub Repository
 
-**Repository URL:** `https://github.com/Williedaniels/lilerp-system.git`
-
-*Note: This is a local development package. For actual deployment, the code should be pushed to a GitHub repository.*
+**Repository URL:** https://github.com/Williedaniels/lilerp-system
 
 ## Figma UI Design
 
-**Figma URL** `https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=r9zedkD2in6Tm2vM-1`
+**Figma URL:** https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvH/Untitled?node-id=0-1&t=r9zedkD2in6Tm2vM-1
 
-*Note: Anyone with the link is a viewer.*
+---
 
 ## Quick Start Guide
 
