@@ -1251,10 +1251,15 @@ app.post('/api/ivr/handle-transcription', async (req, res) => {
 
 app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
   try {
-    const { to } = req.body
+    const { to } = req.body;
+
+    if (!process.env.BACKEND_URL) {
+      console.error('FATAL: BACKEND_URL environment variable is not set. Cannot initiate IVR call.');
+      return res.status(500).json({ error: 'Server configuration error: Backend URL is not defined.' });
+    }
     
     const call = await twilioClient.calls.create({
-      url: `${process.env.BACKEND_URL || 'https://ef92f562f965.ngrok-free.app'}/api/ivr/incoming-call`,
+      url: `${process.env.BACKEND_URL}/api/ivr/incoming-call`,
       to: to,
       from: process.env.TWILIO_PHONE_NUMBER
     })
