@@ -1247,29 +1247,50 @@ app.post('/api/ivr/handle-transcription', async (req, res) => {
   }
 });
 
-// Add this endpoint after the other IVR endpoints
-
+// Initiate outbound call to user
 app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
   try {
-    const { to } = req.body;
-
-    if (!process.env.BACKEND_URL) {
-      console.error('FATAL: BACKEND_URL environment variable is not set. Cannot initiate IVR call.');
-      return res.status(500).json({ error: 'Server configuration error: Backend URL is not defined.' });
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
     }
-    
+
+    // Validate phone number format (must include country code)
+    const cleanPhone = phoneNumber.replace(/\D/g, '');
+    if (cleanPhone.length < 10) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+
+    // Format phone number with country code if missing
+    const formattedPhone = cleanPhone.startsWith('1') ? `+${cleanPhone}` : `+1${cleanPhone}`;
+
+    // Make call using Twilio
     const call = await twilioClient.calls.create({
-      url: `${process.env.BACKEND_URL}/api/ivr/incoming-call`,
-      to: to,
-      from: process.env.TWILIO_PHONE_NUMBER
-    })
-    
-    res.json({ success: true, callSid: call.sid })
+      url: `${process.env.BASE_URL || 'https://lilerp-backend.onrender.com'}/api/ivr/voice`,
+      to: formattedPhone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      statusCallback: `${process.env.BASE_URL || 'https://lilerp-backend.onrender.com'}/api/ivr/call-status`,
+      statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed']
+    });
+
+    console.log(`📞 Call initiated to ${formattedPhone}, SID: ${call.sid}`);
+
+    res.json({
+      success: true,
+      message: 'Call initiated successfully',
+      callSid: call.sid,
+      to: formattedPhone
+    });
+
   } catch (error) {
-    console.error('Error initiating call:', error)
-    res.status(500).json({ error: 'Failed to initiate call' })
+    console.error('Call initiation error:', error);
+    res.status(500).json({ 
+      error: 'Failed to initiate call',
+      details: error.message 
+    });
   }
-})
+});
 
 // Health check
 app.get('/health', (req, res) => {

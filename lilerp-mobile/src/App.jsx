@@ -1,4 +1,3 @@
-// App.jsx
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useReactMediaRecorder } from 'react-media-recorder'
 import { useNavigate } from 'react-router-dom'
@@ -677,29 +676,43 @@ useEffect(() => {
 
 const handleEmergencyCall = async () => {
   try {
-    const token = localStorage.getItem('token')
-    const response = await fetch(`${API_URL}/ivr/initiate-call`, {
+    // Get token from correct localStorage key
+    const token = localStorage.getItem('lilerp_token');
+    
+    if (!token) {
+      alert('❌ Please login first to use emergency call feature.');
+      return;
+    }
+
+    if (!user?.phone) {
+      alert('❌ Phone number not found. Please update your profile.');
+      return;
+    }
+
+    const response = await fetch(`${API_URL}/api/ivr/initiate-call`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        to: user.phone,
-        from: '+17622485141'
+        phoneNumber: user.phone
       })
-    })
+    });
+    
+    const data = await response.json();
     
     if (response.ok) {
-      alert('📞 Emergency call initiated! You will receive a call shortly.')
+      alert('📞 Emergency call initiated! You will receive a call shortly.');
     } else {
-      alert('❌ Failed to initiate call. Please try again.')
+      console.error('Call failed:', data);
+      alert(`❌ Failed to initiate call: ${data.error || 'Please try again.'}`);
     }
   } catch (error) {
-    console.error('Error initiating call:', error)
-    alert('❌ Error initiating call. Please try again.')
+    console.error('Error initiating call:', error);
+    alert(`❌ Error initiating call: ${error.message}`);
   }
-}
+};
 
   // Splash Screen
   if (currentScreen === 'splash') {
