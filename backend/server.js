@@ -1312,6 +1312,62 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
   }
 });
 
+app.post('/api/ivr/call-status', (req, res) => {
+  try {
+    const { CallSid, CallStatus, To, From } = req.body;
+    
+    console.log('📞 Call Status Update:', {
+      sid: CallSid,
+      status: CallStatus,
+      to: To,
+      from: From
+    });
+
+    // Log the call status
+    // You can save this to database if needed
+
+    // Always respond with 200 OK to Twilio
+    res.status(200).send('OK');
+  } catch (error) {
+    console.error('❌ Call status error:', error);
+    res.status(200).send('OK'); // Still respond OK to prevent Twilio errors
+  }
+});
+
+// Also update the voice endpoint
+app.post('/api/ivr/voice', (req, res) => {
+  try {
+    const twiml = new twilio.twiml.VoiceResponse();
+    
+    twiml.say({
+      voice: 'alice',
+      language: 'en-US'
+    }, 'Hello! This is LILERP Emergency Response System. You have initiated an emergency call. A responder will contact you shortly. Please stay on the line.');
+    
+    twiml.pause({ length: 2 });
+    
+    twiml.say({
+      voice: 'alice',
+      language: 'en-US'
+    }, 'If this is a land dispute emergency, press 1. For other emergencies, press 2. To repeat this message, press 9.');
+    
+    twiml.gather({
+      numDigits: 1,
+      action: '/api/ivr/handle-input',
+      method: 'POST'
+    });
+
+    res.type('text/xml');
+    res.send(twiml.toString());
+  } catch (error) {
+    console.error('❌ Voice endpoint error:', error);
+    const errorTwiml = new twilio.twiml.VoiceResponse();
+    errorTwiml.say('An error occurred. Please try again later.');
+    res.type('text/xml');
+    res.send(errorTwiml.toString());
+  }
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ 
