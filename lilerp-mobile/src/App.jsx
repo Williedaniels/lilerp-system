@@ -420,7 +420,7 @@ function App() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -464,7 +464,7 @@ function App() {
     setIsLoading(true)
     
     try {
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -689,7 +689,7 @@ const handleEmergencyCall = async () => {
       return;
     }
 
-    const response = await fetch(`${API_URL}/api/ivr/initiate-call`, {
+    const response = await fetch(`${API_URL}/ivr/initiate-call`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
