@@ -724,6 +724,101 @@ function ResponderDashboard() {
           </div>
         )}
 
+        {/* Reports Screen - ADD THIS */}
+        {currentScreen === 'reports' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">Emergency Reports</h2>
+              <Badge variant="outline">{incidents.length} Total</Badge>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex space-x-2 overflow-x-auto pb-2">
+              {['all', 'pending', 'investigating', 'resolved'].map((status) => (
+                <Button
+                  key={status}
+                  variant={filterStatus === status ? 'default' : 'outline'}
+                  onClick={() => setFilterStatus(status)}
+                  className="whitespace-nowrap"
+                >
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === 'pending' && stats.pendingReports > 0 && (
+                    <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
+                  )}
+                </Button>
+              ))}
+            </div>
+
+            {/* Incidents List */}
+            <div className="space-y-4">
+              {incidents
+                .filter(incident => filterStatus === 'all' || incident.status === filterStatus)
+                .map((incident) => (
+                  <Card 
+                    key={incident.id}
+                    className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedIncident(incident)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <Badge className={
+                              incident.priority === 'critical' ? 'bg-red-600' :
+                              incident.priority === 'high' ? 'bg-orange-500' :
+                              incident.priority === 'medium' ? 'bg-yellow-500' :
+                              'bg-green-500'
+                            }>
+                              {incident.priority}
+                            </Badge>
+                            <Badge variant="outline">
+                              {incident.status}
+                            </Badge>
+                          </div>
+                          
+                          <h3 className="font-bold text-lg mb-1">{incident.title}</h3>
+                          <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                            {incident.description}
+                          </p>
+                          
+                          <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                            <div className="flex items-center">
+                              <MapPin className="w-4 h-4 mr-1" />
+                              {incident.location || 'No location'}
+                            </div>
+                            <div className="flex items-center">
+                              <Clock className="w-4 h-4 mr-1" />
+                              {new Date(incident.createdAt).toLocaleString()}
+                            </div>
+                            {incident.reporter && (
+                              <div className="flex items-center">
+                                <Phone className="w-4 h-4 mr-1" />
+                                {incident.reporter.name}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <AlertTriangle className={`w-6 h-6 ml-4 ${
+                          incident.priority === 'critical' ? 'text-red-600' :
+                          incident.priority === 'high' ? 'text-orange-500' :
+                          'text-yellow-500'
+                        }`} />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+              {incidents.filter(incident => filterStatus === 'all' || incident.status === filterStatus).length === 0 && (
+                <div className="text-center py-12">
+                  <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Profile Screen */}
         {currentScreen === 'profile' && (
           <div className="max-w-2xl mx-auto">
