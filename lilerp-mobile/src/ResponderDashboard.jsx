@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
 import ResponderAnalytics from './components/ui/ResponderAnalytics';
-import IncidentMap from './components/IncidentMap';
+import IncidentMap from './components/ui/incident-map.jsx';
 import { 
   Phone, 
   Shield, 

@@ -218,13 +218,15 @@ const Responder = sequelize.define('Responder', {
   }
 });
 
+// Find the Incident model definition (around line 195-260) and update:
+
 const Incident = sequelize.define('Incident', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  reporterId: {
+  reportedBy: { // Changed from reporterId
     type: DataTypes.INTEGER,
     references: {
       model: User,
@@ -240,22 +242,15 @@ const Incident = sequelize.define('Incident', {
     allowNull: true
   },
   type: {
-    type: DataTypes.ENUM(
-      'Land Boundary Dispute',
-      'Property Conflict',
-      'Inheritance Dispute',
-      'Mining Conflict',
-      'Agricultural Land Dispute',
-      'Other'
-    ),
+    type: DataTypes.STRING, // Changed from ENUM to STRING for flexibility
     allowNull: false
   },
   priority: {
     type: DataTypes.ENUM('low', 'medium', 'high', 'critical'),
-    defaultValue: 'low'
+    defaultValue: 'medium'
   },
   status: {
-    type: DataTypes.ENUM('pending', 'assigned', 'in_progress', 'resolved', 'closed'),
+    type: DataTypes.ENUM('pending', 'assigned', 'investigating', 'resolved', 'closed'),
     defaultValue: 'pending'
   },
   title: {
@@ -267,8 +262,16 @@ const Incident = sequelize.define('Incident', {
     allowNull: false
   },
   location: {
-    type: DataTypes.JSONB,
-    allowNull: false
+    type: DataTypes.STRING, // Changed from JSONB to STRING for SQLite
+    allowNull: true
+  },
+  latitude: { // Add separate lat/lng fields
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  longitude: {
+    type: DataTypes.FLOAT,
+    allowNull: true
   },
   voiceRecording: {
     type: DataTypes.STRING,
@@ -296,7 +299,7 @@ const Incident = sequelize.define('Incident', {
   },
   responseTime: {
     type: DataTypes.INTEGER,
-    allowNull: true // in minutes
+    allowNull: true
   }
 });
 
@@ -822,7 +825,7 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
 
     // If responder assigned, update their stats
     if (availableResponder) { // This field does not exist in the Responder model. It should be totalResponses.
-      await availableResponder.increment('totalCases');
+      await availableResponder.increment('totalResponses');
       console.log('📌 Assigned to responder:', availableResponder.id);
     }
 
