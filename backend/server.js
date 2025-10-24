@@ -772,49 +772,67 @@ app.put('/api/user/profile', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/incidents', authenticateToken, upload.any(), async (req, res) => {
+app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), async (req, res) => {
   try {
-    console.log('Raw request body:', req.body);
-    console.log('Files:', req.files);
-    
-    const { type, priority, title, description, location, voiceTranscription } = req.body;
-    
-    // Parse location JSON string
-    let locationData = {};
-    try {
-      locationData = JSON.parse(location || '{}');
-    } catch (e) {
-      console.error('Location parse error:', e);
-    }
+    console.log('📝 Creating new incident...');
+    console.log('User ID:', req.user.userId);
+    console.log('Body:', req.body);
+
+    const { type, priority, title, description, location } = req.body;
     
     // Validate required fields
     if (!type || !description) {
-      return res.status(400).json({ error: 'Missing required fields: type and description' });
+      return res.status(400).json({ error: 'Type and description are required' });
     }
-    
-    // Handle voice recording file
-    const voiceRecordingPath = req.files?.find(f => f.fieldname === 'voiceRecording')?.path || null;
-    
+
+    // Parse location if it's a string
+    let locationData = {};
+    if (location) {
+      try {
+        locationData = typeof location === 'string' ? JSON.parse(location) : location;
+      } catch (e) {
+        console.error('Location parse error:', e);
+      }
+    }
+
+    // Find an available responder (simple round-robin)
+    const availableResponder = await Responder.findOne({
+      where: { availability: 'available' },
+      order: sequelize.random(), // Random assignment
+      include: [{ model: User }]
+    });
+
+    // Create incident
     const incident = await Incident.create({
       type: type,
-      title: title || type,
-      description: voiceTranscription || description,
       priority: priority || 'medium',
+      title: title || type,
+      description: description,
       location: locationData.address || 'Unknown',
-      latitude: locationData.coordinates?.latitude || null,
-      longitude: locationData.coordinates?.longitude || null,
-      voiceRecordingPath,
-      userId: req.user.userId,
-      status: 'pending'
+      latitude: locationData.coordinates?.lat || null,
+      longitude: locationData.coordinates?.lng || null,
+      status: 'pending',
+      reportedVia: 'mobile_app',
+      reportedBy: req.user.userId,
+      responderId: availableResponder?.id || null,
+      voiceRecording: req.file ? `/uploads/${req.file.filename}` : null
     });
-    
-    res.status(201).json({ 
+
+    console.log('✅ Incident created:', incident.id);
+
+    // If responder assigned, update their stats
+    if (availableResponder) {
+      await availableResponder.increment('totalCases');
+      console.log('📌 Assigned to responder:', availableResponder.id);
+    }
+
+    res.status(201).json({
       message: 'Incident reported successfully',
-      incident 
+      incident: incident
     });
-    
+
   } catch (error) {
-    console.error('Incident creation error:', error);
+    console.error('❌ Incident creation error:', error);
     res.status(500).json({ error: 'Failed to create incident', details: error.message });
   }
 });
@@ -962,76 +980,68 @@ app.put('/api/incidents/:id/assign', authenticateToken, async (req, res) => {
 // Responder dashboard routes
 app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
   try {
-    if (!req.user.isResponder && req.user.role !== 'responder') {
-      return res.status(403).json({ error: 'Unauthorized - Responder access only' });
-    }
-
-    const responder = await Responder.findOne({ 
+    console.log('📊 Dashboard request from user:', req.user.userId);
+    
+    // Get responder profile
+    const responder = await Responder.findOne({
       where: { userId: req.user.userId },
-      include: [{
-        model: User,
-        attributes: ['name', 'phone', 'email']
-      }]
+      include: [{ model: User }]
     });
 
     if (!responder) {
-      return res.status(404).json({ error: 'Responder profile not found' });
+      // If not a responder, return error
+      return res.status(403).json({ error: 'Unauthorized - Responder access only' });
     }
 
-    // Get dashboard stats
-    const activeIncidents = await Incident.count({
-      where: {
-        responderId: responder.id,
-        status: {
-          [Op.in]: ['assigned', 'in_progress']
-        }
-      }
-    });
-
-    const resolvedToday = await Incident.count({
-      where: {
-        responderId: responder.id,
-        status: 'resolved',
-        resolvedAt: {
-          [Op.gte]: new Date().setHours(0, 0, 0, 0)
-        }
-      }
-    });
-
-    const totalIncidents = await Incident.count({
-      where: {
-        responderId: responder.id
-      }
-    });
-
-    const recentIncidents = await Incident.findAll({
-      where: {
-        status: {
-          [Op.in]: ['pending', 'assigned', 'in_progress']
-        }
-      },
+    // Get ALL incidents (not just assigned to this responder)
+    const allIncidents = await Incident.findAll({
       include: [
         {
           model: User,
-          as: 'reporter',
-          attributes: ['name', 'phone', 'community']
+          as: 'Reporter',
+          attributes: ['id', 'name', 'phone', 'email']
+        },
+        {
+          model: Responder,
+          attributes: ['id', 'specialization'],
+          include: [{ model: User, attributes: ['name', 'phone'] }]
         }
       ],
       order: [['createdAt', 'DESC']],
-      limit: 10
+      limit: 100
     });
+
+    // Get assigned incidents for stats
+    const assignedIncidents = await Incident.findAll({
+      where: { responderId: responder.id },
+      order: [['createdAt', 'DESC']]
+    });
+
+    // Calculate statistics
+    const stats = {
+      totalAssigned: assignedIncidents.length,
+      pending: assignedIncidents.filter(i => i.status === 'pending').length,
+      investigating: assignedIncidents.filter(i => i.status === 'investigating').length,
+      resolved: assignedIncidents.filter(i => i.status === 'resolved').length,
+      avgResponseTime: 0
+    };
 
     res.json({
       responder: {
-        ...responder.toJSON(),
-        activeIncidents,
-        resolvedToday,
-        totalIncidents
+        id: responder.id,
+        name: responder.User.name,
+        specialization: responder.specialization,
+        availability: responder.availability,
+        totalCases: responder.totalCases,
+        rating: responder.rating
       },
-      recentIncidents
+      incidents: allIncidents, // Show all incidents
+      assignedIncidents: assignedIncidents, // And specifically assigned ones
+      stats: stats
     });
+
   } catch (error) {
-    console.error('Responder dashboard error:', error);
+    console.error('❌ Dashboard fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch dashboard data', details: error.message });
   }
 });

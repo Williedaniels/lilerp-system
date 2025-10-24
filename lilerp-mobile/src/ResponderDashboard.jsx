@@ -74,6 +74,10 @@ function ResponderDashboard() {
     resolvedToday: 0
   })
 
+  // New state for incidents and error handling
+  const [incidents, setIncidents] = useState([]);
+  const [error, setError] = useState(null);
+
   // Splash screen and authentication check
   useEffect(() => {
     const initializeApp = async () => {
@@ -129,6 +133,13 @@ function ResponderDashboard() {
     initializeApp()
   }, [])
 
+  // Fetch incidents when logged in
+  useEffect(() => {
+    if (isAuthenticated && responder) {
+      fetchIncidents();
+    }
+  }, [isAuthenticated, responder]);
+
   // Fetch reports from server
   const fetchReports = async (token) => {
     try {
@@ -164,6 +175,48 @@ function ResponderDashboard() {
       console.error('Error fetching reports:', error)
     }
   }
+
+  // Fetch incidents from server
+  const fetchIncidents = async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('lilerp_token');
+      
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/responders/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📊 Dashboard data:', data);
+        
+        // Set all incidents from the response
+        setIncidents(data.incidents || []);
+        
+        // Set stats if available
+        if (data.stats) {
+          // Update your stats state here
+        }
+      } else if (response.status === 401 || response.status === 403) {
+        setIsAuthenticated(false);
+        setError('Session expired. Please login again.');
+      } else {
+        setError('Failed to fetch incidents');
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setError('Failed to load dashboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Refresh token
   const refreshToken = async () => {
@@ -491,7 +544,7 @@ function ResponderDashboard() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
-                📊 Overview
+                Overview
               </button>
               <button
                 onClick={() => setActiveTab('analytics')}
@@ -501,7 +554,7 @@ function ResponderDashboard() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
-                📈 Analytics
+                Analytics
               </button>
             </nav>
           </div>
