@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
 import ResponderAnalytics from './components/ui/ResponderAnalytics';
+import IncidentMap from './components/IncidentMap';
 import { 
   Phone, 
   Shield, 
@@ -58,6 +59,7 @@ function ResponderDashboard() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'analytics'
+  const [selectedIncident, setSelectedIncident] = useState(null);
   
   // Forms
   const [loginForm, setLoginForm] = useState({
@@ -199,11 +201,15 @@ function ResponderDashboard() {
         
         // Set all incidents from the response
         setIncidents(data.incidents || []);
+        setEmergencyReports(data.incidents || []);
         
         // Set stats if available
-        if (data.stats) {
-          // Update your stats state here
-        }
+        setStats({
+          totalReports: data.incidents?.length || 0,
+          pendingReports: data.stats?.pending || 0,
+          inProgressReports: data.stats?.investigating || 0,
+          resolvedToday: data.stats?.resolved || 0
+        });
       } else if (response.status === 401 || response.status === 403) {
         setIsAuthenticated(false);
         setError('Session expired. Please login again.');
@@ -707,6 +713,99 @@ function ResponderDashboard() {
           <ResponderAnalytics />
         )}
       </main>
+
+      {/* Incident Details Modal */}
+      {selectedIncident && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold">{selectedIncident.title}</h2>
+                  <p className="text-gray-600">ID: {selectedIncident.id}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedIncident(null)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Map Section */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold mb-2 flex items-center">
+                  <MapPin className="w-5 h-5 mr-2 text-red-500" />
+                  Reporter Location
+                </h3>
+                <IncidentMap
+                  latitude={selectedIncident.latitude}
+                  longitude={selectedIncident.longitude}
+                  location={selectedIncident.location}
+                  reporterName={selectedIncident.Reporter?.name}
+                />
+                <p className="text-sm text-gray-600 mt-2">
+                  📍 {selectedIncident.location || 'Location not specified'}
+                </p>
+              </div>
+
+              {/* Rest of incident details */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-semibold text-gray-700">Description</h3>
+                  <p className="text-gray-600">{selectedIncident.description}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-semibold text-gray-700">Type</h3>
+                    <p className="text-gray-600">{selectedIncident.type}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-700">Priority</h3>
+                    <Badge className={
+                      selectedIncident.priority === 'high' ? 'bg-red-500' :
+                      selectedIncident.priority === 'medium' ? 'bg-yellow-500' :
+                      'bg-green-500'
+                    }>
+                      {selectedIncident.priority}
+                    </Badge>
+                  </div>
+                </div>
+
+                {selectedIncident.Reporter && (
+                  <div>
+                    <h3 className="font-semibold text-gray-700 flex items-center">
+                      <Phone className="w-4 h-4 mr-2" />
+                      Reporter Contact
+                    </h3>
+                    <p className="text-gray-600">{selectedIncident.Reporter.name}</p>
+                    <p className="text-gray-600">{selectedIncident.Reporter.phone}</p>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex space-x-2 mt-6">
+                  <Button
+                    onClick={() => handleUpdateStatus(selectedIncident.id, 'investigating')}
+                    className="flex-1"
+                  >
+                    Start Investigation
+                  </Button>
+                  <Button
+                    onClick={() => handleUpdateStatus(selectedIncident.id, 'resolved')}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Mark Resolved
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
