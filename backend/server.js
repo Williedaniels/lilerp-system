@@ -15,6 +15,8 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+app.set('trust proxy', 1);
+
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('uploads')) {
   fs.mkdirSync('uploads');
@@ -547,43 +549,50 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    console.log('🔐 Login attempt for:', email);
 
+    if (!email || !password) {
+      console.log('❌ Missing credentials');
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Find user
     const user = await User.findOne({ where: { email } });
+
     if (!user) {
+      console.log('❌ User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    console.log('✅ User found:', user.email);
+
+    // Verify password
     const isValidPassword = await bcrypt.compare(password, user.password);
+    console.log('🔑 Password valid:', isValidPassword);
+
     if (!isValidPassword) {
+      console.log('❌ Invalid password for:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    await user.update({ lastLogin: new Date() });
+    // Generate tokens
+    const token = jwt.sign(
+      { userId: user.id, email: user.email, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
-    // If user is a responder, update status to active
-    if (user.isResponder || user.role === 'responder') {
-      let responder = await Responder.findOne({ where: { userId: user.id } });
-      if (responder) {
-        await responder.update({ status: 'active' });
-      } else {
-        // If responder profile is missing, create it. This makes the system more robust.
-        console.warn(`Responder profile missing for user ID ${user.id} (${user.email}). Creating one now.`);
-        responder = await Responder.create({
-          userId: user.id,
-          badge: `RESP-${String(user.id).padStart(4, '0')}`,
-          department: 'Land Dispute Response Unit',
-          location: user.community || 'Nimba County',
-          status: 'active' // Set to active on login
-        });
-      }
-    }
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '30d' }
+    );
 
-    const { accessToken, refreshToken } = generateTokens(user);
-    await user.update({ refreshToken });
+    console.log('✅ Login successful for:', email);
 
     res.json({
-      message: 'Login successful',
-      token: accessToken,
+      token,
       refreshToken,
       user: {
         id: user.id,
@@ -591,12 +600,12 @@ app.post('/api/auth/login', async (req, res) => {
         email: user.email,
         phone: user.phone,
         role: user.role,
-        isResponder: user.isResponder,
-        community: user.community
+        isResponder: user.isResponder
       }
     });
+
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('❌ Login error:', error);
     res.status(500).json({ error: 'Login failed', details: error.message });
   }
 });
