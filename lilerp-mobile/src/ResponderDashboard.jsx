@@ -298,15 +298,21 @@ function ResponderDashboard() {
     }
   }
 
+  const handleProfileNavigation = () => {
+    setCurrentScreen('profile');
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem('responderToken')
-    localStorage.removeItem('responderRefreshToken')
-    localStorage.removeItem('responder')
-    setResponder(null)
-    setIsAuthenticated(false)
-    setCurrentScreen('login')
-    setEmergencyReports([])
-  }
+    localStorage.removeItem('lilerp_token');
+    localStorage.removeItem('lilerp_user');
+    localStorage.removeItem('responderToken');
+    localStorage.removeItem('responder');
+    setIsLoggedIn(false);
+    setIsAuthenticated(false);
+    setUser(null);
+    setResponder(null);
+    setCurrentScreen('login');
+  };
 
   // Report actions
   const handleAssignReport = async (reportId) => {
