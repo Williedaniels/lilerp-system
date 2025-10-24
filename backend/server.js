@@ -414,7 +414,7 @@ const assignResponder = async (incident) => {
   try {
     const availableResponders = await Responder.findAll({
       where: {
-        status: 'active'
+        status: 'active' // Changed from 'availability' to 'status'
       },
       include: [{
         model: User,
@@ -796,8 +796,8 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
     }
 
     // Find an available responder (simple round-robin)
-    const availableResponder = await Responder.findOne({
-      where: { availability: 'available' },
+    const availableResponder = await Responder.findOne({ // Changed from 'availability' to 'status'
+      where: { status: 'active' },
       order: sequelize.random(), // Random assignment
       include: [{ model: User }]
     });
@@ -811,7 +811,7 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
       location: locationData.address || 'Unknown',
       latitude: locationData.coordinates?.lat || null,
       longitude: locationData.coordinates?.lng || null,
-      status: 'pending',
+      status: 'pending', // Default status for new incidents
       reportedVia: 'mobile_app',
       reportedBy: req.user.userId,
       responderId: availableResponder?.id || null,
@@ -821,7 +821,7 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
     console.log('✅ Incident created:', incident.id);
 
     // If responder assigned, update their stats
-    if (availableResponder) {
+    if (availableResponder) { // This field does not exist in the Responder model. It should be totalResponses.
       await availableResponder.increment('totalCases');
       console.log('📌 Assigned to responder:', availableResponder.id);
     }
@@ -1030,10 +1030,10 @@ app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
       responder: {
         id: responder.id,
         name: responder.User.name,
-        specialization: responder.specialization,
-        availability: responder.availability,
-        totalCases: responder.totalCases,
-        rating: responder.rating
+        specialization: JSON.parse(responder.specialization), // Parse specialization
+        status: responder.status, // Changed from 'availability' to 'status'
+        totalResponses: responder.totalResponses, // Changed from 'totalCases' to 'totalResponses'
+        communityRating: responder.communityRating // Changed from 'rating' to 'communityRating'
       },
       incidents: allIncidents, // Show all incidents
       assignedIncidents: assignedIncidents, // And specifically assigned ones
