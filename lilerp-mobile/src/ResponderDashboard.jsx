@@ -559,7 +559,7 @@ function ResponderDashboard() {
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                   >
-                    📊 Overview
+                    Overview
                   </button>
                   <button
                     onClick={() => setActiveTab('analytics')}
@@ -569,7 +569,7 @@ function ResponderDashboard() {
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                   >
-                    📈 Analytics
+                    Analytics
                   </button>
                 </nav>
               </div>
@@ -917,7 +917,7 @@ function ResponderDashboard() {
 
       {/* Incident Details Modal */}
       {selectedIncident && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               {/* Header */}
