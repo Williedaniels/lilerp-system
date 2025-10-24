@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input.jsx'
 import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
+import ResponderAnalytics from './components/ui/ResponderAnalytics';
 import { 
   Phone, 
   Shield, 
@@ -56,6 +57,7 @@ function ResponderDashboard() {
   const [selectedReport, setSelectedReport] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'analytics'
   
   // Forms
   const [loginForm, setLoginForm] = useState({
@@ -477,564 +479,179 @@ function ResponderDashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Dashboard Screen */}
-        {currentScreen === 'dashboard' && (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                Welcome, {responder?.name}!
-              </h2>
-              <p className="text-gray-600">
-                Emergency Response Dashboard
-              </p>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Total Reports</p>
-                      <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
-                    </div>
-                    <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Pending</p>
-                      <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
-                    </div>
-                    <Clock className="w-12 h-12 text-red-600 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">In Progress</p>
-                      <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
-                    </div>
-                    <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600">Resolved Today</p>
-                      <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
-                    </div>
-                    <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button
-                  onClick={() => setCurrentScreen('reports')}
-                  className="h-20 text-lg"
-                >
-                  <AlertTriangle className="w-6 h-6 mr-2" />
-                  View All Reports
-                </Button>
-                <Button
-                  onClick={() => {
-                    setFilterStatus('pending')
-                    setCurrentScreen('reports')
-                  }}
-                  className="h-20 text-lg"
-                  variant="outline"
-                >
-                  <Clock className="w-6 h-6 mr-2" />
-                  Pending Reports
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Recent Reports */}
-            {emergencyReports.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Emergency Reports</CardTitle>
-                  <CardDescription>Latest reports requiring attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {emergencyReports.slice(0, 5).map(report => (
-                      <div
-                        key={report.id}
-                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                        onClick={() => {
-                          setSelectedReport(report)
-                          setCurrentScreen('report-detail')
-                        }}
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{report.type || report.title}</p>
-                          <p className="text-sm text-gray-600">
-                            {report.location?.address || report.location}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {formatDate(report.createdAt)}
-                          </p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge
-                            variant={
-                              report.status === 'resolved' ? 'success' :
-                              report.status === 'in_progress' ? 'warning' :
-                              'default'
-                            }
-                          >
-                            {report.status}
-                          </Badge>
-                          <Badge variant="outline">
-                            {report.priority}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Reports Screen */}
-        {currentScreen === 'reports' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800 mb-2">Emergency Reports</h2>
-                <p className="text-gray-600">Manage and respond to emergencies</p>
-              </div>
-            </div>
-
-            {/* Filters */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                      <Input
-                        type="text"
-                        placeholder="Search reports..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <Select value={filterStatus} onValueChange={setFilterStatus}>
-                    <SelectTrigger className="w-full md:w-48">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="in_progress">In Progress</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Reports List */}
-            {filteredReports.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <AlertTriangle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600">No reports found</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {filteredReports.map(report => (
-                  <Card key={report.id} className="hover:shadow-lg transition cursor-pointer">
-                    <CardContent className="p-6" onClick={() => {
-                      setSelectedReport(report)
-                      setCurrentScreen('report-detail')
-                    }}>
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="font-bold text-lg">
-                              {report.type || report.title}
-                            </h3>
-                            <Badge
-                              variant={
-                                report.priority === 'critical' ? 'destructive' :
-                                report.priority === 'high' ? 'warning' :
-                                'default'
-                              }
-                            >
-                              {report.priority}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {report.description}
-                          </p>
-                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
-                            <span className="flex items-center">
-                              <MapPin className="w-4 h-4 mr-1.5" />
-                              {report.location?.address || report.location}
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1.5" />
-                              {formatDate(report.createdAt)}
-                            </span>
-                            {report.reporter?.name && (
-                              <span className="flex items-center">
-                                <User className="w-4 h-4 mr-1.5" />
-                                {report.reporter.name}
-                              </span>
-                            )}
-                            {report.reporter?.phone && (
-                              <span className="flex items-center">
-                                <Phone className="w-4 h-4 mr-1.5" />
-                                {report.reporter.phone}
-                              </span>
-                            )}
-                            {report.reporter?.community && (
-                              <span className="flex items-center">
-                                <Users className="w-4 h-4 mr-1.5" />
-                                {report.reporter.community}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <Badge
-                          variant={
-                            report.status === 'resolved' ? 'success' :
-                            report.status === 'in_progress' ? 'warning' :
-                            'default'
-                          }
-                        >
-                          {report.status}
-                        </Badge>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2 pt-4 border-t">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setSelectedReport(report)
-                            setCurrentScreen('report-detail')
-                          }}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View Details
-                        </Button>
-                        {report.reporter?.phone && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleCallReporter(report.reporter.phone)
-                            }}
-                          >
-                            <PhoneCall className="w-4 h-4 mr-1" />
-                            Call Reporter
-                          </Button>
-                        )}
-                        {report.location?.coordinates && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleViewOnMap(report.location)
-                            }}
-                          >
-                            <Map className="w-4 h-4 mr-1" />
-                            View on Map
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Report Detail Screen */}
-        {currentScreen === 'report-detail' && selectedReport && (
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="flex items-center space-x-4 mb-6">
-              <Button
-                variant="outline"
-                onClick={() => setCurrentScreen('reports')}
+        {/* Tab Navigation */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('overview')}
+                className={`${
+                  activeTab === 'overview'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
               >
-                ← Back to Reports
-              </Button>
-            </div>
+                📊 Overview
+              </button>
+              <button
+                onClick={() => setActiveTab('analytics')}
+                className={`${
+                  activeTab === 'analytics'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+              >
+                📈 Analytics
+              </button>
+            </nav>
+          </div>
+        </div>
 
-            <Card>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-2xl mb-2">
-                      {selectedReport.type || selectedReport.title}
-                    </CardTitle>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge
-                        variant={
-                          selectedReport.status === 'resolved' ? 'success' :
-                          selectedReport.status === 'in_progress' ? 'warning' :
-                          'default'
-                        }
-                      >
-                        {selectedReport.status}
-                      </Badge>
-                      <Badge
-                        variant={
-                          selectedReport.priority === 'critical' ? 'destructive' :
-                          selectedReport.priority === 'high' ? 'warning' :
-                          'default'
-                        }
-                      >
-                        {selectedReport.priority} priority
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Reporter Information */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3">Reporter Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="text-sm text-gray-600">Name</p>
-                      <p className="font-medium">{selectedReport.reporter?.name || 'Anonymous'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Phone</p>
-                      <div className="flex items-center space-x-2">
-                        <p className="font-medium">{selectedReport.reporter?.phone || 'N/A'}</p>
-                        {selectedReport.reporter?.phone && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCallReporter(selectedReport.reporter.phone)}
-                          >
-                            <PhoneCall className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Community</p>
-                      <p className="font-medium">{selectedReport.reporter?.community || 'N/A'}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-600">Reported At</p>
-                      <p className="font-medium">{formatDate(selectedReport.createdAt)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3">Description</h3>
-                  <p className="text-gray-700 p-4 bg-gray-50 rounded-lg">
-                    {selectedReport.description}
+        {/* Conditional rendering based on active tab */}
+        {activeTab === 'overview' ? (
+          <div>
+            {/* Dashboard Screen */}
+            {currentScreen === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                    Welcome, {responder?.name}!
+                  </h2>
+                  <p className="text-gray-600">
+                    Emergency Response Dashboard
                   </p>
                 </div>
 
-                {/* Location */}
-                <div>
-                  <h3 className="font-bold text-lg mb-3">Location</h3>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <p className="flex items-center text-gray-700 mb-2">
-                          <MapPin className="w-4 h-4 mr-2" />
-                          {selectedReport.location?.address || selectedReport.location}
-                        </p>
-                        {selectedReport.location?.coordinates && (
-                          <p className="text-sm text-gray-600">
-                            Coordinates: {selectedReport.location.coordinates.lat.toFixed(4)}, {selectedReport.location.coordinates.lng.toFixed(4)}
-                          </p>
-                        )}
+                {/* Stats Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">Total Reports</p>
+                          <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
+                        </div>
+                        <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
                       </div>
-                      {selectedReport.location?.coordinates && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleViewOnMap(selectedReport.location)}
-                        >
-                          <Map className="w-4 h-4 mr-1" />
-                          View on Map
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">Pending</p>
+                          <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
+                        </div>
+                        <Clock className="w-12 h-12 text-red-600 opacity-20" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">In Progress</p>
+                          <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
+                        </div>
+                        <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">Resolved Today</p>
+                          <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
+                        </div>
+                        <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
-                {/* Voice Recording */}
-                {selectedReport.voiceRecording && (
-                  <div>
-                    <h3 className="font-bold text-lg mb-3">Voice Recording</h3>
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <audio 
-                        src={`${API_URL}${selectedReport.voiceRecording}`} 
-                        controls 
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
+                {/* Quick Actions */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quick Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Button
+                      onClick={() => setCurrentScreen('reports')}
+                      className="h-20 text-lg"
+                    >
+                      <AlertTriangle className="w-6 h-6 mr-2" />
+                      View All Reports
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setFilterStatus('pending')
+                        setCurrentScreen('reports')
+                      }}
+                      className="h-20 text-lg"
+                      variant="outline"
+                    >
+                      <Clock className="w-6 h-6 mr-2" />
+                      Pending Reports
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Recent Reports */}
+                {emergencyReports.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Emergency Reports</CardTitle>
+                      <CardDescription>Latest reports requiring attention</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {emergencyReports.slice(0, 5).map(report => (
+                          <div
+                            key={report.id}
+                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                            onClick={() => {
+                              setSelectedReport(report)
+                              setCurrentScreen('report-detail')
+                            }}
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium">{report.type || report.title}</p>
+                              <p className="text-sm text-gray-600">
+                                {report.location?.address || report.location}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {formatDate(report.createdAt)}
+                              </p>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <Badge
+                                variant={
+                                  report.status === 'resolved' ? 'success' :
+                                  report.status === 'in_progress' ? 'warning' :
+                                  'default'
+                                }
+                              >
+                                {report.status}
+                              </Badge>
+                              <Badge variant="outline">
+                                {report.priority}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
-
-                {/* Voice Transcription */}
-                {selectedReport.voiceTranscription && (
-                  <div>
-                    <h3 className="font-bold text-lg mb-3">Voice Transcription</h3>
-                    <p className="text-gray-700 p-4 bg-blue-50 rounded-lg">
-                      {selectedReport.voiceTranscription}
-                    </p>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="pt-6 border-t">
-                  <h3 className="font-bold text-lg mb-3">Actions</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {selectedReport.status === 'pending' && (
-                      <>
-                        <Button
-                          onClick={() => handleUpdateStatus(selectedReport.id, 'in_progress')}
-                          className="w-full"
-                        >
-                          <Activity className="w-4 h-4 mr-2" />
-                          Start Working
-                        </Button>
-                        <Button
-                          onClick={() => handleAssignReport(selectedReport.id)}
-                          variant="outline"
-                          className="w-full"
-                        >
-                          <UserCheck className="w-4 h-4 mr-2" />
-                          Assign to Me
-                        </Button>
-                      </>
-                    )}
-                    {selectedReport.status === 'in_progress' && (
-                      <Button
-                        onClick={() => handleUpdateStatus(selectedReport.id, 'resolved')}
-                        className="w-full"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        Mark as Resolved
-                      </Button>
-                    )}
-                    {selectedReport.reporter?.phone && (
-                      <Button
-                        onClick={() => handleCallReporter(selectedReport.reporter.phone)}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <PhoneCall className="w-4 h-4 mr-2" />
-                        Call Reporter
-                      </Button>
-                    )}
-                    {selectedReport.location?.coordinates && (
-                      <Button
-                        onClick={() => handleViewOnMap(selectedReport.location)}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <Map className="w-4 h-4 mr-2" />
-                        Navigate
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </div>
-        )}
-
-        {/* Profile Screen */}
-        {currentScreen === 'profile' && (
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="w-6 h-6" />
-                  <span>Responder Profile</span>
-                </CardTitle>
-                <CardDescription>Your account information</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm text-gray-600">Name</label>
-                    <p className="font-medium">{responder?.name}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Email</label>
-                    <p className="font-medium">{responder?.email}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Phone</label>
-                    <p className="font-medium">{responder?.phone}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Community</label>
-                    <p className="font-medium">{responder?.community}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm text-gray-600">Role</label>
-                    <Badge>{responder?.role}</Badge>
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-4 border-t">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => window.location.href = '/'}
-                  >
-                    <Home className="w-4 h-4 mr-2" />
-                    Go to Main App
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="w-full md:hidden"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+        ) : (
+          <ResponderAnalytics />
         )}
       </main>
 

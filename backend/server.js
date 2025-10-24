@@ -1052,6 +1052,168 @@ app.put('/api/responders/status', authenticateToken, async (req, res) => {
   }
 });
 
+// Enhanced analytics endpoint for responder dashboard
+app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
+  try {
+    if (!req.user.isResponder && req.user.role !== 'responder') {
+      return res.status(403).json({ error: 'Unauthorized - Responder access only' });
+    }
+
+    const responder = await Responder.findOne({ 
+      where: { userId: req.user.userId }
+    });
+
+    if (!responder) {
+      return res.status(404).json({ error: 'Responder profile not found' });
+    }
+
+    // Get date 30 days ago
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Incidents by status
+    const incidentsByStatus = await Incident.findAll({
+      attributes: [
+        'status',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        responderId: responder.id
+      },
+      group: ['status'],
+      raw: true
+    });
+
+    // Incidents by type
+    const incidentsByType = await Incident.findAll({
+      attributes: [
+        'type',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        responderId: responder.id
+      },
+      group: ['type'],
+      raw: true
+    });
+
+    // Incidents by priority
+    const incidentsByPriority = await Incident.findAll({
+      attributes: [
+        'priority',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        responderId: responder.id
+      },
+      group: ['priority'],
+      raw: true
+    });
+
+    // Daily incident trends (last 30 days)
+    const dailyIncidents = await Incident.findAll({
+      attributes: [
+        [sequelize.fn('DATE', sequelize.col('createdAt')), 'date'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: thirtyDaysAgo
+        }
+      },
+      group: [sequelize.fn('DATE', sequelize.col('createdAt'))],
+      order: [[sequelize.fn('DATE', sequelize.col('createdAt')), 'ASC']],
+      raw: true
+    });
+
+    // Response time analysis
+    const responseTimeStats = await Incident.findAll({
+      attributes: [
+        [sequelize.fn('AVG', sequelize.col('responseTime')), 'avgTime'],
+        [sequelize.fn('MIN', sequelize.col('responseTime')), 'minTime'],
+        [sequelize.fn('MAX', sequelize.col('responseTime')), 'maxTime']
+      ],
+      where: {
+        responderId: responder.id,
+        responseTime: { [Op.not]: null }
+      },
+      raw: true
+    });
+
+    // Resolution rate by month
+    const monthlyResolution = await Incident.findAll({
+      attributes: [
+        [sequelize.fn('strftime', '%Y-%m', sequelize.col('createdAt')), 'month'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'total'],
+        [sequelize.fn('SUM', sequelize.literal("CASE WHEN status = 'resolved' THEN 1 ELSE 0 END")), 'resolved']
+      ],
+      where: {
+        responderId: responder.id,
+        createdAt: {
+          [Op.gte]: thirtyDaysAgo
+        }
+      },
+      group: [sequelize.fn('strftime', '%Y-%m', sequelize.col('createdAt'))],
+      order: [[sequelize.fn('strftime', '%Y-%m', sequelize.col('createdAt')), 'DESC']],
+      raw: true
+    });
+
+    // Performance metrics
+    const totalIncidents = await Incident.count({
+      where: { responderId: responder.id }
+    });
+
+    const resolvedIncidents = await Incident.count({
+      where: {
+        responderId: responder.id,
+        status: 'resolved'
+      }
+    });
+
+    const avgResponseTime = responseTimeStats[0]?.avgTime || 0;
+    const resolutionRate = totalIncidents > 0 ? (resolvedIncidents / totalIncidents * 100).toFixed(1) : 0;
+
+    res.json({
+      overview: {
+        totalIncidents,
+        resolvedIncidents,
+        resolutionRate: parseFloat(resolutionRate),
+        avgResponseTime: Math.round(avgResponseTime),
+        minResponseTime: Math.round(responseTimeStats[0]?.minTime || 0),
+        maxResponseTime: Math.round(responseTimeStats[0]?.maxTime || 0)
+      },
+      charts: {
+        incidentsByStatus: incidentsByStatus.map(item => ({
+          name: item.status.replace('_', ' ').toUpperCase(),
+          value: parseInt(item.count)
+        })),
+        incidentsByType: incidentsByType.map(item => ({
+          name: item.type.replace(/_/g, ' '),
+          value: parseInt(item.count)
+        })),
+        incidentsByPriority: incidentsByPriority.map(item => ({
+          name: item.priority.toUpperCase(),
+          value: parseInt(item.count)
+        })),
+        dailyTrend: dailyIncidents.map(item => ({
+          date: item.date,
+          incidents: parseInt(item.count)
+        })),
+        monthlyResolution: monthlyResolution.map(item => ({
+          month: item.month,
+          total: parseInt(item.total),
+          resolved: parseInt(item.resolved),
+          rate: ((parseInt(item.resolved) / parseInt(item.total)) * 100).toFixed(1)
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error('Analytics fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch analytics', details: error.message });
+  }
+});
+
 // IVR routes with comprehensive menu system
 app.post('/api/ivr/incoming-call', async (req, res) => {
   try {
