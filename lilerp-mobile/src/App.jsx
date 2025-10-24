@@ -250,34 +250,38 @@ function App() {
   }, [])
 
   // Fetch reports from server
-  const fetchReports = useCallback(async (token) => {
-    try {
-      const authToken = token || localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/incidents/user`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
-      })
 
-      if (response.ok) {
-        const data = await response.json()
-        const fetchedReports = data.incidents || data.reports || data || []
-        setReports(fetchedReports)
-        // Save to localStorage for offline access
-        localStorage.setItem('reports', JSON.stringify(fetchedReports))
-      } else if (response.status === 401) {
-        // Token expired, try to refresh
-        await refreshToken()
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error)
-      // Load from localStorage if fetch fails
-      const savedReports = localStorage.getItem('reports')
-      if (savedReports) {
-        setReports(JSON.parse(savedReports))
-      }
+const fetchReports = useCallback(async (token) => {
+  try {
+    const authToken = token || localStorage.getItem('lilerp_token'); // Changed from 'token'
+    
+    if (!authToken) {
+      console.log('No token available');
+      return;
     }
-  }, [])
+    
+    const response = await fetch(`${API_URL}/incidents`, {  // Changed from /incidents/user
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
+
+    if (response.ok) {
+      const data = await response.json()
+      const fetchedReports = Array.isArray(data) ? data : (data.incidents || data.reports || [])
+      setReports(fetchedReports)
+      localStorage.setItem('reports', JSON.stringify(fetchedReports))
+    } else if (response.status === 401) {
+      await refreshToken()
+    }
+  } catch (error) {
+    console.error('Error fetching reports:', error)
+    const savedReports = localStorage.getItem('reports')
+    if (savedReports) {
+      setReports(JSON.parse(savedReports))
+    }
+  }
+}, [])
 
   // Refresh token
   const refreshToken = async () => {
@@ -510,84 +514,94 @@ function App() {
     setReports([])
   }
 
-  // Report submission
-  const handleSubmitReport = async (e) => {
-    e.preventDefault()
+  // Find the handleSubmitReport function (around line 520) and update:
+
+const handleSubmitReport = async (e) => {
+  e.preventDefault()
+  
+  if (!reportForm.type || !reportForm.location || !reportForm.description) {
+    alert('Please fill in all required fields')
+    return
+  }
+  
+  setIsLoading(true)
+  
+  try {
+    // FIX: Use correct token key
+    const token = localStorage.getItem('lilerp_token'); // Changed from 'token'
     
-    if (!reportForm.type || !reportForm.location || !reportForm.description) {
-      alert('Please fill in all required fields')
-      return
+    if (!token) {
+      alert('Please login first');
+      setCurrentScreen('login');
+      return;
     }
     
-    setIsLoading(true)
+    const formData = new FormData()
     
-    try {
-      const token = localStorage.getItem('token')
-      const formData = new FormData()
+    formData.append('type', reportForm.type)
+    formData.append('priority', reportForm.urgency)
+    formData.append('title', reportForm.type)
+    formData.append('description', reportForm.description)
+    formData.append('location', JSON.stringify({
+      address: reportForm.location,
+      coordinates: currentLocation ? {
+        lat: currentLocation.latitude,
+        lng: currentLocation.longitude
+      } : null
+    }))
+    
+    if (reportForm.voiceTranscription) {
+      formData.append('voiceTranscription', reportForm.voiceTranscription)
+    }
+    
+    if (reportForm.audioBlob) {
+      formData.append('voiceRecording', reportForm.audioBlob, 'recording.webm')
+    }
+    
+    const response = await fetch(`${API_URL}/incidents`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    })
+    
+    const data = await response.json()
+    
+    if (response.ok) {
+      alert('Report submitted successfully!')
       
-      formData.append('type', reportForm.type)
-      formData.append('priority', reportForm.urgency)
-      formData.append('title', reportForm.type)
-      formData.append('description', reportForm.description)
-      formData.append('location', JSON.stringify({
-        address: reportForm.location,
-        coordinates: currentLocation ? {
-          lat: currentLocation.latitude,
-          lng: currentLocation.longitude
-        } : null
-      }))
-      
-      if (reportForm.voiceTranscription) {
-        formData.append('voiceTranscription', reportForm.voiceTranscription)
-      }
-      
-      if (reportForm.audioBlob) {
-        formData.append('voiceRecording', reportForm.audioBlob, 'recording.webm')
-      }
-      
-      const response = await fetch(`${API_URL}/incidents`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
+      // Add to local reports
+      const newReport = data.incident || data
+      setReports(prev => {
+        const updated = [newReport, ...prev]
+        localStorage.setItem('reports', JSON.stringify(updated))
+        return updated
       })
       
-      const data = await response.json()
-      
-      if (response.ok) {
-        alert('Report submitted successfully!')
-        
-        // Add to local reports
-        const newReport = data.incident || data
-        setReports(prev => {
-          const updated = [newReport, ...prev]
-          localStorage.setItem('reports', JSON.stringify(updated))
-          return updated
-        })
-        
-        // Reset form
-        setReportForm({
-          type: '',
-          urgency: 'medium',
-          location: '',
-          description: '',
-          voiceTranscription: '',
-          audioBlob: null
-        })
-        clearBlobUrl()
-        setCurrentLocation(null)
-        setCurrentScreen('reports')
-      } else {
-        alert(data.message || 'Failed to submit report')
-      }
-    } catch (error) {
-      console.error('Report submission error:', error)
-      alert('Failed to submit report. Please try again.')
-    } finally {
-      setIsLoading(false)
+      // Reset form
+      setReportForm({
+        type: '',
+        urgency: 'medium',
+        location: '',
+        description: '',
+        voiceTranscription: '',
+        audioBlob: null
+      })
+      clearBlobUrl()
+      setCurrentLocation(null)
+      setCurrentScreen('reports')
+    } else {
+      console.error('Submit error:', data);
+      alert(data.error || data.message || 'Failed to submit report')
     }
+  } catch (error) {
+    console.error('Report submission error:', error)
+    alert('Failed to submit report. Please try again.')
+  } finally {
+    setIsLoading(false)
   }
+}
 
   // Profile handlers
   const handleEditProfile = () => {
@@ -647,23 +661,23 @@ function App() {
 
   // Add this function after the submitReport function
 
-const fetchUserReports = async () => {
-  try {
-    const token = localStorage.getItem('token')
-    const response = await fetch(`${API_URL}/incidents/user/${user.id}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+  const fetchUserReports = async () => {
+    try {
+      const token = localStorage.getItem('lilerp_token'); 
+      const response = await fetch(`${API_URL}/incidents`, {  
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setReports(Array.isArray(data) ? data : (data.incidents || data.reports || []))
       }
-    })
-    
-    if (response.ok) {
-      const data = await response.json()
-      setReports(data.incidents || data.reports || [])
+    } catch (error) {
+      console.error('Error fetching reports:', error)
     }
-  } catch (error) {
-    console.error('Error fetching reports:', error)
   }
-}
 
 // Add this useEffect to fetch reports on login
 useEffect(() => {
