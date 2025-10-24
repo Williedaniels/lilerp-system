@@ -992,20 +992,20 @@ app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
     });
 
     if (!responder) {
-      // If not a responder, return error
       return res.status(403).json({ error: 'Unauthorized - Responder access only' });
     }
 
-    // Get ALL incidents (not just assigned to this responder)
+    // Get ALL incidents - FIX THE ALIAS HERE
     const allIncidents = await Incident.findAll({
       include: [
         {
           model: User,
-          as: 'Reporter',
+          as: 'reporter', // Changed from 'Reporter' to 'reporter' (lowercase)
           attributes: ['id', 'name', 'phone', 'email']
         },
         {
           model: Responder,
+          as: 'responder', // Also lowercase for consistency
           attributes: ['id', 'specialization'],
           include: [{ model: User, attributes: ['name', 'phone'] }]
         }
@@ -1033,13 +1033,13 @@ app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
       responder: {
         id: responder.id,
         name: responder.User.name,
-        specialization: JSON.parse(responder.specialization), // Parse specialization
-        status: responder.status, // Changed from 'availability' to 'status'
-        totalResponses: responder.totalResponses, // Changed from 'totalCases' to 'totalResponses'
-        communityRating: responder.communityRating // Changed from 'rating' to 'communityRating'
+        specialization: responder.specialization,
+        status: responder.status,
+        totalResponses: responder.totalResponses,
+        communityRating: responder.communityRating
       },
-      incidents: allIncidents, // Show all incidents
-      assignedIncidents: assignedIncidents, // And specifically assigned ones
+      incidents: allIncidents,
+      assignedIncidents: assignedIncidents,
       stats: stats
     });
 

@@ -544,181 +544,281 @@ function ResponderDashboard() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Tab Navigation */}
-        <div className="mb-6">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`${
-                  activeTab === 'overview'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`${
-                  activeTab === 'analytics'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-              >
-                Analytics
-              </button>
-            </nav>
-          </div>
-        </div>
-
-        {/* Conditional rendering based on active tab */}
-        {activeTab === 'overview' ? (
+        {/* Dashboard or Analytics content */}
+        {currentScreen === 'dashboard' && (
           <div>
-            {/* Dashboard Screen */}
-            {currentScreen === 'dashboard' && (
-              <div className="space-y-6">
-                <div className="text-center mb-8">
-                  <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                    Welcome, {responder?.name}!
-                  </h2>
-                  <p className="text-gray-600">
-                    Emergency Response Dashboard
-                  </p>
-                </div>
+            {/* Tab Navigation - ONLY show on dashboard screen */}
+            <div className="mb-6">
+              <div className="border-b border-gray-200">
+                <nav className="-mb-px flex space-x-8">
+                  <button
+                    onClick={() => setActiveTab('overview')}
+                    className={`${
+                      activeTab === 'overview'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  >
+                    📊 Overview
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('analytics')}
+                    className={`${
+                      activeTab === 'analytics'
+                        ? 'border-green-500 text-green-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                  >
+                    📈 Analytics
+                  </button>
+                </nav>
+              </div>
+            </div>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-600">Total Reports</p>
-                          <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
-                        </div>
-                        <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
-                      </div>
-                    </CardContent>
-                  </Card>
+            {/* Conditional tab content */}
+            {activeTab === 'overview' ? (
+              <div>
+                {/* Dashboard Screen */}
+                {currentScreen === 'dashboard' && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                        Welcome, {responder?.name}!
+                      </h2>
+                      <p className="text-gray-600">
+                        Emergency Response Dashboard
+                      </p>
+                    </div>
 
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-600">Pending</p>
-                          <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
-                        </div>
-                        <Clock className="w-12 h-12 text-red-600 opacity-20" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-600">In Progress</p>
-                          <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
-                        </div>
-                        <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm text-gray-600">Resolved Today</p>
-                          <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
-                        </div>
-                        <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Quick Actions */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button
-                      onClick={() => setCurrentScreen('reports')}
-                      className="h-20 text-lg"
-                    >
-                      <AlertTriangle className="w-6 h-6 mr-2" />
-                      View All Reports
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setFilterStatus('pending')
-                        setCurrentScreen('reports')
-                      }}
-                      className="h-20 text-lg"
-                      variant="outline"
-                    >
-                      <Clock className="w-6 h-6 mr-2" />
-                      Pending Reports
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Recent Reports */}
-                {emergencyReports.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Recent Emergency Reports</CardTitle>
-                      <CardDescription>Latest reports requiring attention</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {emergencyReports.slice(0, 5).map(report => (
-                          <div
-                            key={report.id}
-                            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                            onClick={() => {
-                              setSelectedReport(report)
-                              setCurrentScreen('report-detail')
-                            }}
-                          >
-                            <div className="flex-1">
-                              <p className="font-medium">{report.type || report.title}</p>
-                              <p className="text-sm text-gray-600">
-                                {report.location?.address || report.location}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                {formatDate(report.createdAt)}
-                              </p>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Total Reports</p>
+                              <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge
-                                variant={
-                                  report.status === 'resolved' ? 'success' :
-                                  report.status === 'in_progress' ? 'warning' :
-                                  'default'
-                                }
-                              >
-                                {report.status}
-                              </Badge>
-                              <Badge variant="outline">
-                                {report.priority}
-                              </Badge>
-                            </div>
+                            <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Pending</p>
+                              <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
+                            </div>
+                            <Clock className="w-12 h-12 text-red-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">In Progress</p>
+                              <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
+                            </div>
+                            <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Resolved Today</p>
+                              <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
+                            </div>
+                            <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Quick Actions</CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button
+                          onClick={() => setCurrentScreen('reports')}
+                          className="h-20 text-lg"
+                        >
+                          <AlertTriangle className="w-6 h-6 mr-2" />
+                          View All Reports
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setFilterStatus('pending')
+                            setCurrentScreen('reports')
+                          }}
+                          className="h-20 text-lg"
+                          variant="outline"
+                        >
+                          <Clock className="w-6 h-6 mr-2" />
+                          Pending Reports
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Recent Reports */}
+                    {emergencyReports.length > 0 && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Recent Emergency Reports</CardTitle>
+                          <CardDescription>Latest reports requiring attention</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {emergencyReports.slice(0, 5).map(report => (
+                              <div
+                                key={report.id}
+                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                                onClick={() => {
+                                  setSelectedReport(report)
+                                  setCurrentScreen('report-detail')
+                                }}
+                              >
+                                <div className="flex-1">
+                                  <p className="font-medium">{report.type || report.title}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {report.location?.address || report.location}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {formatDate(report.createdAt)}
+                                  </p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Badge
+                                    variant={
+                                      report.status === 'resolved' ? 'success' :
+                                      report.status === 'in_progress' ? 'warning' :
+                                      'default'
+                                    }
+                                  >
+                                    {report.status}
+                                  </Badge>
+                                  <Badge variant="outline">
+                                    {report.priority}
+                                  </Badge>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
                 )}
               </div>
+            ) : (
+              <ResponderAnalytics />
             )}
           </div>
-        ) : (
-          <ResponderAnalytics />
+        )}
+
+        {/* Profile Screen */}
+        {currentScreen === 'profile' && (
+          <div className="max-w-2xl mx-auto">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <User className="w-6 h-6 mr-2" />
+                  Responder Profile
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {responder && (
+                  <>
+                    <div className="flex items-center space-x-4 pb-4 border-b">
+                      <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                        {responder.name?.charAt(0) || 'R'}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold">{responder.name}</h3>
+                        <p className="text-gray-600">{responder.email}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Phone</label>
+                        <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-semibold text-gray-700">Role</label>
+                        <Badge className="mt-1">{responder.role || 'responder'}</Badge>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={handleLogout}
+                      variant="destructive"
+                      className="w-full mt-6"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </main>
+
+      {/* Bottom Navigation - MOVED OUTSIDE all conditionals */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
+        <div className="flex justify-around items-center h-16">
+          <button
+            onClick={() => {
+              setCurrentScreen('dashboard');
+              setActiveTab('overview'); // Reset to overview when going to dashboard
+            }}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <Home className="w-6 h-6" />
+            <span className="text-xs mt-1">Dashboard</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentScreen('reports')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'reports' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <div className="relative">
+              <AlertTriangle className="w-6 h-6" />
+              {stats.pendingReports > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {stats.pendingReports}
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs mt-1">Reports</span>
+          </button>
+          
+          <button
+            onClick={handleProfileNavigation}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <User className="w-6 h-6" />
+            <span className="text-xs mt-1">Profile</span>
+          </button>
+        </div>
+      </nav>
 
       {/* Incident Details Modal */}
       {selectedIncident && (
@@ -812,44 +912,6 @@ function ResponderDashboard() {
           </div>
         </div>
       )}
-
-      {/* Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
-        <div className="flex justify-around items-center h-16">
-          <button
-            onClick={() => setCurrentScreen('dashboard')}
-            className={`flex flex-col items-center justify-center w-full transition-colors ${
-              currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
-            }`}
-          >
-            <BarChart3 className="w-6 h-6" />
-            <span className="text-xs mt-1">Dashboard</span>
-          </button>
-          <button
-            onClick={() => setCurrentScreen('reports')}
-            className={`flex flex-col items-center justify-center w-full transition-colors ${
-              currentScreen === 'reports' || currentScreen === 'report-detail' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
-            }`}
-          >
-            <div className="relative">
-              <AlertTriangle className="w-6 h-6" />
-              {stats.pendingReports > 0 && (
-                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">{stats.pendingReports}</Badge>
-              )}
-            </div>
-            <span className="text-xs mt-1">Reports</span>
-          </button>
-          <button
-            onClick={() => setCurrentScreen('profile')}
-            className={`flex flex-col items-center justify-center w-full transition-colors ${
-              currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
-            }`}
-          >
-            <User className="w-6 h-6" />
-            <span className="text-xs mt-1">Profile</span>
-          </button>
-        </div>
-      </nav>
     </div>
   )
 }
