@@ -1608,7 +1608,7 @@ const handleEmergencyCall = async () => {
 
             <button
               onClick={() => setCurrentScreen('reports')}
-              className={`p-4 flex flex-col items-center justify-center hover:bg-gray-50 ${
+              className={`relative p-4 flex flex-col items-center justify-center hover:bg-gray-50 ${
                 currentScreen === 'reports' ? 'text-green-600' : 'text-gray-500'
               }`}
             >
