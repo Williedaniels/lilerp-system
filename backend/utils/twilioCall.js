@@ -10,7 +10,7 @@ const toPhone = '+250792401374'; // Your phone number
 
 client.calls
   .create({
-    url: 'http://demo.twilio.com/docs/voice.xml', // Twilio demo XML for voice
+    url: 'http://demo.twilio.com/docs/voice.xml', 
     to: toPhone,
     from: fromPhone,
   })

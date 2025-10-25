@@ -1226,11 +1226,14 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
   }
 });
 
+// Define a base URL constant for all IVR webhooks
+const BASE_URL = process.env.BASE_URL || 'https://lilerp-backend.onrender.com';
+
 // IVR routes with comprehensive menu system
 app.post('/api/ivr/incoming-call', async (req, res) => {
   try {
     const { CallSid, From } = req.body;
-    
+
     console.log(`Incoming call: ${CallSid} from ${From}`);
     
     const twiml = new twilio.twiml.VoiceResponse();
@@ -1244,7 +1247,7 @@ app.post('/api/ivr/incoming-call', async (req, res) => {
     // Main menu
     const gather = twiml.gather({
       numDigits: 1,
-      action: '/api/ivr/handle-menu',
+      action: `${BASE_URL}/api/ivr/handle-menu`,
       method: 'POST',
       timeout: 10
     });
@@ -1255,7 +1258,7 @@ app.post('/api/ivr/incoming-call', async (req, res) => {
     }, 'For land dispute emergencies, press 1. For mining conflicts, press 2. For inheritance disputes, press 3. For other land issues, press 4. To speak with an operator, press 0.');
     
     // If no input, repeat
-    twiml.redirect('/api/ivr/incoming-call');
+    twiml.redirect(`${BASE_URL}/api/ivr/incoming-call`);
     
     res.type('text/xml').send(twiml.toString());
   } catch (error) {
@@ -1309,7 +1312,7 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
           twiml.say('All operators are currently busy. Please leave a message after the tone.');
           twiml.record({
             maxLength: 120,
-            action: `/api/ivr/handle-recording?callSid=${CallSid}&type=operator`,
+            action: `${BASE_URL}/api/ivr/handle-recording?callSid=${CallSid}&type=operator`,
             method: 'POST'
           });
         }
@@ -1318,7 +1321,7 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
         return;
       default:
         twiml.say('Invalid selection. Please try again.');
-        twiml.redirect('/api/ivr/incoming-call');
+        twiml.redirect(`${BASE_URL}/api/ivr/incoming-call`);
         res.type('text/xml').send(twiml.toString());
         return;
     }
@@ -1336,10 +1339,10 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
     
     twiml.record({
       maxLength: 120,
-      action: `/api/ivr/handle-recording?callSid=${CallSid}&type=${incidentType}`,
+      action: `${BASE_URL}/api/ivr/handle-recording?callSid=${CallSid}&type=${incidentType}`,
       method: 'POST',
       transcribe: true,
-      transcribeCallback: `/api/ivr/handle-transcription?callSid=${CallSid}`
+      transcribeCallback: `${BASE_URL}/api/ivr/handle-transcription?callSid=${CallSid}`
     });
     
     res.type('text/xml').send(twiml.toString());
@@ -1375,7 +1378,7 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
       type: type || 'other',
       title: `IVR Report - ${type || 'other'}`,
       description: `Emergency reported via IVR system from ${callerPhone}. Voice recording available.`,
-      location: { address: 'Location to be determined', coordinates: null },
+      location: JSON.stringify({ address: 'Location to be determined', coordinates: null }),
       priority: 'high',
       voiceRecording: RecordingUrl,
       callSid: CallSid,
@@ -1421,8 +1424,6 @@ app.post('/api/ivr/handle-transcription', async (req, res) => {
   }
 });
 
-// Update the initiate-call endpoint (around line 1252)
-
 app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
   try {
     const { phoneNumber } = req.body;
@@ -1461,10 +1462,10 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
 
     // Make call using Twilio
     const call = await twilioClient.calls.create({
-      url: `${process.env.BASE_URL || 'https://lilerp-backend.onrender.com'}/api/ivr/voice`,
+      url: `${BASE_URL}/api/ivr/incoming-call`,
       to: formattedPhone,
       from: process.env.TWILIO_PHONE_NUMBER,
-      statusCallback: `${process.env.BASE_URL || 'https://lilerp-backend.onrender.com'}/api/ivr/call-status`,
+      statusCallback: `${BASE_URL}/api/ivr/call-status`,
       statusCallbackEvent: ['initiated', 'ringing', 'answered', 'completed']
     });
 
@@ -1508,7 +1509,6 @@ app.post('/api/ivr/call-status', (req, res) => {
   }
 });
 
-// Also update the voice endpoint
 app.post('/api/ivr/voice', (req, res) => {
   try {
     const twiml = new twilio.twiml.VoiceResponse();
@@ -1527,7 +1527,7 @@ app.post('/api/ivr/voice', (req, res) => {
     
     twiml.gather({
       numDigits: 1,
-      action: '/api/ivr/handle-input',
+      action: `${BASE_URL}/api/ivr/handle-input`,
       method: 'POST'
     });
 
