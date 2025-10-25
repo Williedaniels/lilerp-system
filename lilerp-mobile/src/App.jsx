@@ -653,33 +653,6 @@ const handleSubmitReport = async (e) => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
   }
 
-  // Add this function after the submitReport function
-
-  const fetchUserReports = async () => {
-    try {
-      const token = localStorage.getItem('lilerp_token'); 
-      const response = await fetch(`${API_URL}/incidents`, {  
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        setReports(Array.isArray(data) ? data : (data.incidents || data.reports || []))
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error)
-    }
-  }
-
-// Add this useEffect to fetch reports on login
-useEffect(() => {
-  if (isAuthenticated && user) {
-    fetchUserReports()
-  }
-}, [isAuthenticated, user])
-
 // Add this function to handle emergency calls
 
 const handleEmergencyCall = async () => {

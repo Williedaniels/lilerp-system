@@ -730,7 +730,7 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json(user);
+    res.json({ user });
   } catch (error) {
     console.error('Profile fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -1371,7 +1371,7 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
     
     // Create incident even if caller not found in system
     await Incident.create({
-      reporterId: caller ? caller.id : null,
+      reportedBy: caller ? caller.id : null,
       type: type || 'other',
       title: `IVR Report - ${type || 'other'}`,
       description: `Emergency reported via IVR system from ${callerPhone}. Voice recording available.`,
