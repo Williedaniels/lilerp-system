@@ -85,12 +85,12 @@ function ResponderDashboard() {
     const initializeApp = async () => {
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('responderToken')
-      const savedResponder = localStorage.getItem('responder')
+      const token = localStorage.getItem('lilerp_token')
+      const savedResponder = localStorage.getItem('lilerp_user')
       
-      if (token && savedResponder) {
+      if (token && savedResponder) { // Check for standard user token
         try {
-          const response = await fetch(`${API_URL}/auth/me`, {
+          const response = await fetch(`${API_URL}/user/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -102,20 +102,20 @@ function ResponderDashboard() {
               setResponder(data.user)
               setIsAuthenticated(true)
               
-              // Fetch reports
-              fetchReports(token)
+              // Fetch incidents for dashboard
+              fetchIncidents(token)
               
               await minSplashTime
               setCurrentScreen('dashboard')
             } else {
-              localStorage.removeItem('responderToken')
-              localStorage.removeItem('responder')
+              // Not a responder, log them out of this dashboard
+              handleLogout()
               await minSplashTime
               setCurrentScreen('login')
             }
           } else {
-            localStorage.removeItem('responderToken')
-            localStorage.removeItem('responder')
+            // Invalid token
+            handleLogout()
             await minSplashTime
             setCurrentScreen('login')
           }
@@ -142,56 +142,20 @@ function ResponderDashboard() {
     }
   }, [isAuthenticated, responder]);
 
-  // Fetch reports from server
-  const fetchReports = async (token) => {
-    try {
-      const authToken = token || localStorage.getItem('responderToken')
-      const response = await fetch(`${API_URL}/incidents`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const reports = data.incidents || data.reports || data || []
-        setEmergencyReports(reports)
-        
-        // Calculate stats
-        const pending = reports.filter(r => r.status === 'pending').length
-        const inProgress = reports.filter(r => r.status === 'in_progress').length
-        const today = new Date().toDateString()
-        const resolvedToday = reports.filter(r => {
-          return r.status === 'resolved' && 
-                 new Date(r.resolvedAt).toDateString() === today
-        }).length
-        
-        setStats({
-          totalReports: reports.length,
-          pendingReports: pending,
-          inProgressReports: inProgress,
-          resolvedToday
-        })
-      }
-    } catch (error) {
-      console.error('Error fetching reports:', error)
-    }
-  }
-
   // Fetch incidents from server
-  const fetchIncidents = async () => {
+  const fetchIncidents = async (token) => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('lilerp_token');
+      const authToken = token || localStorage.getItem('lilerp_token');
       
-      if (!token) {
+      if (!authToken) {
         setIsAuthenticated(false);
         return;
       }
 
       const response = await fetch(`${API_URL}/responders/dashboard`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${authToken}`,
         },
       });
 
@@ -227,7 +191,7 @@ function ResponderDashboard() {
   // Refresh token
   const refreshToken = async () => {
     try {
-      const refreshToken = localStorage.getItem('responderRefreshToken')
+      const refreshToken = localStorage.getItem('lilerp_refreshToken')
       if (!refreshToken) {
         handleLogout()
         return
@@ -243,8 +207,8 @@ function ResponderDashboard() {
 
       if (response.ok) {
         const data = await response.json()
-        localStorage.setItem('responderToken', data.token)
-        localStorage.setItem('responderRefreshToken', data.refreshToken)
+        localStorage.setItem('lilerp_token', data.token)
+        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
         return data.token
       } else {
         handleLogout()
@@ -273,15 +237,15 @@ function ResponderDashboard() {
       
       if (response.ok) {
         if (data.user.isResponder) {
-          localStorage.setItem('responderToken', data.token)
-          localStorage.setItem('responderRefreshToken', data.refreshToken)
-          localStorage.setItem('responder', JSON.stringify(data.user))
+          localStorage.setItem('lilerp_token', data.token)
+          localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+          localStorage.setItem('lilerp_user', JSON.stringify(data.user))
           setResponder(data.user)
           setIsAuthenticated(true)
           setCurrentScreen('dashboard')
           
-          // Fetch reports
-          fetchReports(data.token)
+          // Fetch incidents for dashboard
+          fetchIncidents(data.token)
           
           alert('Login successful!')
         } else {
@@ -304,12 +268,9 @@ function ResponderDashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('lilerp_token');
+    localStorage.removeItem('lilerp_refreshToken');
     localStorage.removeItem('lilerp_user');
-    localStorage.removeItem('responderToken');
-    localStorage.removeItem('responder');
-    setIsLoggedIn(false);
     setIsAuthenticated(false);
-    setUser(null);
     setResponder(null);
     setCurrentScreen('login');
   };
@@ -317,7 +278,7 @@ function ResponderDashboard() {
   // Report actions
   const handleAssignReport = async (reportId) => {
     try {
-      const token = localStorage.getItem('responderToken')
+      const token = localStorage.getItem('lilerp_token')
       const response = await fetch(`${API_URL}/incidents/${reportId}/assign`, {
         method: 'PUT',
         headers: {
@@ -328,7 +289,7 @@ function ResponderDashboard() {
 
       if (response.ok) {
         alert('Report assigned successfully!')
-        fetchReports()
+        fetchIncidents()
       } else {
         alert('Failed to assign report')
       }
@@ -340,7 +301,7 @@ function ResponderDashboard() {
 
   const handleUpdateStatus = async (reportId, newStatus) => {
     try {
-      const token = localStorage.getItem('responderToken')
+      const token = localStorage.getItem('lilerp_token')
       const response = await fetch(`${API_URL}/incidents/${reportId}`, {
         method: 'PUT',
         headers: {
@@ -352,7 +313,7 @@ function ResponderDashboard() {
 
       if (response.ok) {
         alert('Status updated successfully!')
-        fetchReports()
+        fetchIncidents()
         if (selectedReport && selectedReport.id === reportId) {
           setSelectedReport({ ...selectedReport, status: newStatus })
         }
