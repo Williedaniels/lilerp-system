@@ -192,13 +192,13 @@ function App() {
       // Show splash screen for at least 2 seconds
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('lilerp_token')
-      const savedUser = localStorage.getItem('lilerp_user')
+      const token = localStorage.getItem('token')
+      const savedUser = localStorage.getItem('user')
       
-      if (token && savedUser) { // check for standardized user token
+      if (token && savedUser) {
         try {
           // Verify token is still valid
-          const response = await fetch(`${API_URL}/user/profile`, {
+          const response = await fetch(`${API_URL}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -222,14 +222,19 @@ function App() {
             setCurrentScreen('home')
           } else {
             // Token invalid, clear storage
-            handleLogout() // Use the logout function to clear all relevant keys
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            localStorage.removeItem('reports')
+            localStorage.removeItem('refreshToken')
             await minSplashTime
             setCurrentScreen('login')
           }
         } catch (error) {
           console.error('Auth check failed:', error)
-          // Auth failed, clear storage
-          handleLogout()
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          localStorage.removeItem('reports')
+          localStorage.removeItem('refreshToken')
           await minSplashTime
           setCurrentScreen('login')
         }
@@ -248,7 +253,7 @@ function App() {
 
 const fetchReports = useCallback(async (token) => {
   try {
-    const authToken = token || localStorage.getItem('lilerp_token'); 
+    const authToken = token || localStorage.getItem('lilerp_token'); // Changed from 'token'
     
     if (!authToken) {
       console.log('No token available');
@@ -281,7 +286,7 @@ const fetchReports = useCallback(async (token) => {
   // Refresh token
   const refreshToken = async () => {
     try {
-      const refreshToken = localStorage.getItem('lilerp_refreshToken')
+      const refreshToken = localStorage.getItem('refreshToken')
       if (!refreshToken) {
         handleLogout()
         return
@@ -297,8 +302,8 @@ const fetchReports = useCallback(async (token) => {
 
       if (response.ok) {
         const data = await response.json()
-        localStorage.setItem('lilerp_token', data.token)
-        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('refreshToken', data.refreshToken)
         return data.token
       } else {
         handleLogout()
@@ -522,7 +527,8 @@ const handleSubmitReport = async (e) => {
   setIsLoading(true)
   
   try {
-    const token = localStorage.getItem('lilerp_token'); 
+    // FIX: Use correct token key
+    const token = localStorage.getItem('lilerp_token'); // Changed from 'token'
     
     if (!token) {
       alert('Please login first');
@@ -610,8 +616,8 @@ const handleSubmitReport = async (e) => {
 
   const handleSaveProfile = async () => {
     try {
-      const token = localStorage.getItem('lilerp_token')
-      const response = await fetch(`${API_URL}/user/profile`, {
+      const token = localStorage.getItem('token')
+      const response = await fetch(`${API_URL}/users/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -623,7 +629,7 @@ const handleSubmitReport = async (e) => {
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
-        localStorage.setItem('lilerp_user', JSON.stringify(data.user))
+        localStorage.setItem('user', JSON.stringify(data.user))
         setIsEditingProfile(false)
         alert('Profile updated successfully!')
       } else {
