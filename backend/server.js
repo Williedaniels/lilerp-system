@@ -360,11 +360,11 @@ const CallLog = sequelize.define('CallLog', {
 User.hasOne(Responder, { foreignKey: 'userId' });
 Responder.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(Incident, { foreignKey: 'reporterId' });
-Incident.belongsTo(User, { foreignKey: 'reporterId', as: 'reporter' });
-
 Responder.hasMany(Incident, { foreignKey: 'responderId' });
 Incident.belongsTo(Responder, { foreignKey: 'responderId', as: 'responder' });
+
+User.hasMany(Incident, { foreignKey: 'reportedBy' });
+Incident.belongsTo(User, { as: 'reporter', foreignKey: 'reportedBy' });
 
 Incident.hasMany(CallLog, { foreignKey: 'incidentId' });
 CallLog.belongsTo(Incident, { foreignKey: 'incidentId' });
@@ -578,24 +578,15 @@ app.post('/api/auth/login', async (req, res) => {
       console.log('❌ Invalid password for:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-
+    
     // Generate tokens
-    const token = jwt.sign(
-      { userId: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '30d' }
-    );
-
+    const { accessToken, refreshToken } = generateTokens(user);
+    await user.update({ refreshToken, lastLogin: new Date() });
+    
     console.log('✅ Login successful for:', email);
 
     res.json({
-      token,
+      token: accessToken,
       refreshToken,
       user: {
         id: user.id,
@@ -845,10 +836,9 @@ app.get('/api/incidents', authenticateToken, async (req, res) => {
     const { status, type, priority } = req.query;
     const where = {};
     
-    if (req.user.role === 'user' && !req.user.isResponder) {
-      where.reporterId = req.user.userId;
-    }
-    
+    // Always filter by the logged-in user for this endpoint.
+    where.reportedBy = req.user.userId;
+
     if (status) where.status = status;
     if (type) where.type = type;
     if (priority) where.priority = priority;

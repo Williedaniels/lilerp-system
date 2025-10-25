@@ -159,7 +159,7 @@ function App() {
         
         if (finalTranscript) {
           setReportForm(prev => ({
-            ...prev, // This was a bug, it should be prev.voiceTranscription
+            ...prev,
             voiceTranscription: prev.voiceTranscription + finalTranscript
           }))
         }
@@ -747,7 +747,7 @@ const handleEmergencyCall = async () => {
 
   // Login Screen
   if (currentScreen === 'login') {
-    return ( // This was a bug, it should be prev.voiceTranscription
+    return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
@@ -814,7 +814,7 @@ const handleEmergencyCall = async () => {
 
   // Register Screen
   if (currentScreen === 'register') {
-    return ( // This was a bug, it should be prev.voiceTranscription
+    return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
