@@ -70,6 +70,17 @@ const Avatar = ({ name }) => {
   );
 };
 
+const getAudioUrl = (path) => {
+  if (!path) return '';
+  // If it's a full URL (from Twilio), use it directly
+  if (path.startsWith('http')) {
+    return path;
+  }
+  // Otherwise, it's a local path, construct the full URL from API_URL
+  const baseUrl = API_URL.replace('/api', '');
+  return `${baseUrl}${path}`;
+};
+
 function App() {
   const navigate = useNavigate();
 
@@ -1451,7 +1462,7 @@ const handleEmergencyCall = async () => {
                           <div className="pt-4 border-t">
                             <p className="text-sm font-medium mb-2 text-gray-700">Voice Recording:</p>
                             <audio 
-                              src={`${API_URL}${report.voiceRecording}`} 
+                              src={getAudioUrl(report.voiceRecording)} 
                               controls 
                               className="w-full"
                             />

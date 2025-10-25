@@ -46,6 +46,17 @@ import {
   User
 } from 'lucide-react'
 
+const getAudioUrl = (path) => {
+  if (!path) return '';
+  // If it's a full URL (from Twilio), use it directly
+  if (path.startsWith('http')) {
+    return path;
+  }
+  // Otherwise, it's a local path, construct the full URL from API_URL
+  const baseUrl = API_URL.replace('/api', '');
+  return `${baseUrl}${path}`;
+};
+
 function ResponderDashboard() {
   // Core state
   const [currentScreen, setCurrentScreen] = useState('splash')
@@ -918,6 +929,29 @@ function ResponderDashboard() {
                   <h3 className="font-semibold text-gray-700">Description</h3>
                   <p className="text-gray-600">{selectedIncident.description}</p>
                 </div>
+
+                {/* Voice Recording & Transcription */}
+                {selectedIncident.voiceRecording && (
+                  <div>
+                    <h3 className="font-semibold text-gray-700 mb-2">Voice Recording</h3>
+                    <audio
+                      src={getAudioUrl(selectedIncident.voiceRecording)}
+                      controls
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                {selectedIncident.voiceTranscription && (
+                  <div>
+                    <h3 className="font-semibold text-gray-700 mb-2">
+                      Transcription
+                    </h3>
+                    <p className="text-gray-600 italic bg-gray-100 p-3 rounded-md">
+                      "{selectedIncident.voiceTranscription}"
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
