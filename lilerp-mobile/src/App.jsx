@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge.jsx'
 import { Input } from '@/components/ui/input.jsx'
 import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
+import { Toaster, toast } from 'sonner';
 import { API_URL } from '@/lib/config'
 import { 
   Phone, 
@@ -468,13 +469,13 @@ function App() {
         // Fetch user's reports
         fetchReports(data.token)
         
-        alert('Login successful!')
+        toast.success('Login successful!')
       } else {
-        alert(data.message || 'Login failed')
+        toast.error(data.message || 'Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
-      alert('Login failed. Please try again.')
+      toast.error('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -484,7 +485,7 @@ function App() {
     e.preventDefault()
     
     if (registerForm.password !== registerForm.confirmPassword) {
-      alert('Passwords do not match')
+      toast.error('Passwords do not match')
       return
     }
     
@@ -514,13 +515,13 @@ function App() {
         setUser(data.user)
         setIsAuthenticated(true)
         setCurrentScreen('home')
-        alert('Registration successful!')
+        toast.success('Registration successful!')
       } else {
-        alert(data.message || 'Registration failed')
+        toast.error(data.message || 'Registration failed')
       }
     } catch (error) {
       console.error('Registration error:', error)
-      alert('Registration failed. Please try again.')
+      toast.error('Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -532,7 +533,7 @@ const handleSubmitReport = async (e) => {
   e.preventDefault()
   
   if (!reportForm.type || !reportForm.location || !reportForm.description) {
-    alert('Please fill in all required fields')
+    toast.warning('Please fill in all required fields')
     return
   }
   
@@ -542,7 +543,7 @@ const handleSubmitReport = async (e) => {
     const token = localStorage.getItem('lilerp_token');
     
     if (!token) {
-      alert('Please login first');
+      toast.error('Please login first');
       setCurrentScreen('login');
       return;
     }
@@ -580,7 +581,7 @@ const handleSubmitReport = async (e) => {
     const data = await response.json()
     
     if (response.ok) {
-      alert('Report submitted successfully!')
+      toast.success('Report submitted successfully!')
       
       // Add to local reports
       const newReport = data.incident || data
@@ -604,11 +605,11 @@ const handleSubmitReport = async (e) => {
       setCurrentScreen('reports')
     } else {
       console.error('Submit error:', data);
-      alert(data.error || data.message || 'Failed to submit report')
+      toast.error(data.error || data.message || 'Failed to submit report')
     }
   } catch (error) {
     console.error('Report submission error:', error)
-    alert('Failed to submit report. Please try again.')
+    toast.error('Failed to submit report. Please try again.')
   } finally {
     setIsLoading(false)
   }
@@ -642,13 +643,13 @@ const handleSubmitReport = async (e) => {
         setUser(data.user)
         localStorage.setItem('lilerp_user', JSON.stringify(data.user))
         setIsEditingProfile(false)
-        alert('Profile updated successfully!')
+        toast.success('Profile updated successfully!')
       } else {
         throw new Error('Failed to update profile')
       }
     } catch (error) {
       console.error('Profile update error:', error)
-      alert('Failed to update profile')
+      toast.error('Failed to update profile')
     }
   }
 
@@ -678,7 +679,7 @@ const handleEmergencyCall = async () => {
     const token = localStorage.getItem('lilerp_token');
     
     if (!token) {
-      alert('❌ Please login first to use emergency call feature.');
+      toast.error('Please login first to use emergency call feature.');
       return;
     }
 
@@ -701,7 +702,7 @@ const handleEmergencyCall = async () => {
     const data = await response.json();
     
     if (response.ok) {
-      alert('📞 Emergency call initiated! You will receive a call shortly. Your reports list will be updated in a minute.');
+      toast.info('📞 Emergency call initiated! You will receive a call shortly. Your reports list will be updated in a minute.');
       // After a delay, fetch reports again to include the new IVR report
       setTimeout(() => {
         console.log('Refreshing reports list after IVR call initiation...');
@@ -709,11 +710,11 @@ const handleEmergencyCall = async () => {
       }, 60000); // 60-second delay to allow for call completion
     } else {
       console.error('Call failed:', data);
-      alert(`❌ Failed to initiate call: ${data.error || 'Please try again.'}`);
+      toast.error(`Failed to initiate call: ${data.error || 'Please try again.'}`);
     }
   } catch (error) {
     console.error('Error initiating call:', error);
-    alert(`❌ Error initiating call: ${error.message}`);
+    toast.error(`Error initiating call: ${error.message}`);
   }
 };
 
@@ -924,6 +925,7 @@ const handleEmergencyCall = async () => {
   // Main App (Authenticated)
   return (
     <>
+      <Toaster richColors position="top-center" />
       <style>{`
         .screen-container {
           animation: fadeIn 0.4s ease-in-out;

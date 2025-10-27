@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input.jsx'
 import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
+import { Toaster, toast } from 'sonner';
 import ResponderAnalytics from './components/ui/ResponderAnalytics';
 import IncidentMap from './components/ui/incident-map.jsx';
 import { 
@@ -257,16 +258,16 @@ function ResponderDashboard() {
           // Fetch incidents for dashboard
           fetchIncidents(data.token)
           
-          alert('Login successful!')
+          toast.success('Login successful!')
         } else {
-          alert('This account is not authorized as a responder')
+          toast.error('This account is not authorized as a responder')
         }
       } else {
-        alert(data.message || 'Login failed')
+        toast.error(data.message || 'Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
-      alert('Login failed. Please try again.')
+      toast.error('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -298,14 +299,14 @@ function ResponderDashboard() {
       })
 
       if (response.ok) {
-        alert('Report assigned successfully!')
+        toast.success('Report assigned successfully!')
         fetchIncidents()
       } else {
-        alert('Failed to assign report')
+        toast.error('Failed to assign report')
       }
     } catch (error) {
       console.error('Error assigning report:', error)
-      alert('Failed to assign report')
+      toast.error('Failed to assign report')
     }
   }
 
@@ -322,17 +323,17 @@ function ResponderDashboard() {
       })
 
       if (response.ok) {
-        alert('Status updated successfully!')
+        toast.success('Status updated successfully!')
         fetchIncidents()
         if (selectedIncident && selectedIncident.id === reportId) {
           setSelectedIncident({ ...selectedIncident, status: newStatus })
         }
       } else {
-        alert('Failed to update status')
+        toast.error('Failed to update status')
       }
     } catch (error) {
       console.error('Error updating status:', error)
-      alert('Failed to update status')
+      toast.error('Failed to update status')
     }
   }
 
@@ -340,7 +341,7 @@ function ResponderDashboard() {
     if (phoneNumber) {
       window.location.href = `tel:${phoneNumber}`
     } else {
-      alert('Phone number not available')
+      toast.warning('Phone number not available')
     }
   }
 
@@ -349,7 +350,7 @@ function ResponderDashboard() {
       const { lat, lng } = location.coordinates
       window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
     } else {
-      alert('Location coordinates not available')
+      toast.warning('Location coordinates not available')
     }
   }
 
@@ -457,6 +458,7 @@ function ResponderDashboard() {
   // Main Dashboard
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster richColors position="top-center" />
       {/* Header */}
       <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">

@@ -1005,13 +1005,17 @@ app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
 
-    // Calculate statistics
+    // Calculate global statistics from all incidents
+    const today = new Date().toDateString();
     const stats = {
-      totalAssigned: assignedIncidents.length,
-      pending: assignedIncidents.filter(i => i.status === 'pending').length,
-      investigating: assignedIncidents.filter(i => i.status === 'investigating').length,
-      resolved: assignedIncidents.filter(i => i.status === 'resolved').length,
-      avgResponseTime: 0
+      totalReports: allIncidents.length,
+      pending: allIncidents.filter(i => i.status === 'pending').length,
+      investigating: allIncidents.filter(i => i.status === 'investigating' || i.status === 'assigned').length,
+      resolvedToday: allIncidents.filter(r => 
+        r.status === 'resolved' && 
+        r.resolvedAt && 
+        new Date(r.resolvedAt).toDateString() === today
+      ).length
     };
 
     res.json({
