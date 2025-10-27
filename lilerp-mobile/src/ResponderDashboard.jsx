@@ -722,7 +722,7 @@ function ResponderDashboard() {
               {incidents
                 .filter(incident => filterStatus === 'all' || incident.status === filterStatus)
                 .map((incident) => (
-                  <Card 
+                  <Card
                     key={incident.id}
                     className="cursor-pointer hover:shadow-lg transition-shadow"
                     onClick={() => setSelectedIncident(incident)}
