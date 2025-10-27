@@ -197,6 +197,83 @@ function App() {
     }
   }, [])
 
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem('lilerp_token')
+    localStorage.removeItem('lilerp_refreshToken')
+    localStorage.removeItem('lilerp_user')
+    localStorage.removeItem('lilerp_reports')
+    setUser(null)
+    setIsAuthenticated(false)
+    setCurrentScreen('login')
+    setReports([])
+  }, []);
+
+  // Refresh token
+  const refreshToken = useCallback(async () => {
+    try {
+      const storedRefreshToken = localStorage.getItem('lilerp_refreshToken')
+      if (!storedRefreshToken) {
+        handleLogout()
+        return null;
+      }
+
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken: storedRefreshToken })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        localStorage.setItem('lilerp_token', data.token)
+        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+        return data.token
+      } else {
+        handleLogout()
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error)
+      handleLogout()
+    }
+    return null;
+  }, [handleLogout]);
+
+  // Fetch reports from server
+  const fetchReports = useCallback(async (token) => {
+    try {
+      const authToken = token || localStorage.getItem('lilerp_token'); 
+      
+      if (!authToken) {
+        console.log('No token available');
+        return;
+      }
+      
+      const response = await fetch(`${API_URL}/incidents`, {  // Changed from /incidents/user
+        headers: {
+          'Authorization': `Bearer ${authToken}`
+        }
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        const fetchedReports = Array.isArray(data) ? data : (data.incidents || data.reports || [])
+        setReports(fetchedReports)
+        localStorage.setItem('lilerp_reports', JSON.stringify(fetchedReports))
+      } else if (response.status === 401) {
+        const newToken = await refreshToken();
+        if (newToken) await fetchReports(newToken);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error)
+      const savedReports = localStorage.getItem('lilerp_reports')
+      if (savedReports) {
+        setReports(JSON.parse(savedReports))
+      }
+    }
+  }, [refreshToken]);
+
   // Splash screen and authentication check
   useEffect(() => {
     const initializeApp = async () => {
@@ -259,74 +336,6 @@ function App() {
     
     initializeApp()
   }, [fetchReports])
-
-  // Fetch reports from server
-
-const fetchReports = useCallback(async (token) => {
-  try {
-    const authToken = token || localStorage.getItem('lilerp_token'); 
-    
-    if (!authToken) {
-      console.log('No token available');
-      return;
-    }
-    
-    const response = await fetch(`${API_URL}/incidents`, {  // Changed from /incidents/user
-      headers: {
-        'Authorization': `Bearer ${authToken}`
-      }
-    })
-
-    if (response.ok) {
-      const data = await response.json()
-      const fetchedReports = Array.isArray(data) ? data : (data.incidents || data.reports || [])
-      setReports(fetchedReports)
-      localStorage.setItem('lilerp_reports', JSON.stringify(fetchedReports))
-    } else if (response.status === 401) {
-      const newToken = await refreshToken();
-      if (newToken) await fetchReports(newToken);
-    }
-  } catch (error) {
-    console.error('Error fetching reports:', error)
-    const savedReports = localStorage.getItem('lilerp_reports')
-    if (savedReports) {
-      setReports(JSON.parse(savedReports))
-    }
-  }
-}, [refreshToken])
-
-  // Refresh token
-  const refreshToken = useCallback(async () => {
-    try {
-      const storedRefreshToken = localStorage.getItem('lilerp_refreshToken')
-      if (!storedRefreshToken) {
-        handleLogout()
-        return null;
-      }
-
-      const response = await fetch(`${API_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ refreshToken: storedRefreshToken })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem('lilerp_token', data.token)
-        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
-        return data.token
-      } else {
-        handleLogout()
-      }
-    } catch (error) {
-      console.error('Token refresh error:', error)
-      handleLogout()
-    }
-    return null;
-  }, []);
-
 
   // Recording timer
   useEffect(() => {
@@ -515,17 +524,6 @@ const fetchReports = useCallback(async (token) => {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem('lilerp_token')
-    localStorage.removeItem('lilerp_refreshToken')
-    localStorage.removeItem('lilerp_user')
-    localStorage.removeItem('lilerp_reports')
-    setUser(null)
-    setIsAuthenticated(false)
-    setCurrentScreen('login')
-    setReports([])
   }
 
   // Find the handleSubmitReport function (around line 520) and update:
