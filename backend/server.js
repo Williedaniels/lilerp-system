@@ -38,8 +38,13 @@ const upload = multer({
 
 // Security middleware
 app.use(helmet());
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:5173',
+  'https://lilerp-system.vercel.app' // Your deployed frontend
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: allowedOrigins,
   credentials: true
 }));
 
@@ -772,7 +777,7 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
     console.log('User ID:', req.user.userId);
     console.log('Body:', req.body);
 
-    const { type, priority, title, description, location } = req.body;
+    const { type, priority, title, description, location, voiceTranscription } = req.body;
     
     // Validate required fields
     if (!type || !description) {
@@ -789,13 +794,6 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
       }
     }
 
-    // Find an available responder (simple round-robin)
-    const availableResponder = await Responder.findOne({ // Changed from 'availability' to 'status'
-      where: { status: 'active' },
-      order: sequelize.random(), // Random assignment
-      include: [{ model: User }]
-    });
-
     // Create incident
     const incident = await Incident.create({
       type: type,
@@ -808,17 +806,12 @@ app.post('/api/incidents', authenticateToken, upload.single('voiceRecording'), a
       status: 'pending', // Default status for new incidents
       reportedVia: 'mobile_app',
       reportedBy: req.user.userId,
-      responderId: availableResponder?.id || null,
-      voiceRecording: req.file ? `/uploads/${req.file.filename}` : null
+      responderId: null, // Incidents should be unassigned on creation
+      voiceRecording: req.file ? `/uploads/${req.file.filename}` : null,
+      voiceTranscription: voiceTranscription || null
     });
 
     console.log('✅ Incident created:', incident.id);
-
-    // If responder assigned, update their stats
-    if (availableResponder) { // This field does not exist in the Responder model. It should be totalResponses.
-      await availableResponder.increment('totalResponses');
-      console.log('📌 Assigned to responder:', availableResponder.id);
-    }
 
     res.status(201).json({
       message: 'Incident reported successfully',
@@ -991,7 +984,7 @@ app.get('/api/responders/dashboard', authenticateToken, async (req, res) => {
         {
           model: User,
           as: 'reporter', // Changed from 'Reporter' to 'reporter' (lowercase)
-          attributes: ['id', 'name', 'phone', 'email']
+          attributes: ['id', 'name', 'phone', 'email', 'community']
         },
         {
           model: Responder,
@@ -1089,9 +1082,7 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
         'status',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
       ],
-      where: {
-        responderId: responder.id
-      },
+      // where: { responderId: responder.id }, // Removed to make analytics global
       group: ['status'],
       raw: true
     });
@@ -1102,9 +1093,7 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
         'type',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
       ],
-      where: {
-        responderId: responder.id
-      },
+      // where: { responderId: responder.id }, // Removed to make analytics global
       group: ['type'],
       raw: true
     });
@@ -1115,9 +1104,7 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
         'priority',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
       ],
-      where: {
-        responderId: responder.id
-      },
+      // where: { responderId: responder.id }, // Removed to make analytics global
       group: ['priority'],
       raw: true
     });
@@ -1146,8 +1133,7 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
         [sequelize.fn('MAX', sequelize.col('responseTime')), 'maxTime']
       ],
       where: {
-        responderId: responder.id,
-        responseTime: { [Op.not]: null }
+        responseTime: { [Op.not]: null } // Removed responderId filter
       },
       raw: true
     });
@@ -1160,10 +1146,8 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
         [sequelize.fn('SUM', sequelize.literal("CASE WHEN status = 'resolved' THEN 1 ELSE 0 END")), 'resolved']
       ],
       where: {
-        responderId: responder.id,
-        createdAt: {
-          [Op.gte]: thirtyDaysAgo
-        }
+        // responderId: responder.id, // Removed to make analytics global
+        createdAt: { [Op.gte]: thirtyDaysAgo }
       },
       group: [sequelize.fn('strftime', '%Y-%m', sequelize.col('createdAt'))],
       order: [[sequelize.fn('strftime', '%Y-%m', sequelize.col('createdAt')), 'DESC']],
@@ -1172,14 +1156,11 @@ app.get('/api/responders/analytics', authenticateToken, async (req, res) => {
 
     // Performance metrics
     const totalIncidents = await Incident.count({
-      where: { responderId: responder.id }
+      // where: { responderId: responder.id } // Removed to count all incidents
     });
 
     const resolvedIncidents = await Incident.count({
-      where: {
-        responderId: responder.id,
-        status: 'resolved'
-      }
+      where: { status: 'resolved' } // Removed responderId filter
     });
 
     const avgResponseTime = responseTimeStats[0]?.avgTime || 0;
@@ -1335,15 +1316,17 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
     });
     
     twiml.say(message);
-    twiml.say('Please describe your emergency in detail after the tone. You will have up to 2 minutes to record your message.');
-    
-    twiml.record({
-      maxLength: 120,
-      action: `${BASE_URL}/api/ivr/handle-recording?callSid=${CallSid}&type=${incidentType}`,
+
+    const gather = twiml.gather({
+      numDigits: 1,
+      action: `${BASE_URL}/api/ivr/handle-priority?type=${incidentType}`,
       method: 'POST',
-      transcribe: true,
-      transcribeCallback: `${BASE_URL}/api/ivr/handle-transcription?callSid=${CallSid}`
+      timeout: 10
     });
+    gather.say('Is this matter urgent? Press 1 for urgent. Press 2 for not urgent.');
+
+    // If no input, redirect to handle-priority with no digit, which will default it.
+    twiml.redirect(`${BASE_URL}/api/ivr/handle-priority?type=${incidentType}`);
     
     res.type('text/xml').send(twiml.toString());
   } catch (error) {
@@ -1356,10 +1339,42 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
   }
 });
 
+app.post('/api/ivr/handle-priority', async (req, res) => {
+  try {
+    const { Digits, CallSid } = req.body;
+    const incidentType = req.query.type;
+    const twiml = new twilio.twiml.VoiceResponse();
+    let priority = 'medium';
+    if (Digits === '1') {
+      priority = 'high';
+      twiml.say('You have selected urgent.');
+    } else if (Digits === '2') {
+      priority = 'low';
+      twiml.say('You have selected not urgent.');
+    } else {
+      twiml.say('No selection was made. This report will be marked as medium priority.');
+    }
+    twiml.say('Please describe your emergency in detail after the tone. You will have up to 2 minutes to record your message.');
+    twiml.record({
+      maxLength: 120,
+      action: `${BASE_URL}/api/ivr/handle-recording?callSid=${CallSid}&type=${incidentType}&priority=${priority}`,
+      method: 'POST',
+      transcribe: true,
+      transcribeCallback: `${BASE_URL}/api/ivr/handle-transcription?callSid=${CallSid}`
+    });
+    res.type('text/xml').send(twiml.toString());
+  } catch (error) {
+    console.error('IVR priority handling error:', error);
+    const twiml = new twilio.twiml.VoiceResponse();
+    twiml.say('An error occurred. Please try again later.');
+    res.type('text/xml').send(twiml.toString());
+  }
+});
+
 app.post('/api/ivr/handle-recording', async (req, res) => {
   try {
     const { RecordingUrl, CallSid, From, To } = req.body;
-    const type = req.query.type;
+    const { type, priority } = req.query;
 
     console.log(`Recording received: ${RecordingUrl} for call ${CallSid}`);
 
@@ -1380,7 +1395,7 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
       title: `IVR Report - ${type || 'other'}`,
       description: `Emergency reported via IVR system to ${calledNumber}. Voice recording available.`,
       location: 'Location not specified',
-      priority: 'high',
+      priority: priority || 'medium',
       voiceRecording: RecordingUrl,
       callSid: CallSid,
       reportedVia: 'ivr_call'
