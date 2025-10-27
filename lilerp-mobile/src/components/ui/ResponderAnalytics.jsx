@@ -18,7 +18,7 @@ const ResponderAnalytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const token = localStorage.getItem('lilerp_token');
+      const token = localStorage.getItem('lilerp_responder_token');
       const response = await fetch(`${API_URL}/responders/analytics`, {
         headers: {
           'Authorization': `Bearer ${token}`
