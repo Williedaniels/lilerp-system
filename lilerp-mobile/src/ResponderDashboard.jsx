@@ -179,10 +179,10 @@ function ResponderDashboard() {
         
         // Set stats if available
         setStats({
-          totalReports: data.incidents?.length || 0,
+          totalReports: data.stats?.totalReports || data.incidents?.length || 0,
           pendingReports: data.stats?.pending || 0,
           inProgressReports: data.stats?.investigating || 0,
-          resolvedToday: data.stats?.resolved || 0
+          resolvedToday: data.stats?.resolvedToday || 0
         });
       } else if (response.status === 401 || response.status === 403) {
         setIsAuthenticated(false);

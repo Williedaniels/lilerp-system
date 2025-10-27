@@ -1391,7 +1391,7 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
     const caller = await User.findOne({ where: { phone: callerPhone } });
 
     // Create incident even if caller not found in system
-    await Incident.create({
+    const incident = await Incident.create({
       reportedBy: caller ? caller.id : null,
       type: type || 'other',
       title: `IVR Report - ${type || 'other'}`,
@@ -1402,6 +1402,21 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
       callSid: CallSid,
       reportedVia: 'ivr_call'
     });
+
+    // Send SMS confirmation
+    if (twilioClient && callerPhone) {
+      try {
+        await twilioClient.messages.create({
+          body: `LILERP: Your report (ID: ${incident.id}) has been received. A responder will be in touch shortly.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: callerPhone
+        });
+        console.log(`✅ SMS confirmation sent to ${callerPhone}`);
+      } catch (smsError) {
+        console.error(`❌ Failed to send SMS to ${callerPhone}:`, smsError);
+        // Don't block the voice response if SMS fails
+      }
+    }
 
     const twiml = new twilio.twiml.VoiceResponse();
     twiml.say('Thank you for your report. Your emergency has been recorded and a responder will be assigned shortly. You will receive an SMS confirmation. Goodbye.');
