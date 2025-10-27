@@ -66,7 +66,6 @@ function ResponderDashboard() {
   
   // UI state
   const [showPassword, setShowPassword] = useState(false)
-  const [selectedReport, setSelectedReport] = useState(null)
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'analytics'
@@ -325,8 +324,8 @@ function ResponderDashboard() {
       if (response.ok) {
         alert('Status updated successfully!')
         fetchIncidents()
-        if (selectedReport && selectedReport.id === reportId) {
-          setSelectedReport({ ...selectedReport, status: newStatus })
+        if (selectedIncident && selectedIncident.id === reportId) {
+          setSelectedIncident({ ...selectedIncident, status: newStatus })
         }
       } else {
         alert('Failed to update status')
@@ -653,10 +652,7 @@ function ResponderDashboard() {
                               <div
                                 key={report.id}
                                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                                onClick={() => {
-                                  setSelectedReport(report)
-                                  setCurrentScreen('report-detail')
-                                }}
+                                onClick={() => setSelectedIncident(report)}
                               >
                                 <div className="flex-1">
                                   <p className="font-medium">{report.type || report.title}</p>
@@ -889,7 +885,7 @@ function ResponderDashboard() {
 
       {/* Incident Details Modal */}
       {selectedIncident && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-30 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               {/* Header */}

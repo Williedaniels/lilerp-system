@@ -203,13 +203,13 @@ function App() {
       // Show splash screen for at least 2 seconds
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('token')
-      const savedUser = localStorage.getItem('user')
+      const token = localStorage.getItem('lilerp_token')
+      const savedUser = localStorage.getItem('lilerp_user')
       
       if (token && savedUser) {
         try {
           // Verify token is still valid
-          const response = await fetch(`${API_URL}/auth/me`, {
+          const response = await fetch(`${API_URL}/user/profile`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -221,7 +221,7 @@ function App() {
             setIsAuthenticated(true)
             
             // Load saved reports from localStorage
-            const savedReports = localStorage.getItem('reports')
+            const savedReports = localStorage.getItem('lilerp_reports')
             if (savedReports) {
               setReports(JSON.parse(savedReports))
             }
@@ -233,19 +233,19 @@ function App() {
             setCurrentScreen('home')
           } else {
             // Token invalid, clear storage
-            localStorage.removeItem('token')
-            localStorage.removeItem('user')
-            localStorage.removeItem('reports')
-            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('lilerp_token')
+            localStorage.removeItem('lilerp_user')
+            localStorage.removeItem('lilerp_reports')
+            localStorage.removeItem('lilerp_refreshToken')
             await minSplashTime
             setCurrentScreen('login')
           }
         } catch (error) {
           console.error('Auth check failed:', error)
-          localStorage.removeItem('token')
-          localStorage.removeItem('user')
-          localStorage.removeItem('reports')
-          localStorage.removeItem('refreshToken')
+          localStorage.removeItem('lilerp_token')
+          localStorage.removeItem('lilerp_user')
+          localStorage.removeItem('lilerp_reports')
+          localStorage.removeItem('lilerp_refreshToken')
           await minSplashTime
           setCurrentScreen('login')
         }
@@ -258,13 +258,13 @@ function App() {
     }
     
     initializeApp()
-  }, [])
+  }, [fetchReports])
 
   // Fetch reports from server
 
 const fetchReports = useCallback(async (token) => {
   try {
-    const authToken = token || localStorage.getItem('lilerp_token'); // Changed from 'token'
+    const authToken = token || localStorage.getItem('lilerp_token'); 
     
     if (!authToken) {
       console.log('No token available');
@@ -281,26 +281,27 @@ const fetchReports = useCallback(async (token) => {
       const data = await response.json()
       const fetchedReports = Array.isArray(data) ? data : (data.incidents || data.reports || [])
       setReports(fetchedReports)
-      localStorage.setItem('reports', JSON.stringify(fetchedReports))
+      localStorage.setItem('lilerp_reports', JSON.stringify(fetchedReports))
     } else if (response.status === 401) {
-      await refreshToken()
+      const newToken = await refreshToken();
+      if (newToken) await fetchReports(newToken);
     }
   } catch (error) {
     console.error('Error fetching reports:', error)
-    const savedReports = localStorage.getItem('reports')
+    const savedReports = localStorage.getItem('lilerp_reports')
     if (savedReports) {
       setReports(JSON.parse(savedReports))
     }
   }
-}, [])
+}, [refreshToken])
 
   // Refresh token
-  const refreshToken = async () => {
+  const refreshToken = useCallback(async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken')
-      if (!refreshToken) {
+      const storedRefreshToken = localStorage.getItem('lilerp_refreshToken')
+      if (!storedRefreshToken) {
         handleLogout()
-        return
+        return null;
       }
 
       const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -308,13 +309,13 @@ const fetchReports = useCallback(async (token) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ refreshToken })
+        body: JSON.stringify({ refreshToken: storedRefreshToken })
       })
 
       if (response.ok) {
         const data = await response.json()
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('refreshToken', data.refreshToken)
+        localStorage.setItem('lilerp_token', data.token)
+        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
         return data.token
       } else {
         handleLogout()
@@ -323,7 +324,9 @@ const fetchReports = useCallback(async (token) => {
       console.error('Token refresh error:', error)
       handleLogout()
     }
-  }
+    return null;
+  }, []);
+
 
   // Recording timer
   useEffect(() => {
@@ -518,7 +521,7 @@ const fetchReports = useCallback(async (token) => {
     localStorage.removeItem('lilerp_token')
     localStorage.removeItem('lilerp_refreshToken')
     localStorage.removeItem('lilerp_user')
-    localStorage.removeItem('reports')
+    localStorage.removeItem('lilerp_reports')
     setUser(null)
     setIsAuthenticated(false)
     setCurrentScreen('login')
@@ -538,8 +541,7 @@ const handleSubmitReport = async (e) => {
   setIsLoading(true)
   
   try {
-    // FIX: Use correct token key
-    const token = localStorage.getItem('lilerp_token'); // Changed from 'token'
+    const token = localStorage.getItem('lilerp_token');
     
     if (!token) {
       alert('Please login first');
@@ -586,7 +588,7 @@ const handleSubmitReport = async (e) => {
       const newReport = data.incident || data
       setReports(prev => {
         const updated = [newReport, ...prev]
-        localStorage.setItem('reports', JSON.stringify(updated))
+        localStorage.setItem('lilerp_reports', JSON.stringify(updated))
         return updated
       })
       
@@ -628,19 +630,19 @@ const handleSubmitReport = async (e) => {
   const handleSaveProfile = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${API_URL}/users/profile`, {
+      const response = await fetch(`${API_URL}/user/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(editedUser)
+        body: JSON.stringify({ name: editedUser.name, phone: editedUser.phone, community: editedUser.community })
       })
       
       if (response.ok) {
         const data = await response.json()
         setUser(data.user)
-        localStorage.setItem('user', JSON.stringify(data.user))
+        localStorage.setItem('lilerp_user', JSON.stringify(data.user))
         setIsEditingProfile(false)
         alert('Profile updated successfully!')
       } else {
@@ -1626,7 +1628,7 @@ const handleEmergencyCall = async () => {
               <FileText className="w-6 h-6 mb-1" />
               <span className="text-xs">Reports</span>
               {reports.length > 0 && (
-                <div className="absolute top-1 right-1 bg-green-100 text-green-600 text-xs font-medium px-2 py-0.5 rounded">
+                <div className="absolute top-2 right-4 bg-green-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
                   {reports.length}
                 </div>
               )}

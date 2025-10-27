@@ -1358,43 +1358,44 @@ app.post('/api/ivr/handle-menu', async (req, res) => {
 
 app.post('/api/ivr/handle-recording', async (req, res) => {
   try {
-    const { RecordingUrl, CallSid } = req.body;
+    const { RecordingUrl, CallSid, From, To } = req.body;
     const type = req.query.type;
 
     console.log(`Recording received: ${RecordingUrl} for call ${CallSid}`);
-    
+
     const callLog = await CallLog.findOne({ where: { callSid: CallSid } });
     if (callLog) {
       await callLog.update({ recordingUrl: RecordingUrl });
     }
-    
+
     // Create incident from IVR call
-    const callerPhone = req.body.From;
+    const callerPhone = From;
+    const calledNumber = To;
     const caller = await User.findOne({ where: { phone: callerPhone } });
-    
+
     // Create incident even if caller not found in system
     await Incident.create({
       reportedBy: caller ? caller.id : null,
       type: type || 'other',
       title: `IVR Report - ${type || 'other'}`,
-      description: `Emergency reported via IVR system from ${callerPhone}. Voice recording available.`,
-      location: JSON.stringify({ address: 'Location to be determined', coordinates: null }),
+      description: `Emergency reported via IVR system to ${calledNumber}. Voice recording available.`,
+      location: 'Location not specified',
       priority: 'high',
       voiceRecording: RecordingUrl,
       callSid: CallSid,
       reportedVia: 'ivr_call'
     });
-    
+
     const twiml = new twilio.twiml.VoiceResponse();
     twiml.say('Thank you for your report. Your emergency has been recorded and a responder will be assigned shortly. You will receive an SMS confirmation. Goodbye.');
-    
+
     res.type('text/xml').send(twiml.toString());
   } catch (error) {
     console.error('Recording handling error:', error);
-    
+
     const twiml = new twilio.twiml.VoiceResponse();
     twiml.say('Thank you for calling. Goodbye.');
-    
+
     res.type('text/xml').send(twiml.toString());
   }
 });
