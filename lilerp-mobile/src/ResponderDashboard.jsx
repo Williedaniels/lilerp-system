@@ -885,11 +885,17 @@ function ResponderDashboard() {
 
       {/* Incident Details Modal */}
       {selectedIncident && (
-        <div className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+          onClick={() => setSelectedIncident(null)}
+        >
+          <div 
+            className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-6">
               {/* Header */}
-              <div className="flex justify-between items-start mb-4">
+              <div className="flex justify-between items-start mb-4 pb-4 border-b">
                 <div>
                   <h2 className="text-2xl font-bold">{selectedIncident.title}</h2>
                   <p className="text-gray-600">ID: {selectedIncident.id}</p>
