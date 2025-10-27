@@ -752,16 +752,16 @@ function ResponderDashboard() {
                           <div className="flex flex-wrap gap-3 text-sm text-gray-500">
                             <div className="flex items-center">
                               <MapPin className="w-4 h-4 mr-1" />
-                              {incident.location || 'No location'}
+                                {incident.location?.address || incident.location || 'No location'}
                             </div>
                             <div className="flex items-center">
                               <Clock className="w-4 h-4 mr-1" />
                               {new Date(incident.createdAt).toLocaleString()}
                             </div>
                             {incident.reporter && (
-                              <div className="flex items-center">
-                                <Phone className="w-4 h-4 mr-1" />
-                                {incident.reporter.name}
+                                <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
+                                  <User className="w-4 h-4 mr-1" />
+                                  {incident.reporter.name}
                               </div>
                             )}
                           </div>
@@ -918,7 +918,7 @@ function ResponderDashboard() {
                   latitude={selectedIncident.latitude}
                   longitude={selectedIncident.longitude}
                   location={selectedIncident.location}
-                  reporterName={selectedIncident.Reporter?.name}
+                  reporterName={selectedIncident.reporter?.name}
                 />
                 <p className="text-sm text-gray-600 mt-2">
                   📍 {selectedIncident.location || 'Location not specified'}
@@ -972,14 +972,15 @@ function ResponderDashboard() {
                   </div>
                 </div>
 
-                {selectedIncident.Reporter && (
+                {selectedIncident.reporter && (
                   <div>
                     <h3 className="font-semibold text-gray-700 flex items-center">
                       <Phone className="w-4 h-4 mr-2" />
                       Reporter Contact
                     </h3>
-                    <p className="text-gray-600">{selectedIncident.Reporter.name}</p>
-                    <p className="text-gray-600">{selectedIncident.Reporter.phone}</p>
+                    <p className="text-gray-600">Name: {selectedIncident.reporter.name}</p>
+                    <p className="text-gray-600">Phone: {selectedIncident.reporter.phone}</p>
+                    <p className="text-gray-600">Community: {selectedIncident.reporter.community || 'N/A'}</p>
                   </div>
                 )}
 
