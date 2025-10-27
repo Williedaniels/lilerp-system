@@ -629,7 +629,7 @@ const handleSubmitReport = async (e) => {
 
   const handleSaveProfile = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('lilerp_token')
       const response = await fetch(`${API_URL}/user/profile`, {
         method: 'PUT',
         headers: {
