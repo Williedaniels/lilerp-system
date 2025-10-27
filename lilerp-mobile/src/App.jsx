@@ -701,7 +701,12 @@ const handleEmergencyCall = async () => {
     const data = await response.json();
     
     if (response.ok) {
-      alert('📞 Emergency call initiated! You will receive a call shortly.');
+      alert('📞 Emergency call initiated! You will receive a call shortly. Your reports list will be updated in a minute.');
+      // After a delay, fetch reports again to include the new IVR report
+      setTimeout(() => {
+        console.log('Refreshing reports list after IVR call initiation...');
+        fetchReports();
+      }, 60000); // 60-second delay to allow for call completion
     } else {
       console.error('Call failed:', data);
       alert(`❌ Failed to initiate call: ${data.error || 'Please try again.'}`);

@@ -95,8 +95,8 @@ function ResponderDashboard() {
     const initializeApp = async () => {
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('lilerp_token')
-      const savedResponder = localStorage.getItem('lilerp_user')
+      const token = localStorage.getItem('lilerp_responder_token')
+      const savedResponder = localStorage.getItem('lilerp_responder_user')
       
       if (token && savedResponder) { // Check for standard user token
         try {
@@ -156,7 +156,7 @@ function ResponderDashboard() {
   const fetchIncidents = async (token) => {
     try {
       setIsLoading(true);
-      const authToken = token || localStorage.getItem('lilerp_token');
+      const authToken = token || localStorage.getItem('lilerp_responder_token');
       
       if (!authToken) {
         setIsAuthenticated(false);
@@ -201,7 +201,7 @@ function ResponderDashboard() {
   // Refresh token
   const refreshToken = async () => {
     try {
-      const refreshToken = localStorage.getItem('lilerp_refreshToken')
+      const refreshToken = localStorage.getItem('lilerp_responder_refreshToken')
       if (!refreshToken) {
         handleLogout()
         return
@@ -217,8 +217,8 @@ function ResponderDashboard() {
 
       if (response.ok) {
         const data = await response.json()
-        localStorage.setItem('lilerp_token', data.token)
-        localStorage.setItem('lilerp_refreshToken', data.refreshToken)
+        localStorage.setItem('lilerp_responder_token', data.token)
+        localStorage.setItem('lilerp_responder_refreshToken', data.refreshToken)
         return data.token
       } else {
         handleLogout()
@@ -247,9 +247,9 @@ function ResponderDashboard() {
       
       if (response.ok) {
         if (data.user.isResponder) {
-          localStorage.setItem('lilerp_token', data.token)
-          localStorage.setItem('lilerp_refreshToken', data.refreshToken)
-          localStorage.setItem('lilerp_user', JSON.stringify(data.user))
+          localStorage.setItem('lilerp_responder_token', data.token)
+          localStorage.setItem('lilerp_responder_refreshToken', data.refreshToken)
+          localStorage.setItem('lilerp_responder_user', JSON.stringify(data.user))
           setResponder(data.user)
           setIsAuthenticated(true)
           setCurrentScreen('dashboard')
@@ -277,9 +277,9 @@ function ResponderDashboard() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('lilerp_token');
-    localStorage.removeItem('lilerp_refreshToken');
-    localStorage.removeItem('lilerp_user');
+    localStorage.removeItem('lilerp_responder_token');
+    localStorage.removeItem('lilerp_responder_refreshToken');
+    localStorage.removeItem('lilerp_responder_user');
     setIsAuthenticated(false);
     setResponder(null);
     setCurrentScreen('login');
@@ -288,7 +288,7 @@ function ResponderDashboard() {
   // Report actions
   const handleAssignReport = async (reportId) => {
     try {
-      const token = localStorage.getItem('lilerp_token')
+      const token = localStorage.getItem('lilerp_responder_token')
       const response = await fetch(`${API_URL}/incidents/${reportId}/assign`, {
         method: 'PUT',
         headers: {
@@ -311,7 +311,7 @@ function ResponderDashboard() {
 
   const handleUpdateStatus = async (reportId, newStatus) => {
     try {
-      const token = localStorage.getItem('lilerp_token')
+      const token = localStorage.getItem('lilerp_responder_token')
       const response = await fetch(`${API_URL}/incidents/${reportId}`, {
         method: 'PUT',
         headers: {
