@@ -99,12 +99,12 @@ pnpm run dev     # Start on port 5173
           │                      │                      │
           └──────────────────────┼──────────────────────┘
                                  │
-                    ┌─────────────┴───────────┐
+                    ┌────────────┴────────────┐
                     │     Backend API         │
                     │   (Node.js/Express)     │
-                    └─────────────┬───────────┘
+                    └────────────┬────────────┘
                                  │
-                    ┌─────────────┴───────────┐
+                    ┌────────────┴────────────┐
                     │      Database           │
                     │      (SQLite)           │
                     └─────────────────────────┘
@@ -155,7 +155,7 @@ pnpm run dev     # Start on port 5173
 
 - **Blockchain integration** for immutable land records
 - **AI-powered** fraud detection and dispute prediction
-- **Local language support** (Mano, Gio, Kpelle)
+- **Local language support** (Mano, Gio)
 - **Comprehensive land registry** features
 - **SMS backup system** for areas without voice coverage
 
@@ -179,7 +179,7 @@ pnpm run dev     # Start on port 5173
 
 ## Emergency Contacts
 
-- **LILERP Hotline:** +231-123-HELP (simulated)
+- **LILERP Hotline:** +1-762-248-5141
 - **Developer:** Willie B. Daniels
 - **Institution:** African Leadership University
 - **Email:** <w.daniels@alustudent.com>

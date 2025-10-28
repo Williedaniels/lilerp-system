@@ -1409,16 +1409,21 @@ app.post('/api/ivr/handle-recording', async (req, res) => {
 
     // Send SMS confirmation
     if (twilioClient && callerPhone) {
-      try {
-        await twilioClient.messages.create({
-          body: `LILERP: Your report (ID: ${incident.id}) has been received. A responder will be in touch shortly.`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: callerPhone
-        });
-        console.log(`✅ SMS confirmation sent to ${callerPhone}`);
-      } catch (smsError) {
-        console.error(`❌ Failed to send SMS to ${callerPhone}:`, smsError);
-        // Don't block the voice response if SMS fails
+      // Prevent sending SMS to the Twilio number itself
+      if (callerPhone === process.env.TWILIO_PHONE_NUMBER) {
+        console.log('⚠️ Attempted to send SMS to the Twilio number itself. Skipping confirmation.');
+      } else {
+        try {
+          await twilioClient.messages.create({
+            body: `LILERP Confirmation: Your emergency report has been received and logged. A responder is being assigned and will contact you shortly. Your incident ID is ${incident.id}.`,
+            from: process.env.TWILIO_PHONE_NUMBER,
+            to: callerPhone
+          });
+          console.log(`✅ SMS confirmation sent to ${callerPhone}`);
+        } catch (smsError) {
+          console.error(`❌ Failed to send SMS to ${callerPhone}:`, smsError);
+          // Don't block the voice response if SMS fails
+        }
       }
     }
 
@@ -1507,6 +1512,21 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
     });
 
     console.log(`✅ Call initiated to ${formattedPhone}, SID: ${call.sid}`);
+
+    // Send an SMS to the user to let them know a call is coming
+    if (twilioClient) {
+      try {
+        await twilioClient.messages.create({
+          body: `LILERP: We are initiating an emergency call to you now. Please answer to report your incident.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: formattedPhone
+        });
+        console.log(`✅ SMS notification sent to ${formattedPhone} about the incoming call.`);
+      } catch (smsError) {
+        console.error(`❌ Failed to send initiation SMS to ${formattedPhone}:`, smsError);
+        // Don't fail the whole request if SMS fails, just log it.
+      }
+    }
 
     res.json({
       success: true,

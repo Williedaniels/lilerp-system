@@ -11,6 +11,23 @@
 - **Cultural integration** with traditional governance structures
 - **Emergency response** specifically for land disputes
 
+## 5-Minute Demo Video
+
+**Link to Demo Video**: [https://www.youtube.com/watch?v=your-demo-video-id](https://www.youtube.com/watch?v=your-demo-video-id)
+
+### Demo Video Script
+
+- **(0:00-0:30)**: Introduction to the LILERP project and its objectives.
+- **(0:30-1:30)**: Demonstration of the mobile app - submitting an emergency report with voice, text, and GPS data.
+- **(1:30-2:30)**: Showcase the real-time responder dashboard - viewing, assigning, and resolving incidents.
+- **(2:30-3:30)**: Demonstration of the IVR system - making a phone call to report an incident.
+- **(3:30-4:30)**: Highlighting key features like offline support, data analytics, and security.
+- **(4:30-5:00)**: Conclusion and future work.
+
+## Application Package
+
+**Link to Installable APK**: [https://example.com/lilerp.apk](https://example.com/lilerp.apk)
+
 ## Live Deployment
 
 **Production URLs:**
@@ -287,7 +304,7 @@ Incoming Call → Welcome Message → Main Menu
 
 ### Staging Environment
 
-- **Platform**: Heroku or Railway for easy deployment
+- **Platform**: Render/Heroku/Railway for easy deployment
 - **Database**: Heroku Postgres or Railway PostgreSQL
 - **Domain**: Staging subdomain for testing
 - **CI/CD**: GitHub Actions for automated deployment
