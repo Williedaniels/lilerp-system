@@ -24,10 +24,6 @@
 - **(3:30-4:30)**: Highlighting key features like offline support, data analytics, and security.
 - **(4:30-5:00)**: Conclusion and future work.
 
-## Application Package
-
-**Link to Installable APK**: [https://example.com/lilerp.apk](https://example.com/lilerp.apk)
-
 ## Live Deployment
 
 **Production URLs:**
