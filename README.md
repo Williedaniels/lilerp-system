@@ -231,6 +231,29 @@ TWILIO_ACCOUNT_SID=your-twilio-sid
 TWILIO_AUTH_TOKEN=your-twilio-token
 ```
 
+## System Architecture
+
+```sh
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Voice Calls   │    │   Mobile App    │    │    Website      │
+│   (IVR/Twilio)  │    │   (React PWA)   │    │   (React SPA)   │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────────────────┼──────────────────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    │     Backend API         │
+                    │   (Node.js/Express)     │
+                    └────────────┬────────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    │      Database           │
+                    │      (SQLite)           │
+                    └─────────────────────────┘
+```
+
+---
+
 ## Design Documentation
 
 ### User Interface Design Process

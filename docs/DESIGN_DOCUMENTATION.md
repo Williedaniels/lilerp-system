@@ -4,8 +4,6 @@
 
 This document presents the complete design system for LILERP (Liberia Integrated Land Registry & Emergency Response Platform), including wireframes, style guide, and design specifications for consistent implementation across all platforms.
 
-
-
 ![LILERP Wireframe](designs/lilerp-wireframe.png)
 
 The wireframe follows a clean, professional layout optimized for emergency response presentation:
