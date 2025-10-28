@@ -104,7 +104,7 @@ npm test
 
 ## Figma UI Design
 
-**Figma URL:** https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvH/Untitled?node-id=0-1&t=r9zedkD2in6Tm2vM-1
+**Figma URL:** https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=8Di4dIdGL2BkjcA4-1
 
 ---
 
