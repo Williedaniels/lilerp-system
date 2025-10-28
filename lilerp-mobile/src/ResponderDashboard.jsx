@@ -58,6 +58,16 @@ const getAudioUrl = (path) => {
   return `${baseUrl}${path}`;
 };
 
+// Helper function to format strings like 'mining_conflict' to 'Mining Conflict'
+const formatString = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 function ResponderDashboard() {
   // Core state
   const [currentScreen, setCurrentScreen] = useState('splash')
@@ -657,7 +667,7 @@ function ResponderDashboard() {
                                 onClick={() => setSelectedIncident(report)}
                               >
                                 <div className="flex-1">
-                                  <p className="font-medium">{report.type || report.title}</p>
+                                  <p className="font-medium">{formatString(report.type || report.title)}</p>
                                   <p className="text-sm text-gray-600">
                                     {report.location?.address || report.location}
                                   </p>
@@ -673,10 +683,10 @@ function ResponderDashboard() {
                                       'default'
                                     }
                                   >
-                                    {report.status}
+                                    {formatString(report.status)}
                                   </Badge>
                                   <Badge variant="outline">
-                                    {report.priority}
+                                    {formatString(report.priority)}
                                   </Badge>
                                 </div>
                               </div>
@@ -739,14 +749,14 @@ function ResponderDashboard() {
                               incident.priority === 'medium' ? 'bg-yellow-500' :
                               'bg-green-500'
                             }>
-                              {incident.priority}
+                              {formatString(incident.priority)}
                             </Badge>
                             <Badge variant="outline">
-                              {incident.status}
+                              {formatString(incident.status)}
                             </Badge>
                           </div>
                           
-                          <h3 className="font-bold text-lg mb-1">{incident.title}</h3>
+                          <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
                           <p className="text-gray-600 text-sm mb-2 line-clamp-2">
                             {incident.description}
                           </p>
@@ -899,7 +909,7 @@ function ResponderDashboard() {
               {/* Header */}
               <div className="flex justify-between items-start mb-4 pb-4 border-b">
                 <div>
-                  <h2 className="text-2xl font-bold">{selectedIncident.title}</h2>
+                  <h2 className="text-2xl font-bold">{formatString(selectedIncident.title)}</h2>
                   <p className="text-gray-600">ID: {selectedIncident.id}</p>
                 </div>
                 <button
@@ -960,7 +970,7 @@ function ResponderDashboard() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <h3 className="font-semibold text-gray-700">Type</h3>
-                    <p className="text-gray-600">{selectedIncident.type}</p>
+                    <p className="text-gray-600">{formatString(selectedIncident.type)}</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-700">Priority</h3>
@@ -969,7 +979,7 @@ function ResponderDashboard() {
                       selectedIncident.priority === 'medium' ? 'bg-yellow-500' :
                       'bg-green-500'
                     }>
-                      {selectedIncident.priority}
+                      {formatString(selectedIncident.priority)}
                     </Badge>
                   </div>
                 </div>
