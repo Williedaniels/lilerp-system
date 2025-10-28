@@ -1025,17 +1025,17 @@ const handleEmergencyCall = async () => {
               </div>
 
               {/* Quick Stats with better visuals */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-green-500">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-blue-500">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-500 font-medium">Total Reports</p>
-                        <p className="text-4xl font-bold text-green-600 mt-2">{reports.length}</p>
+                        <p className="text-4xl font-bold text-blue-600 mt-2">{reports.length}</p>
                         <p className="text-xs text-gray-400 mt-1">All time</p>
                       </div>
-                      <div className="bg-green-100 p-4 rounded-full">
-                        <FileText className="w-8 h-8 text-green-600" />
+                      <div className="bg-blue-100 p-4 rounded-full">
+                        <FileText className="w-8 h-8 text-blue-600" />
                       </div>
                     </div>
                   </CardContent>
@@ -1058,18 +1058,35 @@ const handleEmergencyCall = async () => {
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-blue-500">
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-purple-500">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-500 font-medium">In Progress</p>
+                        <p className="text-4xl font-bold text-purple-600 mt-2">
+                          {reports.filter(r => r.status === 'assigned' || r.status === 'investigating').length}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">Being actioned</p>
+                      </div>
+                      <div className="bg-purple-100 p-4 rounded-full">
+                        <Activity className="w-8 h-8 text-purple-600" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-green-500">
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-500 font-medium">Resolved</p>
-                        <p className="text-4xl font-bold text-blue-600 mt-2">
+                        <p className="text-4xl font-bold text-green-600 mt-2">
                           {reports.filter(r => r.status === 'resolved').length}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">Completed</p>
                       </div>
-                      <div className="bg-blue-100 p-4 rounded-full">
-                        <CheckCircle className="w-8 h-8 text-blue-600" />
+                      <div className="bg-green-100 p-4 rounded-full">
+                        <CheckCircle className="w-8 h-8 text-green-600" />
                       </div>
                     </div>
                   </CardContent>
