@@ -1528,21 +1528,6 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
 
     console.log(`✅ Call initiated to ${formattedPhone}, SID: ${call.sid}`);
 
-    // Send an SMS to the user to let them know a call is coming
-    if (twilioClient) {
-      try {
-        await twilioClient.messages.create({
-          body: `LILERP: We are initiating an emergency call to you now. Please answer to report your incident.`,
-          from: process.env.TWILIO_PHONE_NUMBER,
-          to: formattedPhone
-        });
-        console.log(`✅ SMS notification sent to ${formattedPhone} about the incoming call.`);
-      } catch (smsError) {
-        console.error(`❌ Failed to send initiation SMS to ${formattedPhone}:`, smsError);
-        // Don't fail the whole request if SMS fails, just log it.
-      }
-    }
-
     res.json({
       success: true,
       message: 'Call initiated successfully',
