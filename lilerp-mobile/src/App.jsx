@@ -17,6 +17,7 @@ import {
   Clock, 
   AlertTriangle, 
   CheckCircle, 
+  Activity,
   Mic, 
   MicOff,
   Send,
