@@ -1378,65 +1378,80 @@ app.post('/api/ivr/handle-priority', async (req, res) => {
 });
 
 app.post('/api/ivr/handle-recording', async (req, res) => {
-  try {
-    const { RecordingUrl, CallSid, From, To } = req.body;
-    const { type, priority } = req.query;
+  const { RecordingUrl, CallSid, From, To } = req.body;
+  const { type, priority } = req.query;
+  const callerPhone = From;
+  let incident;
 
+  // Use a transaction to ensure data integrity
+  const t = await sequelize.transaction();
+
+  try {
     console.log(`Recording received: ${RecordingUrl} for call ${CallSid}`);
 
-    const callLog = await CallLog.findOne({ where: { callSid: CallSid } });
+    const callLog = await CallLog.findOne({ where: { callSid: CallSid }, transaction: t });
     if (callLog) {
-      await callLog.update({ recordingUrl: RecordingUrl });
+      await callLog.update({ recordingUrl: RecordingUrl }, { transaction: t });
     }
 
-    // Create incident from IVR call
-    const callerPhone = From;
-    const calledNumber = To;
     const caller = await User.findOne({ where: { phone: callerPhone } });
 
-    // Create incident even if caller not found in system
-    const incident = await Incident.create({
+    incident = await Incident.create({
       reportedBy: caller ? caller.id : null,
       type: type || 'other',
       title: `IVR Report - ${type || 'other'}`,
-      description: `Emergency reported via IVR system to ${calledNumber}. Voice recording available.`,
+      description: `Emergency reported via IVR system. Voice recording available.`,
       location: 'Location not specified',
       priority: priority || 'medium',
       voiceRecording: RecordingUrl,
       callSid: CallSid,
       reportedVia: 'ivr_call'
-    });
+    }, { transaction: t });
 
-    // Send SMS confirmation
-    if (twilioClient && callerPhone) {
-      // Prevent sending SMS to the Twilio number itself
-      if (callerPhone === process.env.TWILIO_PHONE_NUMBER) {
-        console.log('⚠️ Attempted to send SMS to the Twilio number itself. Skipping confirmation.');
-      } else {
-        try {
-          await twilioClient.messages.create({
-            body: `LILERP Confirmation: Your emergency report has been received and logged. A responder is being assigned and will contact you shortly. Your incident ID is ${incident.id}.`,
-            from: process.env.TWILIO_PHONE_NUMBER,
-            to: callerPhone
-          });
-          console.log(`✅ SMS confirmation sent to ${callerPhone}`);
-        } catch (smsError) {
-          console.error(`❌ Failed to send SMS to ${callerPhone}:`, smsError);
-          // Don't block the voice response if SMS fails
-        }
+    // If we get here, commit the transaction
+    await t.commit();
+    console.log(`✅ Incident ${incident.id} created and committed.`);
+
+    // Now, send notifications outside the transaction
+    if (twilioClient && callerPhone && callerPhone !== process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        await twilioClient.messages.create({
+          body: `LILERP Confirmation: Your emergency report has been received and logged. A responder is being assigned and will contact you shortly. Your incident ID is ${incident.id}.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: callerPhone
+        });
+        console.log(`✅ SMS confirmation sent to ${callerPhone}`);
+      } catch (smsError) {
+        console.error(`❌ SMS confirmation failed for incident ${incident.id}, but incident was saved. Error:`, smsError);
       }
+    } else if (callerPhone === process.env.TWILIO_PHONE_NUMBER) {
+      console.log('⚠️ Attempted to send SMS to the Twilio number itself. Skipping confirmation.');
     }
 
     const twiml = new twilio.twiml.VoiceResponse();
     twiml.say('Thank you for your report. Your emergency has been recorded and a responder will be assigned shortly. You will receive an SMS confirmation. Goodbye.');
-
     res.type('text/xml').send(twiml.toString());
+
   } catch (error) {
-    console.error('Recording handling error:', error);
+    // If any error occurs, rollback the transaction
+    await t.rollback();
+    console.error('❌ Recording handling error, transaction rolled back:', error);
+
+    // Notify the user that the report failed
+    if (twilioClient && callerPhone && callerPhone !== process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        await twilioClient.messages.create({
+          body: `LILERP Alert: We were unable to save your report due to a technical error. Please try calling again.`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: callerPhone
+        });
+      } catch (smsError) {
+        console.error(`❌ Failed to send failure SMS to ${callerPhone}:`, smsError);
+      }
+    }
 
     const twiml = new twilio.twiml.VoiceResponse();
-    twiml.say('Thank you for calling. Goodbye.');
-
+    twiml.say('We are sorry, but we were unable to process your report at this time. Please try again later. Goodbye.');
     res.type('text/xml').send(twiml.toString());
   }
 });
