@@ -1528,6 +1528,23 @@ app.post('/api/ivr/initiate-call', authenticateToken, async (req, res) => {
 
     console.log(`✅ Call initiated to ${formattedPhone}, SID: ${call.sid}`);
 
+    // Send a confirmation SMS to the user since this one is working reliably.
+    if (twilioClient && formattedPhone !== process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        await twilioClient.messages.create({
+          body: `LILERP Confirmation: Your emergency report has been received and logged. A responder is being assigned and will contact you shortly. Your incident ID is #`,
+          from: process.env.TWILIO_PHONE_NUMBER,
+          to: formattedPhone
+        });
+        console.log(`✅ Confirmation SMS sent to ${formattedPhone}.`);
+      } catch (smsError) {
+        console.error(`❌ Failed to send confirmation SMS to ${formattedPhone}:`, smsError);
+        // Don't fail the whole request if SMS fails, just log it.
+      }
+    } else if (formattedPhone === process.env.TWILIO_PHONE_NUMBER) {
+      console.log('⚠️ Skipping SMS to the Twilio number itself.');
+    }
+
     res.json({
       success: true,
       message: 'Call initiated successfully',
