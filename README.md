@@ -1,5 +1,9 @@
 # LILERP - Liberia Integrated Land Registry & Emergency Response Platform
 
+[![CI Pipeline](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml)
+[![Coverage](https://codecov.io/gh/Williedaniels/lilerp-system/branch/main/graph/badge.svg)](https://codecov.io/gh/Williedaniels/lilerp-system)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## Project Description
 
 **LILERP (Liberia Integrated Land Registry & Emergency Response Platform)** is a comprehensive voice-based emergency response system designed specifically for land disputes in rural Liberia (Nimba County). The system prioritizes accessibility for illiterate users through an Interactive Voice Response (IVR) interface while providing modern web and mobile applications for tech-savvy users.
