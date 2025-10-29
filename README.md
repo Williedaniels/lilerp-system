@@ -11,6 +11,25 @@
 - **Cultural integration** with traditional governance structures
 - **Emergency response** specifically for land disputes
 
+## Table of Contents
+
+- [5-Minute Demo Video](#5-minute-demo-video)
+- [Live Deployment](#live-deployment)
+- [Testing](#testing)
+- [GitHub Repository](#github-repository)
+- [Figma UI Design](#figma-ui-design)
+- [Quick Start Guide](#quick-start-guide)
+- [Alternative Setup](#or-setup-the-environment-and-project-installation-the-old-fashion-way)
+- [System Architecture](#system-architecture)
+- [Design Documentation](#design-documentation)
+- [Deployment Plan](#deployment-plan)
+- [Demo Videos](#demo-videos)
+- [Application Screenshots](#application-screenshots)
+- [Code Files Structure](#code-files-structure)
+- [Technical Specifications](#technical-specifications)
+
+---
+
 ## 5-Minute Demo Video
 
 **Link to Demo Video**: [https://www.youtube.com/watch?v=your-demo-video-id](https://www.youtube.com/watch?v=your-demo-video-id)
@@ -152,7 +171,8 @@ npm run dev
 
 ---
 
-## Or Setup the Environment and Project Installation the old-fashion way
+<details>
+<summary><h2>Or Setup the Environment and Project Installation the old-fashion way <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
 
 ### Prerequisites
 
@@ -226,6 +246,7 @@ JWT_SECRET=your-secret-key
 TWILIO_ACCOUNT_SID=your-twilio-sid
 TWILIO_AUTH_TOKEN=your-twilio-token
 ```
+</details>
 
 ## System Architecture
 
@@ -313,7 +334,8 @@ Incoming Call → Welcome Message → Main Menu
 - Clear visual hierarchy
 - Consistent spacing and alignment
 
-## Deployment Plan
+<details>
+<summary><h2>Deployment Plan <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
 
 ### Development Environment
 
@@ -413,6 +435,7 @@ Incoming Call → Welcome Message → Main Menu
 - **Performance**: New Relic or DataDog APM
 - **Backup Strategy**: Daily database backups to cloud storage
 - **Security Updates**: Automated security patches
+</details>
 
 ---
 
@@ -496,7 +519,8 @@ Incoming Call → Welcome Message → Main Menu
 
 *Voice capture with visual feedback*
 
-## Code Files Structure
+<details>
+<summary><h2>Code Files Structure <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
 
 ```md
 lilerp-system/
@@ -545,8 +569,10 @@ lilerp-system/
 ├── DEPLOYMENT.md
 └── DEMO_GUIDE.md
 ```
+</details>
 
-## Technical Specifications
+<details>
+<summary><h2>Technical Specifications <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
 
 ### Backend Architecture
 
@@ -579,3 +605,4 @@ lilerp-system/
 - **Privacy Protection**: Minimal data collection and GDPR compliance
 
 This comprehensive package demonstrates a complete full-stack application addressing real-world challenges in rural emergency response, showcasing both technical skills and social impact awareness.
+</details>
