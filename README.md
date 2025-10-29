@@ -1,8 +1,10 @@
+<a name="readme-top"></a>
+
 # LILERP - Liberia Integrated Land Registry & Emergency Response Platform
 
 [![CI Pipeline](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/Williedaniels/lilerp-system/branch/main/graph/badge.svg)](https://codecov.io/gh/Williedaniels/lilerp-system)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Project Description
 
@@ -602,3 +604,5 @@ lilerp-system/
 - **Privacy Protection**: Minimal data collection and GDPR compliance
 
 This comprehensive package demonstrates a complete full-stack application addressing real-world challenges in rural emergency response, showcasing both technical skills and social impact awareness.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
