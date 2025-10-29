@@ -2,8 +2,6 @@
 
 # LILERP - Liberia Integrated Land Registry & Emergency Response Platform
 
-[![CI Pipeline](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml/badge.svg)](https://github.com/Williedaniels/lilerp-system/actions/workflows/ci.yml)
-[![Coverage](https://codecov.io/gh/Williedaniels/lilerp-system/branch/main/graph/badge.svg)](https://codecov.io/gh/Williedaniels/lilerp-system)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Project Description
@@ -53,9 +51,9 @@
 
 **Production URLs:**
 
-- **Mobile Application**: https://lilerp-system.vercel.app
-- **Public Website**: https://lilerp-web.vercel.app
-- **Backend API**: https://lilerp-backend.onrender.com
+- **Mobile Application**: <https://lilerp-system.vercel.app>
+- **Public Website**: <https://lilerp-web.vercel.app>
+- **Backend API**: <https://lilerp-backend.onrender.com>
 
 **Test Credentials:**
 
@@ -121,11 +119,11 @@ npm test
 
 ## GitHub Repository
 
-**Repository URL:** https://github.com/Williedaniels/lilerp-system
+**Repository URL:** <https://github.com/Williedaniels/lilerp-system>
 
 ## Figma UI Design
 
-**Figma URL:** https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=8Di4dIdGL2BkjcA4-1
+**Figma URL:** <https://www.figma.com/design/OrcpTusKt1kE9CWk2HTWvh/Untitled?node-id=0-1&t=8Di4dIdGL2BkjcA4-1>
 
 ---
 
@@ -269,7 +267,7 @@ TWILIO_AUTH_TOKEN=your-twilio-token
                                  │
                     ┌────────────┴────────────┐
                     │      Database           │
-                    │      (SQLite)           │
+                    │    (PostgreSQL)         │
                     └─────────────────────────┘
 ```
 
