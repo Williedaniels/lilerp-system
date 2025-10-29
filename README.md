@@ -171,8 +171,7 @@ npm run dev
 
 ---
 
-<details>
-<summary><h2>Or Setup the Environment and Project Installation the old-fashion way <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
+## Or Setup the Environment and Project Installation the old-fashion way
 
 ### Prerequisites
 
@@ -246,7 +245,6 @@ JWT_SECRET=your-secret-key
 TWILIO_ACCOUNT_SID=your-twilio-sid
 TWILIO_AUTH_TOKEN=your-twilio-token
 ```
-</details>
 
 ## System Architecture
 
@@ -334,8 +332,7 @@ Incoming Call → Welcome Message → Main Menu
 - Clear visual hierarchy
 - Consistent spacing and alignment
 
-<details>
-<summary><h2>Deployment Plan <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
+## Deployment Plan
 
 ### Development Environment
 
@@ -435,7 +432,6 @@ Incoming Call → Welcome Message → Main Menu
 - **Performance**: New Relic or DataDog APM
 - **Backup Strategy**: Daily database backups to cloud storage
 - **Security Updates**: Automated security patches
-</details>
 
 ---
 
@@ -519,8 +515,7 @@ Incoming Call → Welcome Message → Main Menu
 
 *Voice capture with visual feedback*
 
-<details>
-<summary><h2>Code Files Structure <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
+## Code Files Structure
 
 ```md
 lilerp-system/
@@ -569,10 +564,8 @@ lilerp-system/
 ├── DEPLOYMENT.md
 └── DEMO_GUIDE.md
 ```
-</details>
 
-<details>
-<summary><h2>Technical Specifications <small>(click on the arrow to the left to uncollapse this section)</small></h2></summary>
+## Technical Specifications
 
 ### Backend Architecture
 
@@ -605,4 +598,3 @@ lilerp-system/
 - **Privacy Protection**: Minimal data collection and GDPR compliance
 
 This comprehensive package demonstrates a complete full-stack application addressing real-world challenges in rural emergency response, showcasing both technical skills and social impact awareness.
-</details>
