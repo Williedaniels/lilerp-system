@@ -49,16 +49,13 @@ import {
 
 const getAudioUrl = (path) => {
   if (!path) return '';
-  // If it's a full URL (from Twilio), use it directly
   if (path.startsWith('http')) {
     return path;
   }
-  // Otherwise, it's a local path, construct the full URL from API_URL
   const baseUrl = API_URL.replace('/api', '');
   return `${baseUrl}${path}`;
 };
 
-// Helper function to format strings like 'mining_conflict' to 'Mining Conflict'
 const formatString = (str) => {
   if (!str) return '';
   return str
@@ -66,6 +63,241 @@ const formatString = (str) => {
     .split(' ')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+};
+
+const IncidentsDistributionMap = ({ incidents }) => {
+  const validIncidents = incidents.filter(i => i.latitude && i.longitude);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Incidents Distribution Map</CardTitle>
+        <CardDescription>Geographic overview of all reported incidents.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center text-center p-4">
+          {validIncidents.length > 0 ? (
+            <IncidentMap incidents={validIncidents} />
+          ) : (
+            <p className="text-gray-500">No incidents with location data to display on map.</p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const IncidentsByTypeChart = ({ incidents }) => {
+  const incidentTypesData = incidents.reduce((acc, incident) => {
+    const type = formatString(incident.type || 'Unknown');
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalIncidents = incidents.length;
+
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Incidents by Type</CardTitle>
+        <CardDescription>Breakdown of incidents by their reported type.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {Object.keys(incidentTypesData).length > 0 ? (
+            Object.entries(incidentTypesData)
+              .sort(([, a], [, b]) => b - a)
+              .map(([type, count]) => (
+                <div key={type}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700">{type}</span>
+                    <span className="text-sm font-medium text-gray-500">{count}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-blue-600 h-2.5 rounded-full"
+                      style={{ width: `${(count / totalIncidents) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div className="h-64 flex items-center justify-center"><p className="text-gray-500">No incident data for chart.</p></div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// New component for incident details modal
+const IncidentDetailsModal = ({ incident, onClose, onUpdateStatus, onCallReporter }) => {
+  if (!incident) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6">
+          {/* Header */}
+          <div className="flex justify-between items-start mb-4 pb-4 border-b">
+            <div>
+              <h2 className="text-2xl font-bold">{formatString(incident.title)}</h2>
+              <p className="text-gray-600">ID: {incident.id}</p>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Map Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2 flex items-center">
+              <MapPin className="w-5 h-5 mr-2 text-red-500" />
+              Reporter Location
+            </h3>
+            <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+              {incident.latitude && incident.longitude ? (
+                <IncidentMap
+                  latitude={incident.latitude}
+                  longitude={incident.longitude}
+                  location={incident.location}
+                  reporterName={incident.reporter?.name}
+                />
+              ) : (
+                <p className="text-gray-500">No location data available</p>
+              )}
+            </div>
+            <p className="text-sm text-gray-600 mt-2">
+              📍 {incident.location?.address || incident.location || 'Location not specified'}
+            </p>
+          </div>
+
+          {/* Incident Details */}
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-gray-700">Description</h3>
+              <p className="text-gray-600">{incident.description}</p>
+            </div>
+
+            {/* Voice Recording & Transcription */}
+            {incident.voiceRecording && (
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">Voice Recording</h3>
+                <audio
+                  src={getAudioUrl(incident.voiceRecording)}
+                  controls
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            {incident.voiceTranscription && (
+              <div>
+                <h3 className="font-semibold text-gray-700 mb-2">
+                  Transcription
+                </h3>
+                <p className="text-gray-600 italic bg-gray-100 p-3 rounded-md">
+                  "{incident.voiceTranscription}"
+                </p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-700">Type</h3>
+                <p className="text-gray-600">{formatString(incident.type)}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700">Priority</h3>
+                <Badge className={
+                  incident.priority === 'critical' ? 'bg-red-600' :
+                  incident.priority === 'high' ? 'bg-orange-500' :
+                  incident.priority === 'medium' ? 'bg-yellow-500' :
+                  'bg-green-500'
+                }>
+                  {formatString(incident.priority)}
+                </Badge>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700">Status</h3>
+                <Badge variant="outline">
+                  {formatString(incident.status)}
+                </Badge>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700">Created</h3>
+                <p className="text-gray-600">{new Date(incident.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+
+            {incident.reporter && (
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-700 flex items-center mb-2">
+                  <User className="w-4 h-4 mr-2" />
+                  Reporter Contact
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-600">Name</p>
+                    <p className="text-gray-900">{incident.reporter.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Phone</p>
+                    <p className="text-gray-900">{incident.reporter.phone || 'Not provided'}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-600">Community</p>
+                    <p className="text-gray-900">{incident.reporter.community || 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t">
+              {incident.reporter?.phone && (
+                <Button
+                  onClick={() => onCallReporter(incident.reporter.phone)}
+                  className="flex-1"
+                  variant="outline"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Call Reporter
+                </Button>
+              )}
+              {incident.status !== 'investigating' && (
+                <Button
+                  onClick={() => onUpdateStatus(incident.id, 'investigating')}
+                  className="flex-1"
+                >
+                  <Activity className="w-4 h-4 mr-2" />
+                  Start Investigation
+                </Button>
+              )}
+              {incident.status !== 'resolved' && (
+                <Button
+                  onClick={() => onUpdateStatus(incident.id, 'resolved')}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Mark Resolved
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 function ResponderDashboard() {
@@ -79,8 +311,8 @@ function ResponderDashboard() {
   const [showPassword, setShowPassword] = useState(false)
   const [filterStatus, setFilterStatus] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' or 'analytics'
-  const [selectedIncident, setSelectedIncident] = useState(null);
+  const [activeTab, setActiveTab] = useState('overview')
+  const [selectedIncident, setSelectedIncident] = useState(null)
   
   // Forms
   const [loginForm, setLoginForm] = useState({
@@ -88,126 +320,135 @@ function ResponderDashboard() {
     password: ''
   })
 
-  // Reports data
-  const [emergencyReports, setEmergencyReports] = useState([])
+  // Data state
+  const [incidents, setIncidents] = useState([])
   const [stats, setStats] = useState({
     totalReports: 0,
     pendingReports: 0,
     inProgressReports: 0,
     resolvedToday: 0
   })
+  const [error, setError] = useState(null)
 
-  // New state for incidents and error handling
-  const [incidents, setIncidents] = useState([]);
-  const [error, setError] = useState(null);
-
-  // Splash screen and authentication check
+  // Authentication check on mount
   useEffect(() => {
     const initializeApp = async () => {
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('lilerp_responder_token')
-      const savedResponder = localStorage.getItem('lilerp_responder_user')
-      
-      if (token && savedResponder) { // Check for standard user token
-        try {
-          const response = await fetch(`${API_URL}/user/profile`, {
+      try {
+        const token = localStorage.getItem('lilerp_responder_token')
+        const savedResponder = localStorage.getItem('lilerp_responder_user')
+        
+        if (token && savedResponder) {
+          // Verify token is still valid
+          const response = await fetch(`${API_URL}/auth/verify`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           })
           
           if (response.ok) {
-            const data = await response.json()
-            if (data.user.isResponder) {
-              setResponder(data.user)
+            const userData = JSON.parse(savedResponder)
+            if (userData.isResponder) {
+              setResponder(userData)
               setIsAuthenticated(true)
-              
-              // Fetch incidents for dashboard
-              fetchIncidents(token)
-              
+              await fetchIncidents(token)
               await minSplashTime
               setCurrentScreen('dashboard')
             } else {
-              // Not a responder, log them out of this dashboard
               handleLogout()
               await minSplashTime
               setCurrentScreen('login')
             }
           } else {
-            // Invalid token
             handleLogout()
             await minSplashTime
             setCurrentScreen('login')
           }
-        } catch (error) {
-          console.error('Auth check failed:', error)
+        } else {
           await minSplashTime
           setCurrentScreen('login')
         }
-      } else {
+      } catch (error) {
+        console.error('Auth check failed:', error)
         await minSplashTime
         setCurrentScreen('login')
+      } finally {
+        setIsLoading(false)
       }
-      
-      setIsLoading(false)
     }
     
     initializeApp()
   }, [])
 
-  // Fetch incidents when logged in
+  // Fetch incidents when authenticated
   useEffect(() => {
-    if (isAuthenticated && responder) {
-      fetchIncidents();
+    if (isAuthenticated) {
+      fetchIncidents()
     }
-  }, [isAuthenticated, responder]);
+  }, [isAuthenticated])
 
   // Fetch incidents from server
-  const fetchIncidents = async (token) => {
+  const fetchIncidents = async (token = null) => {
     try {
-      setIsLoading(true);
-      const authToken = token || localStorage.getItem('lilerp_responder_token');
+      setIsLoading(true)
+      const authToken = token || localStorage.getItem('lilerp_responder_token')
       
       if (!authToken) {
-        setIsAuthenticated(false);
-        return;
+        setIsAuthenticated(false)
+        return
       }
 
       const response = await fetch(`${API_URL}/responders/dashboard`, {
         headers: {
           'Authorization': `Bearer ${authToken}`,
         },
-      });
+      })
 
       if (response.ok) {
-        const data = await response.json();
-        console.log('📊 Dashboard data:', data);
+        const data = await response.json()
+        console.log('📊 Dashboard data:', data)
         
-        // Set all incidents from the response
-        setIncidents(data.incidents || []);
-        setEmergencyReports(data.incidents || []);
+        setIncidents(data.incidents || [])
         
-        // Set stats if available
+        // Calculate stats from incidents if not provided by API
+        const incidentsData = data.incidents || []
+        const pending = incidentsData.filter(i => i.status === 'pending').length
+        const investigating = incidentsData.filter(i => i.status === 'investigating').length
+        const today = new Date().toDateString()
+        const resolvedToday = incidentsData.filter(i => 
+          i.status === 'resolved' && new Date(i.updatedAt).toDateString() === today
+        ).length
+
         setStats({
-          totalReports: data.stats?.totalReports || data.incidents?.length || 0,
-          pendingReports: data.stats?.pending || 0,
-          inProgressReports: data.stats?.investigating || 0,
-          resolvedToday: data.stats?.resolvedToday || 0
-        });
-      } else if (response.status === 401 || response.status === 403) {
-        setIsAuthenticated(false);
-        setError('Session expired. Please login again.');
+          totalReports: incidentsData.length,
+          pendingReports: data.stats?.pending || pending,
+          inProgressReports: data.stats?.investigating || investigating,
+          resolvedToday: data.stats?.resolvedToday || resolvedToday
+        })
+        
+        setError(null)
+      } else if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshToken()
+        if (newToken) {
+          await fetchIncidents(newToken)
+        } else {
+          setIsAuthenticated(false)
+          setError('Session expired. Please login again.')
+        }
       } else {
-        setError('Failed to fetch incidents');
+        setError('Failed to fetch incidents')
+        toast.error('Failed to load dashboard data')
       }
     } catch (error) {
-      console.error('Fetch error:', error);
-      setError('Failed to load dashboard');
+      console.error('Fetch error:', error)
+      setError('Failed to load dashboard')
+      toast.error('Network error. Please check your connection.')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   // Refresh token
   const refreshToken = async () => {
@@ -215,7 +456,7 @@ function ResponderDashboard() {
       const refreshToken = localStorage.getItem('lilerp_responder_refreshToken')
       if (!refreshToken) {
         handleLogout()
-        return
+        return null
       }
 
       const response = await fetch(`${API_URL}/auth/refresh`, {
@@ -233,10 +474,12 @@ function ResponderDashboard() {
         return data.token
       } else {
         handleLogout()
+        return null
       }
     } catch (error) {
       console.error('Token refresh error:', error)
       handleLogout()
+      return null
     }
   }
 
@@ -244,6 +487,7 @@ function ResponderDashboard() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
     
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -256,7 +500,7 @@ function ResponderDashboard() {
       
       const data = await response.json()
       
-      if (response.ok) {
+      if (response.ok && data.user) {
         if (data.user.isResponder) {
           localStorage.setItem('lilerp_responder_token', data.token)
           localStorage.setItem('lilerp_responder_refreshToken', data.refreshToken)
@@ -265,61 +509,36 @@ function ResponderDashboard() {
           setIsAuthenticated(true)
           setCurrentScreen('dashboard')
           
-          // Fetch incidents for dashboard
-          fetchIncidents(data.token)
-          
+          await fetchIncidents(data.token)
           toast.success('Login successful!')
         } else {
           toast.error('This account is not authorized as a responder')
         }
       } else {
         toast.error(data.message || 'Login failed')
+        setError(data.message || 'Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
       toast.error('Login failed. Please try again.')
+      setError('Network error. Please check your connection.')
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleProfileNavigation = () => {
-    setCurrentScreen('profile');
-  };
-
   const handleLogout = () => {
-    localStorage.removeItem('lilerp_responder_token');
-    localStorage.removeItem('lilerp_responder_refreshToken');
-    localStorage.removeItem('lilerp_responder_user');
-    setIsAuthenticated(false);
-    setResponder(null);
-    setCurrentScreen('login');
-  };
-
-  // Report actions
-  const handleAssignReport = async (reportId) => {
-    try {
-      const token = localStorage.getItem('lilerp_responder_token')
-      const response = await fetch(`${API_URL}/incidents/${reportId}/assign`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      if (response.ok) {
-        toast.success('Report assigned successfully!')
-        fetchIncidents()
-      } else {
-        toast.error('Failed to assign report')
-      }
-    } catch (error) {
-      console.error('Error assigning report:', error)
-      toast.error('Failed to assign report')
-    }
+    localStorage.removeItem('lilerp_responder_token')
+    localStorage.removeItem('lilerp_responder_refreshToken')
+    localStorage.removeItem('lilerp_responder_user')
+    setIsAuthenticated(false)
+    setResponder(null)
+    setIncidents([])
+    setCurrentScreen('login')
+    toast.info('Logged out successfully')
   }
 
+  // Report actions
   const handleUpdateStatus = async (reportId, newStatus) => {
     try {
       const token = localStorage.getItem('lilerp_responder_token')
@@ -333,11 +552,9 @@ function ResponderDashboard() {
       })
 
       if (response.ok) {
-        toast.success('Status updated successfully!')
+        toast.success(`Status updated to ${formatString(newStatus)}!`)
         fetchIncidents()
-        if (selectedIncident && selectedIncident.id === reportId) {
-          setSelectedIncident({ ...selectedIncident, status: newStatus })
-        }
+        setSelectedIncident(null)
       } else {
         toast.error('Failed to update status')
       }
@@ -349,35 +566,20 @@ function ResponderDashboard() {
 
   const handleCallReporter = (phoneNumber) => {
     if (phoneNumber) {
-      window.location.href = `tel:${phoneNumber}`
+      window.open(`tel:${phoneNumber}`, '_self')
     } else {
       toast.warning('Phone number not available')
     }
   }
 
-  const handleViewOnMap = (location) => {
-    if (location?.coordinates) {
-      const { lat, lng } = location.coordinates
-      window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank')
-    } else {
-      toast.warning('Location coordinates not available')
-    }
-  }
-
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
-  }
-
-  // Filter reports
-  const filteredReports = emergencyReports.filter(report => {
-    const matchesStatus = filterStatus === 'all' || report.status === filterStatus
+  // Filter incidents based on status and search
+  const filteredIncidents = incidents.filter(incident => {
+    const matchesStatus = filterStatus === 'all' || incident.status === filterStatus
     const matchesSearch = searchTerm === '' || 
-      report.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      report.location?.address?.toLowerCase().includes(searchTerm.toLowerCase())
+      (incident.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      incident.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      incident.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      incident.location?.address?.toLowerCase().includes(searchTerm.toLowerCase()))
     
     return matchesStatus && matchesSearch
   })
@@ -419,6 +621,7 @@ function ResponderDashboard() {
                   value={loginForm.email}
                   onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                   required
+                  disabled={isLoading}
                 />
               </div>
               
@@ -431,16 +634,24 @@ function ResponderDashboard() {
                     value={loginForm.password}
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                     required
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
               
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
@@ -461,6 +672,7 @@ function ResponderDashboard() {
             </form>
           </CardContent>
         </Card>
+        <Toaster richColors position="top-center" />
       </div>
     )
   }
@@ -469,100 +681,118 @@ function ResponderDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors position="top-center" />
-      {/* Header */}
-      <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <Shield className="w-8 h-8" />
-              <div>
-                <h1 className="text-xl font-bold">LILERP Responder</h1>
-                <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
-              </div>
+      <div className="md:flex min-h-screen">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0">
+          <div className="flex items-center space-x-3 p-2 mb-6">
+            <Shield className="w-10 h-10" />
+            <div>
+              <h1 className="text-xl font-bold">LILERP</h1>
+              <p className="text-xs text-blue-200">Responder</p>
             </div>
-            
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6">
-              <button
-                onClick={() => setCurrentScreen('dashboard')}
-                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
-                  currentScreen === 'dashboard' ? 'text-white' : 'text-blue-200'
-                }`}
-              >
-                <BarChart3 className="w-5 h-5" />
-                <span>Dashboard</span>
-              </button>
-              <button
-                onClick={() => setCurrentScreen('reports')}
-                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
-                  currentScreen === 'reports' ? 'text-white' : 'text-blue-200'
-                }`}
-              >
+          </div>
+          <nav className="flex flex-col space-y-2">
+            <button
+              onClick={() => {
+                setCurrentScreen('dashboard')
+                setActiveTab('overview')
+              }}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'dashboard' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Dashboard</span>
+            </button>
+            <button
+              onClick={() => setCurrentScreen('reports')}
+              className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'reports' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <div className="flex items-center space-x-3">
                 <AlertTriangle className="w-5 h-5" />
                 <span>Reports</span>
-                {stats.pendingReports > 0 && (
-                  <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
-                )}
-              </button>
-              <button
-                onClick={() => setCurrentScreen('profile')}
-                className={`flex items-center space-x-2 hover:text-blue-100 transition ${
-                  currentScreen === 'profile' ? 'text-white' : 'text-blue-200'
-                }`}
-              >
-                <User className="w-5 h-5" />
-                <span>Profile</span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 text-blue-200 hover:text-white transition"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            </nav>
+              </div>
+              {stats.pendingReports > 0 && (
+                <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+              )}
+            </button>
+            <button
+              onClick={() => setCurrentScreen('profile')}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'profile' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <User className="w-5 h-5" />
+              <span>Profile</span>
+            </button>
+          </nav>
+          <div className="mt-auto">
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
           </div>
-        </div>
-      </header>
+        </aside>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
-        {/* Dashboard or Analytics content */}
-        {currentScreen === 'dashboard' && (
-          <div>
-            {/* Tab Navigation - ONLY show on dashboard screen */}
-            <div className="mb-6">
-              <div className="border-b border-gray-200">
-                <nav className="-mb-px flex space-x-8">
-                  <button
-                    onClick={() => setActiveTab('overview')}
-                    className={`${
-                      activeTab === 'overview'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                  >
-                    Overview
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('analytics')}
-                    className={`${
-                      activeTab === 'analytics'
-                        ? 'border-green-500 text-green-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                  >
-                    Analytics
-                  </button>
-                </nav>
+        <div className="flex-1 flex flex-col w-full">
+          {/* Header */}
+          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-8 h-8" />
+                  <div>
+                    <h1 className="text-xl font-bold">LILERP Responder</h1>
+                    <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span className="text-blue-100">Welcome, {responder?.name}</span>
+                </div>
               </div>
             </div>
+          </header>
 
-            {/* Conditional tab content */}
-            {activeTab === 'overview' ? (
+          {/* Main Content */}
+          <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+            {/* Dashboard Screen */}
+            {currentScreen === 'dashboard' && (
               <div>
-                {/* Dashboard Screen */}
-                {currentScreen === 'dashboard' && (
+                {/* Tab Navigation */}
+                <div className="mb-6">
+                  <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-8">
+                      <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`${
+                          activeTab === 'overview'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                      >
+                        Overview
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`${
+                          activeTab === 'analytics'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                      >
+                        Analytics
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+
+                {/* Tab Content */}
+                {activeTab === 'overview' ? (
                   <div className="space-y-6">
                     <div className="text-center mb-8">
                       <h2 className="text-3xl font-bold text-gray-800 mb-2">
@@ -646,13 +876,13 @@ function ResponderDashboard() {
                           variant="outline"
                         >
                           <Clock className="w-6 h-6 mr-2" />
-                          Pending Reports
+                          Pending Reports ({stats.pendingReports})
                         </Button>
                       </CardContent>
                     </Card>
 
                     {/* Recent Reports */}
-                    {emergencyReports.length > 0 && (
+                    {incidents.length > 0 ? (
                       <Card>
                         <CardHeader>
                           <CardTitle>Recent Emergency Reports</CardTitle>
@@ -660,33 +890,33 @@ function ResponderDashboard() {
                         </CardHeader>
                         <CardContent>
                           <div className="space-y-3">
-                            {emergencyReports.slice(0, 5).map(report => (
+                            {incidents.slice(0, 5).map(incident => (
                               <div
-                                key={report.id}
+                                key={incident.id}
                                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                                onClick={() => setSelectedIncident(report)}
+                                onClick={() => setSelectedIncident(incident)}
                               >
                                 <div className="flex-1">
-                                  <p className="font-medium">{formatString(report.type || report.title)}</p>
+                                  <p className="font-medium">{formatString(incident.type || incident.title)}</p>
                                   <p className="text-sm text-gray-600">
-                                    {report.location?.address || report.location}
+                                    {incident.location?.address || incident.location || 'No location'}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    {formatDate(report.createdAt)}
+                                    {new Date(incident.createdAt).toLocaleString()}
                                   </p>
                                 </div>
                                 <div className="flex items-center space-x-2">
                                   <Badge
                                     variant={
-                                      report.status === 'resolved' ? 'success' :
-                                      report.status === 'in_progress' ? 'warning' :
+                                      incident.status === 'resolved' ? 'success' :
+                                      incident.status === 'investigating' ? 'warning' :
                                       'default'
                                     }
                                   >
-                                    {formatString(report.status)}
+                                    {formatString(incident.status)}
                                   </Badge>
                                   <Badge variant="outline">
-                                    {formatString(report.priority)}
+                                    {formatString(incident.priority)}
                                   </Badge>
                                 </div>
                               </div>
@@ -694,169 +924,225 @@ function ResponderDashboard() {
                           </div>
                         </CardContent>
                       </Card>
+                    ) : (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">No incidents reported yet</p>
+                        </CardContent>
+                      </Card>
                     )}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Analytics Dashboard</h2>
+                    <p className="text-gray-600 mb-6">Visual insights into incident data and trends.</p>
+                    
+                    <IncidentsDistributionMap incidents={incidents} />
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
+                        <IncidentsByTypeChart incidents={incidents} />
+                      </div>
+                      <div className="lg:col-span-1">
+                        <Card className="h-full">
+                          <CardHeader>
+                            <CardTitle>Response Metrics</CardTitle>
+                            <CardDescription>Performance overview</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="text-center p-4 bg-blue-50 rounded-lg">
+                              <p className="text-2xl font-bold text-blue-600">{stats.resolvedToday}</p>
+                              <p className="text-sm text-gray-600">Resolved Today</p>
+                            </div>
+                            <div className="text-center p-4 bg-green-50 rounded-lg">
+                              <p className="text-2xl font-bold text-green-600">
+                                {stats.totalReports > 0 
+                                  ? Math.round((stats.resolvedToday / stats.totalReports) * 100) 
+                                  : 0}%
+                              </p>
+                              <p className="text-sm text-gray-600">Today's Resolution Rate</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
-            ) : (
-              <ResponderAnalytics />
             )}
-          </div>
-        )}
 
-        {/* Reports Screen - ADD THIS */}
-        {currentScreen === 'reports' && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">Emergency Reports</h2>
-              <Badge variant="outline">{incidents.length} Total</Badge>
-            </div>
+            {/* Reports Screen */}
+            {currentScreen === 'reports' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Emergency Reports</h2>
+                  <Badge variant="outline">{incidents.length} Total</Badge>
+                </div>
 
-            {/* Filter Tabs */}
-            <div className="flex space-x-2 overflow-x-auto pb-2">
-              {['all', 'pending', 'investigating', 'resolved'].map((status) => (
-                <Button
-                  key={status}
-                  variant={filterStatus === status ? 'default' : 'outline'}
-                  onClick={() => setFilterStatus(status)}
-                  className="whitespace-nowrap"
-                >
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                  {status === 'pending' && stats.pendingReports > 0 && (
-                    <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
-                  )}
-                </Button>
-              ))}
-            </div>
+                {/* Search and Filters */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Search reports..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 overflow-x-auto">
+                    {['all', 'pending', 'investigating', 'resolved'].map((status) => (
+                      <Button
+                        key={status}
+                        variant={filterStatus === status ? 'default' : 'outline'}
+                        onClick={() => setFilterStatus(status)}
+                        className="whitespace-nowrap"
+                      >
+                        {formatString(status)}
+                        {status === 'pending' && stats.pendingReports > 0 && (
+                          <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
 
-            {/* Incidents List */}
-            <div className="space-y-4">
-              {incidents
-                .filter(incident => filterStatus === 'all' || incident.status === filterStatus)
-                .map((incident) => (
-                  <Card
-                    key={incident.id}
-                    className="cursor-pointer hover:shadow-lg transition-shadow"
-                    onClick={() => setSelectedIncident(incident)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <Badge className={
-                              incident.priority === 'critical' ? 'bg-red-600' :
-                              incident.priority === 'high' ? 'bg-orange-500' :
-                              incident.priority === 'medium' ? 'bg-yellow-500' :
-                              'bg-green-500'
-                            }>
-                              {formatString(incident.priority)}
-                            </Badge>
-                            <Badge variant="outline">
-                              {formatString(incident.status)}
-                            </Badge>
-                          </div>
-                          
-                          <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
-                          <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                            {incident.description}
-                          </p>
-                          
-                          <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                            <div className="flex items-center">
-                              <MapPin className="w-4 h-4 mr-1" />
-                                {incident.location?.address || incident.location || 'No location'}
-                            </div>
-                            <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-1" />
-                              {new Date(incident.createdAt).toLocaleString()}
-                            </div>
-                            {incident.reporter && (
-                                <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
-                                  <User className="w-4 h-4 mr-1" />
-                                  {incident.reporter.name}
+                {/* Incidents List */}
+                <div className="space-y-4">
+                  {filteredIncidents.length > 0 ? (
+                    filteredIncidents.map((incident) => (
+                      <Card
+                        key={incident.id}
+                        className="cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSelectedIncident(incident)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Badge className={
+                                  incident.priority === 'critical' ? 'bg-red-600' :
+                                  incident.priority === 'high' ? 'bg-orange-500' :
+                                  incident.priority === 'medium' ? 'bg-yellow-500' :
+                                  'bg-green-500'
+                                }>
+                                  {formatString(incident.priority)}
+                                </Badge>
+                                <Badge variant="outline">
+                                  {formatString(incident.status)}
+                                </Badge>
                               </div>
-                            )}
+                              
+                              <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
+                              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                                {incident.description}
+                              </p>
+                              
+                              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <MapPin className="w-4 h-4 mr-1" />
+                                    {incident.location?.address || incident.location || 'No location'}
+                                </div>
+                                <div className="flex items-center">
+                                  <Clock className="w-4 h-4 mr-1" />
+                                  {new Date(incident.createdAt).toLocaleString()}
+                                </div>
+                                {incident.reporter && (
+                                    <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
+                                      <User className="w-4 h-4 mr-1" />
+                                      {incident.reporter.name}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <AlertTriangle className={`w-6 h-6 ml-4 ${
+                              incident.priority === 'critical' ? 'text-red-600' :
+                              incident.priority === 'high' ? 'text-orange-500' :
+                              'text-yellow-500'
+                            }`} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-center py-12">
+                      <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Profile Screen */}
+            {currentScreen === 'profile' && (
+              <div className="max-w-2xl mx-auto">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <User className="w-6 h-6 mr-2" />
+                      Responder Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {responder && (
+                      <>
+                        <div className="flex items-center space-x-4 pb-4 border-b">
+                          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                            {responder.name?.charAt(0) || 'R'}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold">{responder.name}</h3>
+                            <p className="text-gray-600">{responder.email}</p>
                           </div>
                         </div>
-                        
-                        <AlertTriangle className={`w-6 h-6 ml-4 ${
-                          incident.priority === 'critical' ? 'text-red-600' :
-                          incident.priority === 'high' ? 'text-orange-500' :
-                          'text-yellow-500'
-                        }`} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
 
-              {incidents.filter(incident => filterStatus === 'all' || incident.status === filterStatus).length === 0 && (
-                <div className="text-center py-12">
-                  <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Phone</label>
+                            <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
+                          </div>
 
-        {/* Profile Screen */}
-        {currentScreen === 'profile' && (
-          <div className="max-w-2xl mx-auto">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <User className="w-6 h-6 mr-2" />
-                  Responder Profile
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {responder && (
-                  <>
-                    <div className="flex items-center space-x-4 pb-4 border-b">
-                      <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                        {responder.name?.charAt(0) || 'R'}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold">{responder.name}</h3>
-                        <p className="text-gray-600">{responder.email}</p>
-                      </div>
-                    </div>
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Role</label>
+                            <Badge className="mt-1">{responder.role || 'responder'}</Badge>
+                          </div>
 
-                    <div className="space-y-3">
-                      <div>
-                        <label className="text-sm font-semibold text-gray-700">Phone</label>
-                        <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
-                      </div>
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Organization</label>
+                            <p className="text-gray-900">{responder.organization || 'LILERP'}</p>
+                          </div>
+                        </div>
 
-                      <div>
-                        <label className="text-sm font-semibold text-gray-700">Role</label>
-                        <Badge className="mt-1">{responder.role || 'responder'}</Badge>
-                      </div>
-                    </div>
+                        <Button 
+                          onClick={handleLogout}
+                          variant="destructive"
+                          className="w-full mt-6"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </Button>
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
 
-                    <Button 
-                      onClick={handleLogout}
-                      variant="destructive"
-                      className="w-full mt-6"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </Button>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        )}
-      </main>
-
-      {/* Bottom Navigation - MOVED OUTSIDE all conditionals */}
+      {/* Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
         <div className="flex justify-around items-center h-16">
           <button
             onClick={() => {
               setCurrentScreen('dashboard');
-              setActiveTab('overview'); // Reset to overview when going to dashboard
+              setActiveTab('overview');
             }}
             className={`flex flex-col items-center justify-center w-full transition-colors ${
               currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
@@ -884,7 +1170,7 @@ function ResponderDashboard() {
           </button>
           
           <button
-            onClick={handleProfileNavigation}
+            onClick={() => setCurrentScreen('profile')}
             className={`flex flex-col items-center justify-center w-full transition-colors ${
               currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
             }`}
@@ -896,127 +1182,12 @@ function ResponderDashboard() {
       </nav>
 
       {/* Incident Details Modal */}
-      {selectedIncident && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
-          onClick={() => setSelectedIncident(null)}
-        >
-          <div 
-            className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4 pb-4 border-b">
-                <div>
-                  <h2 className="text-2xl font-bold">{formatString(selectedIncident.title)}</h2>
-                  <p className="text-gray-600">ID: {selectedIncident.id}</p>
-                </div>
-                <button
-                  onClick={() => setSelectedIncident(null)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Map Section */}
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2 flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-red-500" />
-                  Reporter Location
-                </h3>
-                <IncidentMap
-                  latitude={selectedIncident.latitude}
-                  longitude={selectedIncident.longitude}
-                  location={selectedIncident.location}
-                  reporterName={selectedIncident.reporter?.name}
-                />
-                <p className="text-sm text-gray-600 mt-2">
-                  📍 {selectedIncident.location || 'Location not specified'}
-                </p>
-              </div>
-
-              {/* Rest of incident details */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-gray-700">Description</h3>
-                  <p className="text-gray-600">{selectedIncident.description}</p>
-                </div>
-
-                {/* Voice Recording & Transcription */}
-                {selectedIncident.voiceRecording && (
-                  <div>
-                    <h3 className="font-semibold text-gray-700 mb-2">Voice Recording</h3>
-                    <audio
-                      src={getAudioUrl(selectedIncident.voiceRecording)}
-                      controls
-                      className="w-full"
-                    />
-                  </div>
-                )}
-
-                {selectedIncident.voiceTranscription && (
-                  <div>
-                    <h3 className="font-semibold text-gray-700 mb-2">
-                      Transcription
-                    </h3>
-                    <p className="text-gray-600 italic bg-gray-100 p-3 rounded-md">
-                      "{selectedIncident.voiceTranscription}"
-                    </p>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="font-semibold text-gray-700">Type</h3>
-                    <p className="text-gray-600">{formatString(selectedIncident.type)}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-700">Priority</h3>
-                    <Badge className={
-                      selectedIncident.priority === 'high' ? 'bg-red-500' :
-                      selectedIncident.priority === 'medium' ? 'bg-yellow-500' :
-                      'bg-green-500'
-                    }>
-                      {formatString(selectedIncident.priority)}
-                    </Badge>
-                  </div>
-                </div>
-
-                {selectedIncident.reporter && (
-                  <div>
-                    <h3 className="font-semibold text-gray-700 flex items-center">
-                      <Phone className="w-4 h-4 mr-2" />
-                      Reporter Contact
-                    </h3>
-                    <p className="text-gray-600">Name: {selectedIncident.reporter.name}</p>
-                    <p className="text-gray-600">Phone: {selectedIncident.reporter.phone}</p>
-                    <p className="text-gray-600">Community: {selectedIncident.reporter.community || 'N/A'}</p>
-                  </div>
-                )}
-
-                {/* Action buttons */}
-                <div className="flex space-x-2 mt-6">
-                  <Button
-                    onClick={() => handleUpdateStatus(selectedIncident.id, 'investigating')}
-                    className="flex-1"
-                  >
-                    Start Investigation
-                  </Button>
-                  <Button
-                    onClick={() => handleUpdateStatus(selectedIncident.id, 'resolved')}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Mark Resolved
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <IncidentDetailsModal
+        incident={selectedIncident}
+        onClose={() => setSelectedIncident(null)}
+        onUpdateStatus={handleUpdateStatus}
+        onCallReporter={handleCallReporter}
+      />
     </div>
   )
 }
