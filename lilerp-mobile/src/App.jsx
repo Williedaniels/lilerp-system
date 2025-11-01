@@ -38,7 +38,8 @@ import {
   Play,
   Pause,
   PhoneCall,
-  ExternalLink
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react'
 import './App.css'
 
