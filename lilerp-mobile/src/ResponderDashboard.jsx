@@ -44,9 +44,7 @@ import {
   Pause,
   ExternalLink,
   Home,
-  User,
-  ChevronLeft,
-  ChevronRight
+  User
 } from 'lucide-react'
 
 const getAudioUrl = (path) => {
@@ -67,26 +65,20 @@ const formatString = (str) => {
     .join(' ');
 };
 
-// Incidents Distribution Map Component
 const IncidentsDistributionMap = ({ incidents }) => {
   const validIncidents = incidents.filter(i => i.latitude && i.longitude);
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <Map className="w-5 h-5 mr-2" />
-          Incidents Distribution Map
-        </CardTitle>
-        <CardDescription>Geographic overview of all reported incidents</CardDescription>
+        <CardTitle>Incidents Distribution Map</CardTitle>
+        <CardDescription>Geographic overview of all reported incidents.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-96 bg-gray-100 rounded-lg overflow-hidden">
+        <div className="h-96 bg-gray-200 rounded-lg flex items-center justify-center text-center p-4">
           {validIncidents.length > 0 ? (
             <IncidentMap incidents={validIncidents} />
           ) : (
-            <div className="h-full flex items-center justify-center">
-              <p className="text-gray-500">No incidents with location data to display on map.</p>
-            </div>
+            <p className="text-gray-500">No incidents with location data to display on map.</p>
           )}
         </div>
       </CardContent>
@@ -94,7 +86,6 @@ const IncidentsDistributionMap = ({ incidents }) => {
   );
 };
 
-// Incidents by Type Chart Component
 const IncidentsByTypeChart = ({ incidents }) => {
   const incidentTypesData = incidents.reduce((acc, incident) => {
     const type = formatString(incident.type || 'Unknown');
@@ -107,11 +98,8 @@ const IncidentsByTypeChart = ({ incidents }) => {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <BarChart3 className="w-5 h-5 mr-2" />
-          Incidents by Type
-        </CardTitle>
-        <CardDescription>Breakdown of incidents by their reported type</CardDescription>
+        <CardTitle>Incidents by Type</CardTitle>
+        <CardDescription>Breakdown of incidents by their reported type.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -126,16 +114,14 @@ const IncidentsByTypeChart = ({ incidents }) => {
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
-                      className="bg-blue-600 h-2.5 rounded-full transition-all"
+                      className="bg-blue-600 h-2.5 rounded-full"
                       style={{ width: `${(count / totalIncidents) * 100}%` }}
                     ></div>
                   </div>
                 </div>
               ))
           ) : (
-            <div className="h-64 flex items-center justify-center">
-              <p className="text-gray-500">No incident data available for chart.</p>
-            </div>
+            <div className="h-64 flex items-center justify-center"><p className="text-gray-500">No incident data for chart.</p></div>
           )}
         </div>
       </CardContent>
@@ -143,85 +129,68 @@ const IncidentsByTypeChart = ({ incidents }) => {
   );
 };
 
-// Incident Details Modal Component with Call Button
+// New component for incident details modal
 const IncidentDetailsModal = ({ incident, onClose, onUpdateStatus, onCallReporter }) => {
   if (!incident) return null;
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm"
       onClick={onClose}
     >
       <div 
-        className="bg-white rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
           {/* Header */}
-          <div className="flex justify-between items-start mb-6 pb-4 border-b">
+          <div className="flex justify-between items-start mb-4 pb-4 border-b">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">{formatString(incident.title || incident.type)}</h2>
-              <p className="text-sm text-gray-500 mt-1">Incident ID: #{incident.id}</p>
+              <h2 className="text-2xl font-bold">{formatString(incident.title)}</h2>
+              <p className="text-gray-600">ID: {incident.id}</p>
             </div>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-500 hover:text-gray-700"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          {/* Status and Priority Badges */}
-          <div className="flex gap-2 mb-6">
-            <Badge className={
-              incident.priority === 'critical' ? 'bg-red-600' :
-              incident.priority === 'high' ? 'bg-orange-500' :
-              incident.priority === 'medium' ? 'bg-yellow-500' :
-              'bg-green-500'
-            }>
-              {formatString(incident.priority)} Priority
-            </Badge>
-            <Badge variant="outline" className="border-blue-500 text-blue-700">
-              {formatString(incident.status)}
-            </Badge>
-          </div>
-
           {/* Map Section */}
-          {incident.latitude && incident.longitude && (
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-3 flex items-center text-gray-900">
-                <MapPin className="w-5 h-5 mr-2 text-red-500" />
-                Reporter Location
-              </h3>
-              <div className="h-64 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2 flex items-center">
+              <MapPin className="w-5 h-5 mr-2 text-red-500" />
+              Reporter Location
+            </h3>
+            <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+              {incident.latitude && incident.longitude ? (
                 <IncidentMap
                   latitude={incident.latitude}
                   longitude={incident.longitude}
                   location={incident.location}
                   reporterName={incident.reporter?.name}
                 />
-              </div>
-              <p className="text-sm text-gray-600 mt-2 flex items-center">
-                <MapPin className="w-4 h-4 mr-1" />
-                {incident.location?.address || incident.location || 'Location not specified'}
-              </p>
+              ) : (
+                <p className="text-gray-500">No location data available</p>
+              )}
             </div>
-          )}
+            <p className="text-sm text-gray-600 mt-2">
+              📍 {incident.location?.address || incident.location || 'Location not specified'}
+            </p>
+          </div>
 
           {/* Incident Details */}
-          <div className="space-y-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-              <p className="text-gray-700 bg-gray-50 p-4 rounded-lg">{incident.description}</p>
+              <h3 className="font-semibold text-gray-700">Description</h3>
+              <p className="text-gray-600">{incident.description}</p>
             </div>
 
             {/* Voice Recording & Transcription */}
             {incident.voiceRecording && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center">
-                  <Play className="w-4 h-4 mr-2" />
-                  Voice Recording
-                </h3>
+                <h3 className="font-semibold text-gray-700 mb-2">Voice Recording</h3>
                 <audio
                   src={getAudioUrl(incident.voiceRecording)}
                   controls
@@ -232,60 +201,73 @@ const IncidentDetailsModal = ({ incident, onClose, onUpdateStatus, onCallReporte
 
             {incident.voiceTranscription && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2 flex items-center">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Voice Transcription
+                <h3 className="font-semibold text-gray-700 mb-2">
+                  Transcription
                 </h3>
-                <p className="text-gray-700 italic bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                <p className="text-gray-600 italic bg-gray-100 p-3 rounded-md">
                   "{incident.voiceTranscription}"
                 </p>
               </div>
             )}
 
-            {/* Incident Metadata */}
-            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <h3 className="font-semibold text-gray-700 text-sm mb-1">Type</h3>
-                <p className="text-gray-900">{formatString(incident.type)}</p>
+                <h3 className="font-semibold text-gray-700">Type</h3>
+                <p className="text-gray-600">{formatString(incident.type)}</p>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-700 text-sm mb-1">Created</h3>
-                <p className="text-gray-900">{new Date(incident.createdAt).toLocaleString()}</p>
+                <h3 className="font-semibold text-gray-700">Priority</h3>
+                <Badge className={
+                  incident.priority === 'critical' ? 'bg-red-600' :
+                  incident.priority === 'high' ? 'bg-orange-500' :
+                  incident.priority === 'medium' ? 'bg-yellow-500' :
+                  'bg-green-500'
+                }>
+                  {formatString(incident.priority)}
+                </Badge>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700">Status</h3>
+                <Badge variant="outline">
+                  {formatString(incident.status)}
+                </Badge>
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-700">Created</h3>
+                <p className="text-gray-600">{new Date(incident.createdAt).toLocaleString()}</p>
               </div>
             </div>
 
-            {/* Reporter Information */}
             {incident.reporter && (
-              <div className="border-t pt-6">
-                <h3 className="font-semibold text-gray-900 flex items-center mb-4">
-                  <User className="w-5 h-5 mr-2" />
-                  Reporter Information
+              <div className="border-t pt-4">
+                <h3 className="font-semibold text-gray-700 flex items-center mb-2">
+                  <User className="w-4 h-4 mr-2" />
+                  Reporter Contact
                 </h3>
-                <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Name</p>
-                    <p className="text-gray-900 font-medium">{incident.reporter.name}</p>
+                    <p className="text-sm text-gray-600">Name</p>
+                    <p className="text-gray-900">{incident.reporter.name}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 mb-1">Phone</p>
-                    <p className="text-gray-900 font-medium">{incident.reporter.phone || 'Not provided'}</p>
+                    <p className="text-sm text-gray-600">Phone</p>
+                    <p className="text-gray-900">{incident.reporter.phone || 'Not provided'}</p>
                   </div>
-                  {incident.reporter.community && (
-                    <div className="col-span-2">
-                      <p className="text-sm text-gray-600 mb-1">Community</p>
-                      <p className="text-gray-900 font-medium">{incident.reporter.community}</p>
-                    </div>
-                  )}
+                  <div className="col-span-2">
+                    <p className="text-sm text-gray-600">Community</p>
+                    <p className="text-gray-900">{incident.reporter.community || 'N/A'}</p>
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 mt-6 pt-6 border-t">
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-2 mt-6 pt-4 border-t">
               {incident.reporter?.phone && (
                 <Button
                   onClick={() => onCallReporter(incident.reporter.phone)}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1"
+                  variant="outline"
                 >
                   <Phone className="w-4 h-4 mr-2" />
                   Call Reporter
@@ -294,7 +276,7 @@ const IncidentDetailsModal = ({ incident, onClose, onUpdateStatus, onCallReporte
               {incident.status !== 'investigating' && (
                 <Button
                   onClick={() => onUpdateStatus(incident.id, 'investigating')}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  className="flex-1"
                 >
                   <Activity className="w-4 h-4 mr-2" />
                   Start Investigation
@@ -331,7 +313,6 @@ function ResponderDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedIncident, setSelectedIncident] = useState(null)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
   
   // Forms
   const [loginForm, setLoginForm] = useState({
@@ -339,41 +320,39 @@ function ResponderDashboard() {
     password: ''
   })
 
-  // Reports data
-  const [emergencyReports, setEmergencyReports] = useState([])
+  // Data state
+  const [incidents, setIncidents] = useState([])
   const [stats, setStats] = useState({
     totalReports: 0,
     pendingReports: 0,
     inProgressReports: 0,
     resolvedToday: 0
   })
-
-  // Incidents and error handling
-  const [incidents, setIncidents] = useState([])
   const [error, setError] = useState(null)
 
-  // Splash screen and authentication check
+  // Authentication check on mount
   useEffect(() => {
     const initializeApp = async () => {
       const minSplashTime = new Promise(resolve => setTimeout(resolve, 2000))
       
-      const token = localStorage.getItem('lilerp_responder_token')
-      const savedResponder = localStorage.getItem('lilerp_responder_user')
-      
-      if (token && savedResponder) {
-        try {
-          const response = await fetch(`${API_URL}/user/profile`, {
+      try {
+        const token = localStorage.getItem('lilerp_responder_token')
+        const savedResponder = localStorage.getItem('lilerp_responder_user')
+        
+        if (token && savedResponder) {
+          // Verify token is still valid
+          const response = await fetch(`${API_URL}/auth/verify`, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
           })
           
           if (response.ok) {
-            const data = await response.json()
-            if (data.user.isResponder) {
-              setResponder(data.user)
+            const userData = JSON.parse(savedResponder)
+            if (userData.isResponder) {
+              setResponder(userData)
               setIsAuthenticated(true)
-              fetchIncidents(token)
+              await fetchIncidents(token)
               await minSplashTime
               setCurrentScreen('dashboard')
             } else {
@@ -386,31 +365,31 @@ function ResponderDashboard() {
             await minSplashTime
             setCurrentScreen('login')
           }
-        } catch (error) {
-          console.error('Auth check failed:', error)
+        } else {
           await minSplashTime
           setCurrentScreen('login')
         }
-      } else {
+      } catch (error) {
+        console.error('Auth check failed:', error)
         await minSplashTime
         setCurrentScreen('login')
+      } finally {
+        setIsLoading(false)
       }
-      
-      setIsLoading(false)
     }
     
     initializeApp()
   }, [])
 
-  // Fetch incidents when logged in
+  // Fetch incidents when authenticated
   useEffect(() => {
-    if (isAuthenticated && responder) {
+    if (isAuthenticated) {
       fetchIncidents()
     }
-  }, [isAuthenticated, responder])
+  }, [isAuthenticated])
 
   // Fetch incidents from server
-  const fetchIncidents = async (token) => {
+  const fetchIncidents = async (token = null) => {
     try {
       setIsLoading(true)
       const authToken = token || localStorage.getItem('lilerp_responder_token')
@@ -431,25 +410,76 @@ function ResponderDashboard() {
         console.log('📊 Dashboard data:', data)
         
         setIncidents(data.incidents || [])
-        setEmergencyReports(data.incidents || [])
         
+        // Calculate stats from incidents if not provided by API
+        const incidentsData = data.incidents || []
+        const pending = incidentsData.filter(i => i.status === 'pending').length
+        const investigating = incidentsData.filter(i => i.status === 'investigating').length
+        const today = new Date().toDateString()
+        const resolvedToday = incidentsData.filter(i => 
+          i.status === 'resolved' && new Date(i.updatedAt).toDateString() === today
+        ).length
+
         setStats({
-          totalReports: data.stats?.totalReports || data.incidents?.length || 0,
-          pendingReports: data.stats?.pending || 0,
-          inProgressReports: data.stats?.investigating || 0,
-          resolvedToday: data.stats?.resolvedToday || 0
+          totalReports: incidentsData.length,
+          pendingReports: data.stats?.pending || pending,
+          inProgressReports: data.stats?.investigating || investigating,
+          resolvedToday: data.stats?.resolvedToday || resolvedToday
         })
-      } else if (response.status === 401 || response.status === 403) {
-        setIsAuthenticated(false)
-        setError('Session expired. Please login again.')
+        
+        setError(null)
+      } else if (response.status === 401) {
+        // Token expired, try to refresh
+        const newToken = await refreshToken()
+        if (newToken) {
+          await fetchIncidents(newToken)
+        } else {
+          setIsAuthenticated(false)
+          setError('Session expired. Please login again.')
+        }
       } else {
         setError('Failed to fetch incidents')
+        toast.error('Failed to load dashboard data')
       }
     } catch (error) {
       console.error('Fetch error:', error)
       setError('Failed to load dashboard')
+      toast.error('Network error. Please check your connection.')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  // Refresh token
+  const refreshToken = async () => {
+    try {
+      const refreshToken = localStorage.getItem('lilerp_responder_refreshToken')
+      if (!refreshToken) {
+        handleLogout()
+        return null
+      }
+
+      const response = await fetch(`${API_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        localStorage.setItem('lilerp_responder_token', data.token)
+        localStorage.setItem('lilerp_responder_refreshToken', data.refreshToken)
+        return data.token
+      } else {
+        handleLogout()
+        return null
+      }
+    } catch (error) {
+      console.error('Token refresh error:', error)
+      handleLogout()
+      return null
     }
   }
 
@@ -457,6 +487,7 @@ function ResponderDashboard() {
   const handleLogin = async (e) => {
     e.preventDefault()
     setIsLoading(true)
+    setError(null)
     
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
@@ -469,7 +500,7 @@ function ResponderDashboard() {
       
       const data = await response.json()
       
-      if (response.ok) {
+      if (response.ok && data.user) {
         if (data.user.isResponder) {
           localStorage.setItem('lilerp_responder_token', data.token)
           localStorage.setItem('lilerp_responder_refreshToken', data.refreshToken)
@@ -477,24 +508,23 @@ function ResponderDashboard() {
           setResponder(data.user)
           setIsAuthenticated(true)
           setCurrentScreen('dashboard')
-          fetchIncidents(data.token)
+          
+          await fetchIncidents(data.token)
           toast.success('Login successful!')
         } else {
           toast.error('This account is not authorized as a responder')
         }
       } else {
         toast.error(data.message || 'Login failed')
+        setError(data.message || 'Login failed')
       }
     } catch (error) {
       console.error('Login error:', error)
       toast.error('Login failed. Please try again.')
+      setError('Network error. Please check your connection.')
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const handleProfileNavigation = () => {
-    setCurrentScreen('profile')
   }
 
   const handleLogout = () => {
@@ -503,8 +533,9 @@ function ResponderDashboard() {
     localStorage.removeItem('lilerp_responder_user')
     setIsAuthenticated(false)
     setResponder(null)
+    setIncidents([])
     setCurrentScreen('login')
-    toast.success('Logged out successfully')
+    toast.info('Logged out successfully')
   }
 
   // Report actions
@@ -521,11 +552,9 @@ function ResponderDashboard() {
       })
 
       if (response.ok) {
-        toast.success('Status updated successfully!')
+        toast.success(`Status updated to ${formatString(newStatus)}!`)
         fetchIncidents()
-        if (selectedIncident && selectedIncident.id === reportId) {
-          setSelectedIncident({ ...selectedIncident, status: newStatus })
-        }
+        setSelectedIncident(null)
       } else {
         toast.error('Failed to update status')
       }
@@ -535,22 +564,23 @@ function ResponderDashboard() {
     }
   }
 
-  const handleCallReporter = (phone) => {
-    if (phone) {
-      window.location.href = `tel:${phone}`
-      toast.success(`Calling ${phone}...`)
+  const handleCallReporter = (phoneNumber) => {
+    if (phoneNumber) {
+      window.open(`tel:${phoneNumber}`, '_self')
     } else {
-      toast.error('Phone number not available')
+      toast.warning('Phone number not available')
     }
   }
 
-  // Filter incidents
+  // Filter incidents based on status and search
   const filteredIncidents = incidents.filter(incident => {
     const matchesStatus = filterStatus === 'all' || incident.status === filterStatus
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = searchTerm === '' || 
+      (incident.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       incident.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.type?.toLowerCase().includes(searchTerm.toLowerCase())
+      incident.location?.address?.toLowerCase().includes(searchTerm.toLowerCase()))
+    
     return matchesStatus && matchesSearch
   })
 
@@ -559,14 +589,13 @@ function ResponderDashboard() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
         <div className="text-center">
-          <div className="mb-8 animate-bounce">
-            <Shield className="w-24 h-24 text-white mx-auto" />
+          <div className="mb-8">
+            <Shield className="w-24 h-24 text-white mx-auto mb-4 animate-pulse" />
+            <h1 className="text-4xl font-bold text-white mb-2">LILERP</h1>
+            <p className="text-blue-100 text-lg">Responder Dashboard</p>
+            <p className="text-blue-100">Emergency Response System</p>
           </div>
-          <h1 className="text-4xl font-bold text-white mb-4">LILERP</h1>
-          <p className="text-blue-100 text-lg">Responder Dashboard</p>
-          <div className="mt-8">
-            <Loader className="w-8 h-8 text-white animate-spin mx-auto" />
-          </div>
+          <Loader className="w-8 h-8 text-white animate-spin mx-auto" />
         </div>
       </div>
     )
@@ -575,13 +604,10 @@ function ResponderDashboard() {
   // Login Screen
   if (currentScreen === 'login') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center p-4">
-        <Toaster position="top-center" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
-              <Shield className="w-10 h-10 text-white" />
-            </div>
+            <Shield className="w-16 h-16 text-blue-600 mx-auto mb-4" />
             <CardTitle className="text-2xl">Responder Login</CardTitle>
             <CardDescription>Access the emergency response dashboard</CardDescription>
           </CardHeader>
@@ -593,10 +619,12 @@ function ResponderDashboard() {
                   type="email"
                   placeholder="responder@lilerp.org"
                   value={loginForm.email}
-                  onChange={(e) => setLoginForm({...loginForm, email: e.target.value})}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
                   required
+                  disabled={isLoading}
                 />
               </div>
+              
               <div>
                 <label className="block text-sm font-medium mb-2">Password</label>
                 <div className="relative">
@@ -604,449 +632,564 @@ function ResponderDashboard() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
                     value={loginForm.password}
-                    onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                     required
+                    disabled={isLoading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                    disabled={isLoading}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
+
+              {error && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
+              
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
-                  <>
-                    <Loader className="w-4 h-4 mr-2 animate-spin" />
-                    Logging in...
-                  </>
+                  <><Loader className="w-4 h-4 mr-2 animate-spin" /> Logging in...</>
                 ) : (
-                  <>
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </>
+                  <><LogIn className="w-4 h-4 mr-2" /> Login</>
                 )}
               </Button>
+              
+              <div className="text-center">
+                <a
+                  href="/"
+                  className="text-sm text-blue-600 hover:underline"
+                >
+                  ← Back to main app
+                </a>
+              </div>
             </form>
           </CardContent>
         </Card>
+        <Toaster richColors position="top-center" />
       </div>
     )
   }
 
-  // Dashboard Screen
-  if (currentScreen === 'dashboard') {
-    return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Toaster position="top-center" />
-        
-        {/* Sidebar for Desktop */}
-        <div className={`hidden lg:flex lg:flex-col lg:w-64 bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'lg:w-64' : 'lg:w-20'}`}>
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              {sidebarOpen && (
-                <div className="flex items-center">
-                  <Shield className="w-8 h-8 text-blue-600 mr-2" />
-                  <span className="font-bold text-xl">LILERP</span>
-                </div>
-              )}
-              {!sidebarOpen && <Shield className="w-8 h-8 text-blue-600 mx-auto" />}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="text-gray-500 hover:text-gray-700 ml-auto"
-              >
-                {sidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
-              </button>
+  // Main Dashboard
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Toaster richColors position="top-center" />
+      <div className="md:flex min-h-screen">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0">
+          <div className="flex items-center space-x-3 p-2 mb-6">
+            <Shield className="w-10 h-10" />
+            <div>
+              <h1 className="text-xl font-bold">LILERP</h1>
+              <p className="text-xs text-blue-200">Responder</p>
             </div>
           </div>
-          
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex flex-col space-y-2">
             <button
-              onClick={() => setActiveTab('overview')}
-              className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'overview' 
-                  ? 'bg-blue-50 text-blue-700' 
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Home className="w-5 h-5" />
-              {sidebarOpen && <span className="ml-3">Overview</span>}
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('analytics')}
-              className={`w-full flex items-center px-4 py-3 rounded-lg transition-colors ${
-                activeTab === 'analytics' 
-                  ? 'bg-blue-50 text-blue-700' 
-                  : 'text-gray-700 hover:bg-gray-100'
+              onClick={() => {
+                setCurrentScreen('dashboard')
+                setActiveTab('overview')
+              }}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'dashboard' ? 'bg-blue-900' : ''
               }`}
             >
               <BarChart3 className="w-5 h-5" />
-              {sidebarOpen && <span className="ml-3">Analytics</span>}
+              <span>Dashboard</span>
             </button>
-            
             <button
-              onClick={handleProfileNavigation}
-              className="w-full flex items-center px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              onClick={() => setCurrentScreen('reports')}
+              className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'reports' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <AlertTriangle className="w-5 h-5" />
+                <span>Reports</span>
+              </div>
+              {stats.pendingReports > 0 && (
+                <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+              )}
+            </button>
+            <button
+              onClick={() => setCurrentScreen('profile')}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'profile' ? 'bg-blue-900' : ''
+              }`}
             >
               <User className="w-5 h-5" />
-              {sidebarOpen && <span className="ml-3">Profile</span>}
+              <span>Profile</span>
             </button>
           </nav>
-          
-          <div className="p-4 border-t border-gray-200">
+          <div className="mt-auto">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
             >
               <LogOut className="w-5 h-5" />
-              {sidebarOpen && <span className="ml-3">Logout</span>}
+              <span>Logout</span>
             </button>
           </div>
-        </div>
+        </aside>
 
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Mobile Header */}
-          <div className="lg:hidden bg-white border-b border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <Shield className="w-8 h-8 text-blue-600 mr-2" />
-                <span className="font-bold text-xl">LILERP</span>
+        <div className="flex-1 flex flex-col w-full">
+          {/* Header */}
+          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Shield className="w-8 h-8" />
+                  <div>
+                    <h1 className="text-xl font-bold">LILERP Responder</h1>
+                    <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <span className="text-blue-100">Welcome, {responder?.name}</span>
+                </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <LogOut className="w-5 h-5" />
-              </button>
             </div>
-          </div>
+          </header>
 
-          {/* Desktop Header */}
-          <div className="hidden lg:block bg-white border-b border-gray-200 p-6">
-            <div className="flex items-center justify-between">
+          {/* Main Content */}
+          <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+            {/* Dashboard Screen */}
+            {currentScreen === 'dashboard' && (
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {activeTab === 'overview' ? 'Dashboard Overview' : 'Analytics & Reports'}
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Welcome back, {responder?.name || 'Responder'}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <Button variant="outline" onClick={() => fetchIncidents()}>
-                  <Activity className="w-4 h-4 mr-2" />
-                  Refresh
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Mobile Tabs */}
-          <div className="lg:hidden bg-white border-b border-gray-200 px-4">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                  activeTab === 'overview'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Home className="w-4 h-4 inline mr-2" />
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('analytics')}
-                className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                  activeTab === 'analytics'
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <BarChart3 className="w-4 h-4 inline mr-2" />
-                Analytics
-              </button>
-            </div>
-          </div>
-
-          {/* Content Area */}
-          <div className="flex-1 overflow-y-auto p-4 lg:p-6">
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Total Reports</p>
-                          <p className="text-3xl font-bold text-gray-900 mt-2">{stats.totalReports}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <AlertTriangle className="w-6 h-6 text-blue-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Pending</p>
-                          <p className="text-3xl font-bold text-orange-600 mt-2">{stats.pendingReports}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                          <Clock className="w-6 h-6 text-orange-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">In Progress</p>
-                          <p className="text-3xl font-bold text-blue-600 mt-2">{stats.inProgressReports}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Activity className="w-6 h-6 text-blue-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">Resolved Today</p>
-                          <p className="text-3xl font-bold text-green-600 mt-2">{stats.resolvedToday}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                          <CheckCircle className="w-6 h-6 text-green-600" />
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                {/* Tab Navigation */}
+                <div className="mb-6">
+                  <div className="border-b border-gray-200">
+                    <nav className="-mb-px flex space-x-8">
+                      <button
+                        onClick={() => setActiveTab('overview')}
+                        className={`${
+                          activeTab === 'overview'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                      >
+                        Overview
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('analytics')}
+                        className={`${
+                          activeTab === 'analytics'
+                            ? 'border-blue-500 text-blue-600'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                      >
+                        Analytics
+                      </button>
+                    </nav>
+                  </div>
                 </div>
 
-                {/* Filters */}
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <div className="flex-1">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                          <Input
-                            placeholder="Search incidents..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
-                      </div>
-                      <Select value={filterStatus} onValueChange={setFilterStatus}>
-                        <SelectTrigger className="w-full sm:w-48">
-                          <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Status</SelectItem>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="investigating">Investigating</SelectItem>
-                          <SelectItem value="resolved">Resolved</SelectItem>
-                        </SelectContent>
-                      </Select>
+                {/* Tab Content */}
+                {activeTab === 'overview' ? (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                      <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                        Welcome, {responder?.name}!
+                      </h2>
+                      <p className="text-gray-600">
+                        Emergency Response Dashboard
+                      </p>
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Incidents List */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recent Incidents</CardTitle>
-                    <CardDescription>
-                      {filteredIncidents.length} incident{filteredIncidents.length !== 1 ? 's' : ''} found
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {isLoading ? (
-                      <div className="flex items-center justify-center py-12">
-                        <Loader className="w-8 h-8 animate-spin text-blue-600" />
-                      </div>
-                    ) : filteredIncidents.length === 0 ? (
-                      <div className="text-center py-12">
-                        <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600">No incidents found</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {filteredIncidents.map((incident) => (
-                          <div
-                            key={incident.id}
-                            className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                            onClick={() => setSelectedIncident(incident)}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-2">
-                                  <h3 className="font-semibold text-gray-900">
-                                    {formatString(incident.title || incident.type)}
-                                  </h3>
-                                  <Badge className={
-                                    incident.priority === 'critical' ? 'bg-red-600' :
-                                    incident.priority === 'high' ? 'bg-orange-500' :
-                                    incident.priority === 'medium' ? 'bg-yellow-500' :
-                                    'bg-green-500'
-                                  }>
-                                    {formatString(incident.priority)}
-                                  </Badge>
-                                  <Badge variant="outline">
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Total Reports</p>
+                              <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
+                            </div>
+                            <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Pending</p>
+                              <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
+                            </div>
+                            <Clock className="w-12 h-12 text-red-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">In Progress</p>
+                              <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
+                            </div>
+                            <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600">Resolved Today</p>
+                              <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
+                            </div>
+                            <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Quick Actions */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Quick Actions</CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button
+                          onClick={() => setCurrentScreen('reports')}
+                          className="h-20 text-lg"
+                        >
+                          <AlertTriangle className="w-6 h-6 mr-2" />
+                          View All Reports
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setFilterStatus('pending')
+                            setCurrentScreen('reports')
+                          }}
+                          className="h-20 text-lg"
+                          variant="outline"
+                        >
+                          <Clock className="w-6 h-6 mr-2" />
+                          Pending Reports ({stats.pendingReports})
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Recent Reports */}
+                    {incidents.length > 0 ? (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Recent Emergency Reports</CardTitle>
+                          <CardDescription>Latest reports requiring attention</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-3">
+                            {incidents.slice(0, 5).map(incident => (
+                              <div
+                                key={incident.id}
+                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                                onClick={() => setSelectedIncident(incident)}
+                              >
+                                <div className="flex-1">
+                                  <p className="font-medium">{formatString(incident.type || incident.title)}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {incident.location?.address || incident.location || 'No location'}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {new Date(incident.createdAt).toLocaleString()}
+                                  </p>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Badge
+                                    variant={
+                                      incident.status === 'resolved' ? 'success' :
+                                      incident.status === 'investigating' ? 'warning' :
+                                      'default'
+                                    }
+                                  >
                                     {formatString(incident.status)}
                                   </Badge>
-                                </div>
-                                <p className="text-sm text-gray-600 mb-2">
-                                  {incident.description?.substring(0, 150)}
-                                  {incident.description?.length > 150 ? '...' : ''}
-                                </p>
-                                <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                  {incident.location && (
-                                    <span className="flex items-center">
-                                      <MapPin className="w-4 h-4 mr-1" />
-                                      {incident.location}
-                                    </span>
-                                  )}
-                                  {incident.reporter?.name && (
-                                    <span className="flex items-center">
-                                      <User className="w-4 h-4 mr-1" />
-                                      {incident.reporter.name}
-                                    </span>
-                                  )}
-                                  <span className="flex items-center">
-                                    <Clock className="w-4 h-4 mr-1" />
-                                    {new Date(incident.createdAt).toLocaleDateString()}
-                                  </span>
+                                  <Badge variant="outline">
+                                    {formatString(incident.priority)}
+                                  </Badge>
                                 </div>
                               </div>
-                              <button className="text-gray-400 hover:text-gray-600 ml-4">
-                                <ExternalLink className="w-5 h-5" />
-                              </button>
-                            </div>
+                            ))}
                           </div>
-                        ))}
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-500">No incidents reported yet</p>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Analytics Dashboard</h2>
+                    <p className="text-gray-600 mb-6">Visual insights into incident data and trends.</p>
+                    
+                    <IncidentsDistributionMap incidents={incidents} />
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
+                        <IncidentsByTypeChart incidents={incidents} />
                       </div>
+                      <div className="lg:col-span-1">
+                        <Card className="h-full">
+                          <CardHeader>
+                            <CardTitle>Response Metrics</CardTitle>
+                            <CardDescription>Performance overview</CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="text-center p-4 bg-blue-50 rounded-lg">
+                              <p className="text-2xl font-bold text-blue-600">{stats.resolvedToday}</p>
+                              <p className="text-sm text-gray-600">Resolved Today</p>
+                            </div>
+                            <div className="text-center p-4 bg-green-50 rounded-lg">
+                              <p className="text-2xl font-bold text-green-600">
+                                {stats.totalReports > 0 
+                                  ? Math.round((stats.resolvedToday / stats.totalReports) * 100) 
+                                  : 0}%
+                              </p>
+                              <p className="text-sm text-gray-600">Today's Resolution Rate</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reports Screen */}
+            {currentScreen === 'reports' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Emergency Reports</h2>
+                  <Badge variant="outline">{incidents.length} Total</Badge>
+                </div>
+
+                {/* Search and Filters */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <Input
+                        placeholder="Search reports..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-2 overflow-x-auto">
+                    {['all', 'pending', 'investigating', 'resolved'].map((status) => (
+                      <Button
+                        key={status}
+                        variant={filterStatus === status ? 'default' : 'outline'}
+                        onClick={() => setFilterStatus(status)}
+                        className="whitespace-nowrap"
+                      >
+                        {formatString(status)}
+                        {status === 'pending' && stats.pendingReports > 0 && (
+                          <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Incidents List */}
+                <div className="space-y-4">
+                  {filteredIncidents.length > 0 ? (
+                    filteredIncidents.map((incident) => (
+                      <Card
+                        key={incident.id}
+                        className="cursor-pointer hover:shadow-lg transition-shadow"
+                        onClick={() => setSelectedIncident(incident)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <Badge className={
+                                  incident.priority === 'critical' ? 'bg-red-600' :
+                                  incident.priority === 'high' ? 'bg-orange-500' :
+                                  incident.priority === 'medium' ? 'bg-yellow-500' :
+                                  'bg-green-500'
+                                }>
+                                  {formatString(incident.priority)}
+                                </Badge>
+                                <Badge variant="outline">
+                                  {formatString(incident.status)}
+                                </Badge>
+                              </div>
+                              
+                              <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
+                              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                                {incident.description}
+                              </p>
+                              
+                              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                <div className="flex items-center">
+                                  <MapPin className="w-4 h-4 mr-1" />
+                                    {incident.location?.address || incident.location || 'No location'}
+                                </div>
+                                <div className="flex items-center">
+                                  <Clock className="w-4 h-4 mr-1" />
+                                  {new Date(incident.createdAt).toLocaleString()}
+                                </div>
+                                {incident.reporter && (
+                                    <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
+                                      <User className="w-4 h-4 mr-1" />
+                                      {incident.reporter.name}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <AlertTriangle className={`w-6 h-6 ml-4 ${
+                              incident.priority === 'critical' ? 'text-red-600' :
+                              incident.priority === 'high' ? 'text-orange-500' :
+                              'text-yellow-500'
+                            }`} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-center py-12">
+                      <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Profile Screen */}
+            {currentScreen === 'profile' && (
+              <div className="max-w-2xl mx-auto">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <User className="w-6 h-6 mr-2" />
+                      Responder Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {responder && (
+                      <>
+                        <div className="flex items-center space-x-4 pb-4 border-b">
+                          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                            {responder.name?.charAt(0) || 'R'}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold">{responder.name}</h3>
+                            <p className="text-gray-600">{responder.email}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Phone</label>
+                            <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Role</label>
+                            <Badge className="mt-1">{responder.role || 'responder'}</Badge>
+                          </div>
+
+                          <div>
+                            <label className="text-sm font-semibold text-gray-700">Organization</label>
+                            <p className="text-gray-900">{responder.organization || 'LILERP'}</p>
+                          </div>
+                        </div>
+
+                        <Button 
+                          onClick={handleLogout}
+                          variant="destructive"
+                          className="w-full mt-6"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </Button>
+                      </>
                     )}
                   </CardContent>
                 </Card>
               </div>
             )}
-
-            {activeTab === 'analytics' && (
-              <div className="space-y-6">
-                {/* ResponderAnalytics Component with Charts */}
-                <ResponderAnalytics incidents={incidents} />
-                
-                {/* Incidents Distribution Map */}
-                <IncidentsDistributionMap incidents={incidents} />
-                
-                {/* Incidents by Type Chart */}
-                <IncidentsByTypeChart incidents={incidents} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Incident Details Modal */}
-        {selectedIncident && (
-          <IncidentDetailsModal
-            incident={selectedIncident}
-            onClose={() => setSelectedIncident(null)}
-            onUpdateStatus={handleUpdateStatus}
-            onCallReporter={handleCallReporter}
-          />
-        )}
-      </div>
-    )
-  }
-
-  // Profile Screen
-  if (currentScreen === 'profile') {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Toaster position="top-center" />
-        
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 p-4">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            <button
-              onClick={() => setCurrentScreen('dashboard')}
-              className="flex items-center text-gray-600 hover:text-gray-900"
-            >
-              <ChevronLeft className="w-5 h-5 mr-1" />
-              Back to Dashboard
-            </button>
-            <h1 className="text-xl font-bold">Profile</h1>
-            <div className="w-20"></div>
-          </div>
-        </div>
-
-        {/* Profile Content */}
-        <div className="max-w-4xl mx-auto p-4 sm:p-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center">
-                <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                  <User className="w-10 h-10 text-blue-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-2xl">{responder?.name}</CardTitle>
-                  <CardDescription>{responder?.email}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Name</label>
-                  <p className="text-gray-900 mt-1">{responder?.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Email</label>
-                  <p className="text-gray-900 mt-1">{responder?.email}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Role</label>
-                  <p className="text-gray-900 mt-1">Emergency Responder</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700">Status</label>
-                  <Badge className="mt-1 bg-green-600">Active</Badge>
-                </div>
-              </div>
-              
-              <div className="pt-4 border-t">
-                <Button
-                  onClick={handleLogout}
-                  variant="destructive"
-                  className="w-full sm:w-auto"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          </main>
         </div>
       </div>
-    )
-  }
 
-  return null
+      {/* Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
+        <div className="flex justify-around items-center h-16">
+          <button
+            onClick={() => {
+              setCurrentScreen('dashboard');
+              setActiveTab('overview');
+            }}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <Home className="w-6 h-6" />
+            <span className="text-xs mt-1">Dashboard</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentScreen('reports')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'reports' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <div className="relative">
+              <AlertTriangle className="w-6 h-6" />
+              {stats.pendingReports > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {stats.pendingReports}
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs mt-1">Reports</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentScreen('profile')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <User className="w-6 h-6" />
+            <span className="text-xs mt-1">Profile</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Incident Details Modal */}
+      <IncidentDetailsModal
+        incident={selectedIncident}
+        onClose={() => setSelectedIncident(null)}
+        onUpdateStatus={handleUpdateStatus}
+        onCallReporter={handleCallReporter}
+      />
+    </div>
+  )
 }
 
 export default ResponderDashboard
