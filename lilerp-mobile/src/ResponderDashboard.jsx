@@ -7,18 +7,6 @@ import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
 import { Toaster, toast } from 'sonner';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from './components/ui/sidebar.jsx';
 import ResponderAnalytics from './components/ui/ResponderAnalytics';
 import IncidentMap from './components/ui/incident-map.jsx';
 import { 
@@ -629,87 +617,74 @@ function ResponderDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors position="top-center" />
-      <SidebarProvider>
-        <Sidebar>
-          <div className="bg-blue-800 text-white h-full flex flex-col">
-            <SidebarHeader className="p-4 border-b border-blue-700">
-              <div className="flex items-center space-x-3">
-                <Shield className="w-10 h-10" />
-                <div>
-                  <h1 className="text-xl font-bold">LILERP</h1>
-                  <p className="text-xs text-blue-200">Responder</p>
-                </div>
-              </div>
-            </SidebarHeader>
-            <SidebarContent>
-              <SidebarGroup>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => {
-                        setCurrentScreen('dashboard');
-                        setActiveTab('overview');
-                      }}
-                      isActive={currentScreen === 'dashboard'}
-                      className="hover:bg-blue-700 focus-visible:bg-blue-700 data-[active=true]:bg-blue-900 text-white hover:text-white data-[active=true]:text-white"
-                    >
-                      <BarChart3 className="w-5 h-5" />
-                      <span>Dashboard</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => setCurrentScreen('reports')}
-                      isActive={currentScreen === 'reports'}
-                      className="hover:bg-blue-700 focus-visible:bg-blue-700 data-[active=true]:bg-blue-900 text-white hover:text-white data-[active=true]:text-white"
-                    >
-                      <AlertTriangle className="w-5 h-5" />
-                      <span>Reports</span>
-                      {stats.pendingReports > 0 && (
-                        <Badge className="ml-auto bg-red-500 text-white">{stats.pendingReports}</Badge>
-                      )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton
-                      onClick={() => setCurrentScreen('profile')}
-                      isActive={currentScreen === 'profile'}
-                      className="hover:bg-blue-700 focus-visible:bg-blue-700 data-[active=true]:bg-blue-900 text-white hover:text-white data-[active=true]:text-white"
-                    >
-                      <User className="w-5 h-5" />
-                      <span>Profile</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-            </SidebarContent>
-            <SidebarFooter className="mt-auto border-t border-blue-700">
-              <SidebarGroup>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton onClick={handleLogout} className="hover:bg-blue-700 focus-visible:bg-blue-700 text-white hover:text-white">
-                      <LogOut className="w-5 h-5" />
-                      <span>Logout</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-            </SidebarFooter>
+      <div className="md:flex min-h-screen">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0">
+          <div className="flex items-center space-x-3 p-2 mb-6">
+            <Shield className="w-10 h-10" />
+            <div>
+              <h1 className="text-xl font-bold">LILERP</h1>
+              <p className="text-xs text-blue-200">Responder</p>
+            </div>
           </div>
-        </Sidebar>
+          <nav className="flex flex-col space-y-2">
+            <button
+              onClick={() => {
+                setCurrentScreen('dashboard')
+                setActiveTab('overview')
+              }}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'dashboard' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Dashboard</span>
+            </button>
+            <button
+              onClick={() => setCurrentScreen('reports')}
+              className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'reports' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <div className="flex items-center space-x-3">
+                <AlertTriangle className="w-5 h-5" />
+                <span>Reports</span>
+              </div>
+              {stats.pendingReports > 0 && (
+                <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+              )}
+            </button>
+            <button
+              onClick={() => setCurrentScreen('profile')}
+              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                currentScreen === 'profile' ? 'bg-blue-900' : ''
+              }`}
+            >
+              <User className="w-5 h-5" />
+              <span>Profile</span>
+            </button>
+          </nav>
+          <div className="mt-auto">
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
+          </div>
+        </aside>
+
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
-          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-30">
+          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <SidebarTrigger className="md:hidden text-white hover:bg-blue-500" />
-                  <div className="flex items-center space-x-3">
-                    <Shield className="w-8 h-8" />
-                    <div>
-                      <h1 className="text-xl font-bold">LILERP Responder</h1>
-                      <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
-                    </div>
+                  <Shield className="w-8 h-8" />
+                  <div>
+                    <h1 className="text-xl font-bold">LILERP Responder</h1>
+                    <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -720,7 +695,7 @@ function ResponderDashboard() {
           </header>
 
           {/* Main Content */}
-          <main className="container mx-auto px-4 py-8 pb-8">
+          <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
             {/* Dashboard Screen */}
             {currentScreen === 'dashboard' && (
               <div>
@@ -1062,8 +1037,52 @@ function ResponderDashboard() {
             )}
           </main>
         </div>
-      </SidebarProvider>
+      </div>
 
+      {/* Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
+        <div className="flex justify-around items-center h-16">
+          <button
+            onClick={() => {
+              setCurrentScreen('dashboard');
+              setActiveTab('overview');
+            }}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'dashboard' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <Home className="w-6 h-6" />
+            <span className="text-xs mt-1">Dashboard</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentScreen('reports')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'reports' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <div className="relative">
+              <AlertTriangle className="w-6 h-6" />
+              {stats.pendingReports > 0 && (
+                <Badge variant="destructive" className="absolute -top-1 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {stats.pendingReports}
+                </Badge>
+              )}
+            </div>
+            <span className="text-xs mt-1">Reports</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentScreen('profile')}
+            className={`flex flex-col items-center justify-center w-full transition-colors ${
+              currentScreen === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-blue-600'
+            }`}
+          >
+            <User className="w-6 h-6" />
+            <span className="text-xs mt-1">Profile</span>
+          </button>
+        </div>
+      </nav>
       {/* Incident Details Modal */}
       <IncidentDetailsModal
         incident={selectedIncident}
