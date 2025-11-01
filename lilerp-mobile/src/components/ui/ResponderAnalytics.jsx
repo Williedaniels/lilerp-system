@@ -153,8 +153,22 @@ const ResponderAnalytics = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Incidents by Type - Bar Chart */}
+        {/* Priority Distribution */}
         <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4">Priority Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={analytics.charts.incidentsByPriority} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis dataKey="name" type="category" width={80} />
+              <Tooltip />
+              <Bar dataKey="value" fill="#f59e0b" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Incidents by Type - Bar Chart */}
+        <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
           <h3 className="text-lg font-semibold mb-4">Incidents by Type</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={analytics.charts.incidentsByType}>
@@ -179,20 +193,6 @@ const ResponderAnalytics = () => {
               <Legend />
               <Line type="monotone" dataKey="incidents" stroke="#3b82f6" strokeWidth={2} />
             </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Priority Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Priority Distribution</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={analytics.charts.incidentsByPriority} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis dataKey="name" type="category" />
-              <Tooltip />
-              <Bar dataKey="value" fill="#f59e0b" />
-            </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
