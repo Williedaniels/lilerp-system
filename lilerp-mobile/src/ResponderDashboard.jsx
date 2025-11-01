@@ -45,7 +45,8 @@ import {
   Pause,
   ExternalLink,
   Home,
-  User
+  User,
+  RefreshCw
 } from 'lucide-react'
 
 const getAudioUrl = (path) => {
@@ -649,6 +650,16 @@ function ResponderDashboard() {
                   </div>
                   <div className="flex items-center space-x-4">
                     <span className="text-blue-100">Welcome, {responder?.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => fetchIncidents()}
+                      className="text-white hover:bg-blue-700 disabled:opacity-50"
+                      title="Refresh Reports"
+                      disabled={isLoading}
+                    >
+                      <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                    </Button>
                   </div>
                 </div>
               </div>
