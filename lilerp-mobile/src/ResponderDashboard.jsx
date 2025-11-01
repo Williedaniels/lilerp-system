@@ -991,9 +991,29 @@ function ResponderDashboard() {
                     
                     <IncidentsDistributionMap incidents={incidents} />
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                       <IncidentsByTypeChart incidents={incidents} />
                       <IncidentsByStatusChart incidents={incidents} />
+                      <Card className="h-full">
+                        <CardHeader>
+                          <CardTitle>Response Metrics</CardTitle>
+                          <CardDescription>Performance overview</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="text-center p-4 bg-blue-50 rounded-lg">
+                            <p className="text-2xl font-bold text-blue-600">{stats.resolvedToday}</p>
+                            <p className="text-sm text-gray-600">Resolved Today</p>
+                          </div>
+                          <div className="text-center p-4 bg-green-50 rounded-lg">
+                            <p className="text-2xl font-bold text-green-600">
+                              {stats.totalReports > 0 
+                                ? Math.round((stats.resolvedToday / stats.totalReports) * 100) 
+                                : 0}%
+                            </p>
+                            <p className="text-sm text-gray-600">Today's Resolution Rate</p>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 )}
