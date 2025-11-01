@@ -619,426 +619,429 @@ function ResponderDashboard() {
       <Toaster richColors position="top-center" />
       <div className="flex min-h-screen">
         {/* Sidebar */}
-<aside className="hidden sm:flex flex-col w-64 bg-blue-800 text-white p-4 flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
-  <div className="flex items-center space-x-3 p-2 mb-6">
-    <Shield className="w-10 h-10" />
-    <div>
-      <h1 className="text-xl font-bold">LILERP</h1>
-      <p className="text-xs text-blue-200">Responder</p>
-    </div>
-  </div>
-  <nav className="flex flex-col space-y-2 flex-1">
-    <button
-      onClick={() => {
-        setCurrentScreen('dashboard')
-        setActiveTab('overview')
-      }}
-      className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-        currentScreen === 'dashboard' ? 'bg-blue-900' : ''
-      }`}
-    >
-      <BarChart3 className="w-5 h-5" />
-      <span>Dashboard</span>
-    </button>
-    <button
-      onClick={() => setCurrentScreen('reports')}
-      className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-        currentScreen === 'reports' ? 'bg-blue-900' : ''
-      }`}
-    >
-      <div className="flex items-center space-x-3">
-        <AlertTriangle className="w-5 h-5" />
-        <span>Reports</span>
-      </div>
-      {stats.pendingReports > 0 && (
-        <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
-      )}
-    </button>
-    <button
-      onClick={() => setCurrentScreen('profile')}
-      className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-        currentScreen === 'profile' ? 'bg-blue-900' : ''
-      }`}
-    >
-      <User className="w-5 h-5" />
-      <span>Profile</span>
-    </button>
-  </nav>
-  <div className="mt-auto pt-4">
-    <button
-      onClick={handleLogout}
-      className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
-    >
-      <LogOut className="w-5 h-5" />
-      <span>Logout</span>
-    </button>
-  </div>
-</aside>
-
-        <div className="flex-1 flex flex-col min-w-0">
-          {/* Header */}
-          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
-            <div className="container mx-auto px-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-8 h-8" />
-                  <div>
-                    <h1 className="text-xl font-bold">LILERP Responder</h1>
-                    <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className="text-blue-100">Welcome, {responder?.name}</span>
-                </div>
+        <aside className="hidden sm:block w-64 bg-blue-800 text-white flex-shrink-0">
+          <div className="flex flex-col h-screen sticky top-0 p-4">
+            <div className="flex items-center space-x-3 p-2 mb-6">
+              <Shield className="w-10 h-10" />
+              <div>
+                <h1 className="text-xl font-bold">LILERP</h1>
+                <p className="text-xs text-blue-200">Responder</p>
               </div>
             </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="container mx-auto px-4 py-8 pb-24 sm:pb-8">
-            {/* Dashboard Screen */}
-            {currentScreen === 'dashboard' && (
-              <div>
-                {/* Tab Navigation */}
-                <div className="mb-6">
-                  <div className="border-b border-gray-200">
-                    <nav className="-mb-px flex space-x-8">
-                      <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`${
-                          activeTab === 'overview'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                      >
-                        Overview
-                      </button>
-                      <button
-                        onClick={() => setActiveTab('analytics')}
-                        className={`${
-                          activeTab === 'analytics'
-                            ? 'border-blue-500 text-blue-600'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                        } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                      >
-                        Analytics
-                      </button>
-                    </nav>
+            <nav className="flex flex-col space-y-2 flex-1 overflow-y-auto">
+              <button
+                onClick={() => {
+                  setCurrentScreen('dashboard')
+                  setActiveTab('overview')
+                }}
+                className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                  currentScreen === 'dashboard' ? 'bg-blue-900' : ''
+                }`}
+              >
+                <BarChart3 className="w-5 h-5" />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={() => setCurrentScreen('reports')}
+                className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                  currentScreen === 'reports' ? 'bg-blue-900' : ''
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>Reports</span>
+                </div>
+                {stats.pendingReports > 0 && (
+                  <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+                )}
+              </button>
+              <button
+                onClick={() => setCurrentScreen('profile')}
+                className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+                  currentScreen === 'profile' ? 'bg-blue-900' : ''
+                }`}
+              >
+                <User className="w-5 h-5" />
+                <span>Profile</span>
+              </button>
+            </nav>
+            <div className="mt-auto pt-4 border-t border-blue-700">
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        </aside>
+  
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto">
+            {/* Header */}
+            <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
+              <div className="container mx-auto px-4 py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <Shield className="w-8 h-8" />
+                    <div>
+                      <h1 className="text-xl font-bold">LILERP Responder</h1>
+                      <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <span className="text-blue-100">Welcome, {responder?.name}</span>
                   </div>
                 </div>
-
-                {/* Tab Content */}
-                {activeTab === 'overview' ? (
-                  <div className="space-y-6">
-                    <div className="text-center mb-8">
-                      <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                        Welcome, {responder?.name}!
-                      </h2>
-                      <p className="text-gray-600">
-                        Emergency Response Dashboard
-                      </p>
-                    </div>
-
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600">Total Reports</p>
-                              <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
-                            </div>
-                            <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600">Pending</p>
-                              <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
-                            </div>
-                            <Clock className="w-12 h-12 text-red-600 opacity-20" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600">In Progress</p>
-                              <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
-                            </div>
-                            <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card>
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-sm text-gray-600">Resolved Today</p>
-                              <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
-                            </div>
-                            <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* Quick Actions */}
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Quick Actions</CardTitle>
-                      </CardHeader>
-                      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button
-                          onClick={() => setCurrentScreen('reports')}
-                          className="h-20 text-lg"
+              </div>
+            </header>
+  
+            {/* Main Content */}
+            <main className="container mx-auto px-4 py-8 pb-24 sm:pb-8">
+              {/* Dashboard Screen */}
+              {currentScreen === 'dashboard' && (
+                <div>
+                  {/* Tab Navigation */}
+                  <div className="mb-6">
+                    <div className="border-b border-gray-200">
+                      <nav className="-mb-px flex space-x-8">
+                        <button
+                          onClick={() => setActiveTab('overview')}
+                          className={`${
+                            activeTab === 'overview'
+                              ? 'border-blue-500 text-blue-600'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                         >
-                          <AlertTriangle className="w-6 h-6 mr-2" />
-                          View All Reports
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setFilterStatus('pending')
-                            setCurrentScreen('reports')
-                          }}
-                          className="h-20 text-lg"
-                          variant="outline"
+                          Overview
+                        </button>
+                        <button
+                          onClick={() => setActiveTab('analytics')}
+                          className={`${
+                            activeTab === 'analytics'
+                              ? 'border-blue-500 text-blue-600'
+                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                          } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                         >
-                          <Clock className="w-6 h-6 mr-2" />
-                          Pending Reports ({stats.pendingReports})
-                        </Button>
-                      </CardContent>
-                    </Card>
-
-                    {/* Recent Reports */}
-                    {incidents.length > 0 ? (
+                          Analytics
+                        </button>
+                      </nav>
+                    </div>
+                  </div>
+  
+                  {/* Tab Content */}
+                  {activeTab === 'overview' ? (
+                    <div className="space-y-6">
+                      <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                          Welcome, {responder?.name}!
+                        </h2>
+                        <p className="text-gray-600">
+                          Emergency Response Dashboard
+                        </p>
+                      </div>
+  
+                      {/* Stats Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-gray-600">Total Reports</p>
+                                <p className="text-3xl font-bold text-blue-600">{stats.totalReports}</p>
+                              </div>
+                              <AlertTriangle className="w-12 h-12 text-blue-600 opacity-20" />
+                            </div>
+                          </CardContent>
+                        </Card>
+  
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-gray-600">Pending</p>
+                                <p className="text-3xl font-bold text-red-600">{stats.pendingReports}</p>
+                              </div>
+                              <Clock className="w-12 h-12 text-red-600 opacity-20" />
+                            </div>
+                          </CardContent>
+                        </Card>
+  
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-gray-600">In Progress</p>
+                                <p className="text-3xl font-bold text-yellow-600">{stats.inProgressReports}</p>
+                              </div>
+                              <Activity className="w-12 h-12 text-yellow-600 opacity-20" />
+                            </div>
+                          </CardContent>
+                        </Card>
+  
+                        <Card>
+                          <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="text-sm text-gray-600">Resolved Today</p>
+                                <p className="text-3xl font-bold text-green-600">{stats.resolvedToday}</p>
+                              </div>
+                              <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+  
+                      {/* Quick Actions */}
                       <Card>
                         <CardHeader>
-                          <CardTitle>Recent Emergency Reports</CardTitle>
-                          <CardDescription>Latest reports requiring attention</CardDescription>
+                          <CardTitle>Quick Actions</CardTitle>
                         </CardHeader>
-                        <CardContent>
-                          <div className="space-y-3">
-                            {incidents.slice(0, 5).map(incident => (
-                              <div
-                                key={incident.id}
-                                className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
-                                onClick={() => setSelectedIncident(incident)}
-                              >
-                                <div className="flex-1">
-                                  <p className="font-medium">{formatString(incident.type || incident.title)}</p>
-                                  <p className="text-sm text-gray-600">
-                                    {incident.location?.address || incident.location || 'No location'}
-                                  </p>
-                                  <p className="text-xs text-gray-500">
-                                    {new Date(incident.createdAt).toLocaleString()}
-                                  </p>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <Badge
-                                    variant={
-                                      incident.status === 'resolved' ? 'success' :
-                                      incident.status === 'investigating' ? 'warning' :
-                                      'default'
-                                    }
-                                  >
-                                    {formatString(incident.status)}
-                                  </Badge>
-                                  <Badge variant="outline">
-                                    {formatString(incident.priority)}
-                                  </Badge>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Button
+                            onClick={() => setCurrentScreen('reports')}
+                            className="h-20 text-lg"
+                          >
+                            <AlertTriangle className="w-6 h-6 mr-2" />
+                            View All Reports
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setFilterStatus('pending')
+                              setCurrentScreen('reports')
+                            }}
+                            className="h-20 text-lg"
+                            variant="outline"
+                          >
+                            <Clock className="w-6 h-6 mr-2" />
+                            Pending Reports ({stats.pendingReports})
+                          </Button>
                         </CardContent>
                       </Card>
-                    ) : (
-                      <Card>
-                        <CardContent className="p-8 text-center">
-                          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-500">No incidents reported yet</p>
-                        </CardContent>
-                      </Card>
-                    )}
-                  </div>
-                ) : (
-                  <ResponderAnalytics />
-                )}
-              </div>
-            )}
-
-            {/* Reports Screen */}
-            {currentScreen === 'reports' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">Emergency Reports</h2>
-                  <Badge variant="outline">{incidents.length} Total</Badge>
-                </div>
-
-                {/* Search and Filters */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        placeholder="Search reports..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex space-x-2 overflow-x-auto">
-                    {['all', 'pending', 'investigating', 'resolved'].map((status) => (
-                      <Button
-                        key={status}
-                        variant={filterStatus === status ? 'default' : 'outline'}
-                        onClick={() => setFilterStatus(status)}
-                        className="whitespace-nowrap"
-                      >
-                        {formatString(status)}
-                        {status === 'pending' && stats.pendingReports > 0 && (
-                          <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
-                        )}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Incidents List */}
-                <div className="space-y-4">
-                  {filteredIncidents.length > 0 ? (
-                    filteredIncidents.map((incident) => (
-                      <Card
-                        key={incident.id}
-                        className="cursor-pointer hover:shadow-lg transition-shadow"
-                        onClick={() => setSelectedIncident(incident)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2 mb-2">
-                                <Badge className={
-                                  incident.priority === 'critical' ? 'bg-red-600' :
-                                  incident.priority === 'high' ? 'bg-orange-500' :
-                                  incident.priority === 'medium' ? 'bg-yellow-500' :
-                                  'bg-green-500'
-                                }>
-                                  {formatString(incident.priority)}
-                                </Badge>
-                                <Badge variant="outline">
-                                  {formatString(incident.status)}
-                                </Badge>
-                              </div>
-                              
-                              <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
-                              <p className="text-gray-600 text-sm mb-2 line-clamp-2">
-                                {incident.description}
-                              </p>
-                              
-                              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                                <div className="flex items-center">
-                                  <MapPin className="w-4 h-4 mr-1" />
-                                    {incident.location?.address || incident.location || 'No location'}
-                                </div>
-                                <div className="flex items-center">
-                                  <Clock className="w-4 h-4 mr-1" />
-                                  {new Date(incident.createdAt).toLocaleString()}
-                                </div>
-                                {incident.reporter && (
-                                    <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
-                                      <User className="w-4 h-4 mr-1" />
-                                      {incident.reporter.name}
+  
+                      {/* Recent Reports */}
+                      {incidents.length > 0 ? (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Recent Emergency Reports</CardTitle>
+                            <CardDescription>Latest reports requiring attention</CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              {incidents.slice(0, 5).map(incident => (
+                                <div
+                                  key={incident.id}
+                                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                                  onClick={() => setSelectedIncident(incident)}
+                                >
+                                  <div className="flex-1">
+                                    <p className="font-medium">{formatString(incident.type || incident.title)}</p>
+                                    <p className="text-sm text-gray-600">
+                                      {incident.location?.address || incident.location || 'No location'}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {new Date(incident.createdAt).toLocaleString()}
+                                    </p>
                                   </div>
-                                )}
-                              </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Badge
+                                      variant={
+                                        incident.status === 'resolved' ? 'success' :
+                                        incident.status === 'investigating' ? 'warning' :
+                                        'default'
+                                      }
+                                    >
+                                      {formatString(incident.status)}
+                                    </Badge>
+                                    <Badge variant="outline">
+                                      {formatString(incident.priority)}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            
-                            <AlertTriangle className={`w-6 h-6 ml-4 ${
-                              incident.priority === 'critical' ? 'text-red-600' :
-                              incident.priority === 'high' ? 'text-orange-500' :
-                              'text-yellow-500'
-                            }`} />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
+                          </CardContent>
+                        </Card>
+                      ) : (
+                        <Card>
+                          <CardContent className="p-8 text-center">
+                            <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                            <p className="text-gray-500">No incidents reported yet</p>
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
+                  ) : (
+                    <ResponderAnalytics />
                   )}
                 </div>
-              </div>
-            )}
-
-            {/* Profile Screen */}
-            {currentScreen === 'profile' && (
-              <div className="max-w-2xl mx-auto">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <User className="w-6 h-6 mr-2" />
-                      Responder Profile
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {responder && (
-                      <>
-                        <div className="flex items-center space-x-4 pb-4 border-b">
-                          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                            {responder.name?.charAt(0) || 'R'}
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold">{responder.name}</h3>
-                            <p className="text-gray-600">{responder.email}</p>
-                          </div>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-sm font-semibold text-gray-700">Phone</label>
-                            <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
-                          </div>
-
-                          <div>
-                            <label className="text-sm font-semibold text-gray-700">Role</label>
-                            <Badge className="mt-1">{responder.role || 'responder'}</Badge>
-                          </div>
-
-                          <div>
-                            <label className="text-sm font-semibold text-gray-700">Organization</label>
-                            <p className="text-gray-900">{responder.organization || 'LILERP'}</p>
-                          </div>
-                        </div>
-
-                        <Button 
-                          onClick={handleLogout}
-                          variant="destructive"
-                          className="w-full mt-6"
+              )}
+  
+              {/* Reports Screen */}
+              {currentScreen === 'reports' && (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-2xl font-bold">Emergency Reports</h2>
+                    <Badge variant="outline">{incidents.length} Total</Badge>
+                  </div>
+  
+                  {/* Search and Filters */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          placeholder="Search reports..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex space-x-2 overflow-x-auto">
+                      {['all', 'pending', 'investigating', 'resolved'].map((status) => (
+                        <Button
+                          key={status}
+                          variant={filterStatus === status ? 'default' : 'outline'}
+                          onClick={() => setFilterStatus(status)}
+                          className="whitespace-nowrap"
                         >
-                          <LogOut className="w-4 h-4 mr-2" />
-                          Logout
+                          {formatString(status)}
+                          {status === 'pending' && stats.pendingReports > 0 && (
+                            <Badge className="ml-2 bg-red-500">{stats.pendingReports}</Badge>
+                          )}
                         </Button>
-                      </>
+                      ))}
+                    </div>
+                  </div>
+  
+                  {/* Incidents List */}
+                  <div className="space-y-4">
+                    {filteredIncidents.length > 0 ? (
+                      filteredIncidents.map((incident) => (
+                        <Card
+                          key={incident.id}
+                          className="cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => setSelectedIncident(incident)}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-2 mb-2">
+                                  <Badge className={
+                                    incident.priority === 'critical' ? 'bg-red-600' :
+                                    incident.priority === 'high' ? 'bg-orange-500' :
+                                    incident.priority === 'medium' ? 'bg-yellow-500' :
+                                    'bg-green-500'
+                                  }>
+                                    {formatString(incident.priority)}
+                                  </Badge>
+                                  <Badge variant="outline">
+                                    {formatString(incident.status)}
+                                  </Badge>
+                                </div>
+                                
+                                <h3 className="font-bold text-lg mb-1">{formatString(incident.title)}</h3>
+                                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                                  {incident.description}
+                                </p>
+                                
+                                <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                                  <div className="flex items-center">
+                                    <MapPin className="w-4 h-4 mr-1" />
+                                      {incident.location?.address || incident.location || 'No location'}
+                                  </div>
+                                  <div className="flex items-center">
+                                    <Clock className="w-4 h-4 mr-1" />
+                                    {new Date(incident.createdAt).toLocaleString()}
+                                  </div>
+                                  {incident.reporter && (
+                                      <div className="flex items-center" title={`Community: ${incident.reporter.community || 'N/A'}`}>
+                                        <User className="w-4 h-4 mr-1" />
+                                        {incident.reporter.name}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <AlertTriangle className={`w-6 h-6 ml-4 ${
+                                incident.priority === 'critical' ? 'text-red-600' :
+                                incident.priority === 'high' ? 'text-orange-500' :
+                                'text-yellow-500'
+                              }`} />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                        <p className="text-gray-500">No {filterStatus === 'all' ? '' : filterStatus} reports found</p>
+                      </div>
                     )}
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </main>
+                  </div>
+                </div>
+              )}
+  
+              {/* Profile Screen */}
+              {currentScreen === 'profile' && (
+                <div className="max-w-2xl mx-auto">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center">
+                        <User className="w-6 h-6 mr-2" />
+                        Responder Profile
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {responder && (
+                        <>
+                          <div className="flex items-center space-x-4 pb-4 border-b">
+                            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                              {responder.name?.charAt(0) || 'R'}
+                            </div>
+                            <div>
+                              <h3 className="text-xl font-bold">{responder.name}</h3>
+                              <p className="text-gray-600">{responder.email}</p>
+                            </div>
+                          </div>
+  
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-sm font-semibold text-gray-700">Phone</label>
+                              <p className="text-gray-900">{responder.phone || 'Not provided'}</p>
+                            </div>
+  
+                            <div>
+                              <label className="text-sm font-semibold text-gray-700">Role</label>
+                              <Badge className="mt-1">{responder.role || 'responder'}</Badge>
+                            </div>
+  
+                            <div>
+                              <label className="text-sm font-semibold text-gray-700">Organization</label>
+                              <p className="text-gray-900">{responder.organization || 'LILERP'}</p>
+                            </div>
+                          </div>
+  
+                          <Button 
+                            onClick={handleLogout}
+                            variant="destructive"
+                            className="w-full mt-6"
+                          >
+                            <LogOut className="w-4 h-4 mr-2" />
+                            Logout
+                          </Button>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </main>
         </div>
       </div>
-
+  
       {/* Bottom Navigation */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
         <div className="flex justify-around items-center h-16">
