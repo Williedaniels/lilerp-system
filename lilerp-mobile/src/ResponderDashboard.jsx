@@ -185,17 +185,20 @@ const IncidentsByStatusChart = ({ incidents, chartType = 'bar' }) => {
               </div>
             </div>
             <div className="w-full space-y-2">
-              {dataEntries.map(([status, count]) => (
-                <div key={status}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="flex items-center text-sm font-medium text-gray-700">
-                      <span className={`w-3 h-3 rounded-full mr-2 ${statusColors[status] || 'bg-blue-600'}`}></span>
-                      {status}
-                    </span>
-                    <span className="text-sm font-medium text-gray-500">{count} ({Math.round((count/totalIncidents)*100)}%)</span>
+              {dataEntries.map(([status, count]) => {
+                const percentage = totalIncidents > 0 ? Math.round((count / totalIncidents) * 100) : 0;
+                return (
+                  <div key={status}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="flex items-center text-sm font-medium text-gray-700">
+                        <span className={`w-3 h-3 rounded-full mr-2 ${statusColors[status] || 'bg-blue-600'}`}></span>
+                        {status}
+                      </span>
+                      <span className="text-sm font-medium text-gray-500">{count} ({percentage}%)</span>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })}
             </div>
           </div>
         ) : (
