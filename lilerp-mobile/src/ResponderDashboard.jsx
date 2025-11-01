@@ -617,9 +617,9 @@ function ResponderDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors position="top-center" />
-      <div className="md:flex min-h-screen">
+      <div className="sm:flex min-h-screen">
         {/* Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0">
+        <aside className="hidden sm:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0">
           <div className="flex items-center space-x-3 p-2 mb-6">
             <Shield className="w-10 h-10" />
             <div>
@@ -695,7 +695,7 @@ function ResponderDashboard() {
           </header>
 
           {/* Main Content */}
-          <main className="container mx-auto px-4 py-8 pb-24 md:pb-8">
+          <main className="container mx-auto px-4 py-8 pb-24 sm:pb-8">
             {/* Dashboard Screen */}
             {currentScreen === 'dashboard' && (
               <div>
@@ -1040,7 +1040,7 @@ function ResponderDashboard() {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
         <div className="flex justify-around items-center h-16">
           <button
             onClick={() => {
