@@ -129,6 +129,57 @@ const IncidentsByTypeChart = ({ incidents }) => {
   );
 };
 
+// New component for incidents by status chart
+const IncidentsByStatusChart = ({ incidents }) => {
+  const incidentStatusData = incidents.reduce((acc, incident) => {
+    const status = formatString(incident.status || 'Unknown');
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
+
+  const totalIncidents = incidents.length;
+
+  const statusColors = {
+    'Pending': 'bg-red-500',
+    'Investigating': 'bg-yellow-500',
+    'Resolved': 'bg-green-500',
+    'Unknown': 'bg-gray-400'
+  };
+
+  return (
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Incidents by Status</CardTitle>
+        <CardDescription>Breakdown of incidents by their current status.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {Object.keys(incidentStatusData).length > 0 ? (
+            Object.entries(incidentStatusData)
+              .sort(([, a], [, b]) => b - a)
+              .map(([status, count]) => (
+                <div key={status}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700">{status}</span>
+                    <span className="text-sm font-medium text-gray-500">{count}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className={`${statusColors[status] || 'bg-blue-600'} h-2.5 rounded-full`}
+                      style={{ width: `${(count / totalIncidents) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              ))
+          ) : (
+            <div className="h-64 flex items-center justify-center"><p className="text-gray-500">No incident data for chart.</p></div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 // New component for incident details modal
 const IncidentDetailsModal = ({ incident, onClose, onUpdateStatus, onCallReporter }) => {
   if (!incident) return null;
@@ -940,32 +991,9 @@ function ResponderDashboard() {
                     
                     <IncidentsDistributionMap incidents={incidents} />
                     
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                      <div className="lg:col-span-2">
-                        <IncidentsByTypeChart incidents={incidents} />
-                      </div>
-                      <div className="lg:col-span-1">
-                        <Card className="h-full">
-                          <CardHeader>
-                            <CardTitle>Response Metrics</CardTitle>
-                            <CardDescription>Performance overview</CardDescription>
-                          </CardHeader>
-                          <CardContent className="space-y-4">
-                            <div className="text-center p-4 bg-blue-50 rounded-lg">
-                              <p className="text-2xl font-bold text-blue-600">{stats.resolvedToday}</p>
-                              <p className="text-sm text-gray-600">Resolved Today</p>
-                            </div>
-                            <div className="text-center p-4 bg-green-50 rounded-lg">
-                              <p className="text-2xl font-bold text-green-600">
-                                {stats.totalReports > 0 
-                                  ? Math.round((stats.resolvedToday / stats.totalReports) * 100) 
-                                  : 0}%
-                              </p>
-                              <p className="text-sm text-gray-600">Today's Resolution Rate</p>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <IncidentsByTypeChart incidents={incidents} />
+                      <IncidentsByStatusChart incidents={incidents} />
                     </div>
                   </div>
                 )}
