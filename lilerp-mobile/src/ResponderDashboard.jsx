@@ -130,14 +130,12 @@ const IncidentsByTypeChart = ({ incidents }) => {
 };
 
 // New component for incidents by status chart
-const IncidentsByStatusChart = ({ incidents }) => {
+const IncidentsByStatusChart = ({ incidents, chartType = 'bar' }) => {
   const incidentStatusData = incidents.reduce((acc, incident) => {
     const status = formatString(incident.status || 'Unknown');
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {});
-
-  const totalIncidents = incidents.length;
 
   const statusColors = {
     'Pending': 'bg-red-500',
@@ -145,36 +143,64 @@ const IncidentsByStatusChart = ({ incidents }) => {
     'Resolved': 'bg-green-500',
     'Unknown': 'bg-gray-400'
   };
+  
+  const totalIncidents = incidents.length;
+  const dataEntries = Object.entries(incidentStatusData).sort(([, a], [, b]) => b - a);
 
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle>Incidents by Status</CardTitle>
-        <CardDescription>Breakdown of incidents by their current status.</CardDescription>
+        <CardDescription>Breakdown of incidents by current status.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {Object.keys(incidentStatusData).length > 0 ? (
-            Object.entries(incidentStatusData)
-              .sort(([, a], [, b]) => b - a)
-              .map(([status, count]) => (
+        {dataEntries.length > 0 ? (
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative w-40 h-40">
+              <svg className="w-full h-full" viewBox="0 0 36 36">
+                {(() => {
+                  let accumulatedPercentage = 0;
+                  return dataEntries.map(([status, count]) => {
+                    const percentage = (count / totalIncidents) * 100;
+                    const strokeDasharray = `${percentage} ${100 - percentage}`;
+                    const strokeDashoffset = -accumulatedPercentage;
+                    accumulatedPercentage += percentage;
+                    return (
+                      <circle
+                        key={status}
+                        className={`fill-none ${statusColors[status]?.replace('bg-', 'stroke-') || 'stroke-blue-600'}`}
+                        strokeWidth="4"
+                        cx="18" cy="18" r="15.915"
+                        strokeDasharray={strokeDasharray}
+                        strokeDashoffset={strokeDashoffset}
+                        transform="rotate(-90 18 18)"
+                      />
+                    );
+                  });
+                })()}
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-3xl font-bold">{totalIncidents}</span>
+                <span className="text-xs text-gray-500">Total</span>
+              </div>
+            </div>
+            <div className="w-full space-y-2">
+              {dataEntries.map(([status, count]) => (
                 <div key={status}>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-700">{status}</span>
-                    <span className="text-sm font-medium text-gray-500">{count}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className={`${statusColors[status] || 'bg-blue-600'} h-2.5 rounded-full`}
-                      style={{ width: `${(count / totalIncidents) * 100}%` }}
-                    ></div>
+                    <span className="flex items-center text-sm font-medium text-gray-700">
+                      <span className={`w-3 h-3 rounded-full mr-2 ${statusColors[status] || 'bg-blue-600'}`}></span>
+                      {status}
+                    </span>
+                    <span className="text-sm font-medium text-gray-500">{count} ({Math.round((count/totalIncidents)*100)}%)</span>
                   </div>
                 </div>
               ))
-          ) : (
-            <div className="h-64 flex items-center justify-center"><p className="text-gray-500">No incident data for chart.</p></div>
-          )}
-        </div>
+            </div>
+          </div>
+        ) : (
+          <div className="h-64 flex items-center justify-center"><p className="text-gray-500">No incident data for chart.</p></div>
+        )}
       </CardContent>
     </Card>
   );
@@ -790,7 +816,7 @@ function ResponderDashboard() {
           </div>
         </aside>
 
-        <div className="flex-1 flex flex-col w-full">
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
           <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
             <div className="container mx-auto px-4 py-4">
