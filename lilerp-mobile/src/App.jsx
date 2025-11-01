@@ -38,8 +38,7 @@ import {
   Play,
   Pause,
   PhoneCall,
-  ExternalLink,
-  RefreshCw
+  ExternalLink
 } from 'lucide-react'
 import './App.css'
 
@@ -245,13 +244,11 @@ function App() {
 
   // Fetch reports from server
   const fetchReports = useCallback(async (token) => {
-    setIsLoading(true);
     try {
       const authToken = token || localStorage.getItem('lilerp_token'); 
       
       if (!authToken) {
         console.log('No token available');
-        setIsLoading(false);
         return;
       }
       
@@ -276,8 +273,6 @@ function App() {
       if (savedReports) {
         setReports(JSON.parse(savedReports))
       }
-    } finally {
-      setIsLoading(false);
     }
   }, [refreshToken]);
 
