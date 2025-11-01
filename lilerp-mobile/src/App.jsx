@@ -38,7 +38,8 @@ import {
   Play,
   Pause,
   PhoneCall,
-  ExternalLink
+  ExternalLink,
+  RefreshCw
 } from 'lucide-react'
 import './App.css'
 
@@ -244,11 +245,13 @@ function App() {
 
   // Fetch reports from server
   const fetchReports = useCallback(async (token) => {
+    setIsLoading(true);
     try {
       const authToken = token || localStorage.getItem('lilerp_token'); 
       
       if (!authToken) {
         console.log('No token available');
+        setIsLoading(false);
         return;
       }
       
@@ -273,6 +276,8 @@ function App() {
       if (savedReports) {
         setReports(JSON.parse(savedReports))
       }
+    } finally {
+      setIsLoading(false);
     }
   }, [refreshToken]);
 
@@ -1008,6 +1013,16 @@ const handleEmergencyCall = async () => {
                   <User className="w-5 h-5" />
                   <span>Profile</span>
                 </button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => fetchReports()}
+                  className="text-white hover:bg-green-700 disabled:opacity-50"
+                  title="Refresh Reports"
+                  disabled={isLoading}
+                >
+                  <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+                </Button>
                 <button
                   onClick={handleLogout}
                   className="flex items-center space-x-2 text-green-200 hover:text-white transition"
