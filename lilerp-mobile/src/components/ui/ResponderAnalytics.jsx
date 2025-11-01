@@ -128,7 +128,7 @@ const ResponderAnalytics = () => {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         {/* Incidents by Status - Pie Chart */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Incidents by Status</h3>
@@ -168,7 +168,7 @@ const ResponderAnalytics = () => {
         </div>
 
         {/* Incidents by Type - Bar Chart */}
-        <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
+        <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Incidents by Type</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={analytics.charts.incidentsByType}>
@@ -182,7 +182,7 @@ const ResponderAnalytics = () => {
         </div>
 
         {/* Daily Trend - Line Chart */}
-        <div className="bg-white p-6 rounded-lg shadow md:col-span-2">
+        <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Daily Incident Trend (Last 30 Days)</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={analytics.charts.dailyTrend}>
