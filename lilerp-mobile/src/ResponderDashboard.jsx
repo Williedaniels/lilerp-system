@@ -793,7 +793,12 @@ function ResponderDashboard() {
                                   onClick={() => setSelectedIncident(incident)}
                                 >
                                   <div className="flex-1">
-                                    <p className="font-medium">{formatString(incident.type || incident.title)}</p>
+                                    <div className="flex items-center space-x-2">
+                                      <p className="font-medium">{formatString(incident.type || incident.title)}</p>
+                                      {incident.priority === 'critical' && (
+                                        <AlertTriangle className="w-4 h-4 text-red-600 animate-pulse" title="Critical Priority" />
+                                      )}
+                                    </div>
                                     <p className="text-sm text-gray-600">
                                       {incident.location?.address || incident.location || 'No location'}
                                     </p>
@@ -879,7 +884,9 @@ function ResponderDashboard() {
                       filteredIncidents.map((incident) => (
                         <Card
                           key={incident.id}
-                          className="cursor-pointer hover:shadow-lg transition-shadow"
+                          className={`cursor-pointer hover:shadow-lg transition-shadow ${
+                            incident.priority === 'critical' ? 'border-red-500 border-2 bg-red-50/50' : ''
+                          }`}
                           onClick={() => setSelectedIncident(incident)}
                         >
                           <CardContent className="p-4">
@@ -923,7 +930,7 @@ function ResponderDashboard() {
                               </div>
                               
                               <AlertTriangle className={`w-6 h-6 ml-4 ${
-                                incident.priority === 'critical' ? 'text-red-600' :
+                                incident.priority === 'critical' ? 'text-red-600 animate-pulse' :
                                 incident.priority === 'high' ? 'text-orange-500' :
                                 'text-yellow-500'
                               }`} />
