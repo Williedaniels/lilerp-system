@@ -3,37 +3,78 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import IncidentMap from './incident-map.jsx';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://lilerp-backend.onrender.com/api';
 
 const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6', '#ec4899'];
 
+const formatString = (str) => {
+  if (!str) return '';
+  return str
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const ResponderAnalytics = () => {
   const [analytics, setAnalytics] = useState(null);
+  const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAnalytics();
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('lilerp_responder_token');
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        const [analyticsRes, incidentsRes] = await Promise.all([
+          fetch(`${API_URL}/responders/analytics`, { headers }),
+          fetch(`${API_URL}/responders/dashboard`, { headers })
+        ]);
+
+        if (analyticsRes.ok) {
+          const data = await analyticsRes.json();
+          setAnalytics(data);
+        }
+
+        if (incidentsRes.ok) {
+          const data = await incidentsRes.json();
+          setIncidents(data.incidents || []);
+        }
+
+      } catch (error) {
+        console.error('Error fetching analytics data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  const fetchAnalytics = async () => {
-    try {
-      const token = localStorage.getItem('lilerp_responder_token');
-      const response = await fetch(`${API_URL}/responders/analytics`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+  const processIncidentsForMap = (incidents) => {
+    const incidentsByLocation = incidents.reduce((acc, incident) => {
+      if (incident.latitude && incident.longitude) {
+        const key = `${incident.latitude.toFixed(4)},${incident.longitude.toFixed(4)}`;
+        if (!acc[key]) {
+          acc[key] = { latitude: incident.latitude, longitude: incident.longitude, reports: [] };
         }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAnalytics(data);
+        acc[key].reports.push(incident);
       }
-    } catch (error) {
-      console.error('Error fetching analytics:', error);
-    } finally {
-      setLoading(false);
-    }
+      return acc;
+    }, {});
+
+    return Object.values(incidentsByLocation).map(group => ({
+      ...group,
+      count: group.reports.length,
+      hoverText: group.reports.map(r => formatString(r.type || r.title)).join(' | '),
+    }));
   };
 
   if (loading) {
@@ -47,6 +88,8 @@ const ResponderAnalytics = () => {
   if (!analytics) {
     return <div className="text-center p-8">No analytics data available</div>;
   }
+
+  const mapPoints = processIncidentsForMap(incidents);
 
   return (
     <div className="space-y-6">
@@ -67,6 +110,20 @@ const ResponderAnalytics = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600">Avg Response Time</div>
           <div className="text-3xl font-bold text-purple-600">{analytics.overview.avgResponseTime}m</div>
+        </div>
+      </div>
+
+      {/* Incident Distribution Map */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold mb-4">Incident Distribution Map</h3>
+        <div className="h-96 w-full">
+          {mapPoints.length > 0 ? (
+            <IncidentMap incidents={mapPoints} />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+              <p className="text-gray-500">No location data available for incidents.</p>
+            </div>
+          )}
         </div>
       </div>
 
