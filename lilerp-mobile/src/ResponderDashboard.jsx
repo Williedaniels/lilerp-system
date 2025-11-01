@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 import { API_URL } from '@/lib/config'
 import { Toaster, toast } from 'sonner';
+import DesktopSidebar from './components/ui/DesktopSidebar.jsx';
 import ResponderAnalytics from './components/ui/ResponderAnalytics';
 import IncidentMap from './components/ui/incident-map.jsx';
 import { 
@@ -249,7 +250,6 @@ function ResponderDashboard() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
   const [selectedIncident, setSelectedIncident] = useState(null)
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
   
   // Forms
   const [loginForm, setLoginForm] = useState({
@@ -475,6 +475,13 @@ function ResponderDashboard() {
     toast.info('Logged out successfully')
   }
 
+  const handleNavigate = (screen, tab = null) => {
+    setCurrentScreen(screen);
+    if (tab) {
+      setActiveTab(tab);
+    }
+  };
+
   // Report actions
   const handleUpdateStatus = async (reportId, newStatus) => {
     try {
@@ -618,83 +625,26 @@ function ResponderDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors position="top-center" />
-
-      {/* Desktop Hamburger Menu */}
-      {isMenuOpen && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/30 z-40 hidden sm:block"
-            onClick={() => setIsMenuOpen(false)}
-          ></div>
-          <aside className="fixed top-0 left-0 h-full w-64 bg-blue-800 text-white z-50 p-4 flex-col hidden sm:flex">
-            <div className="flex items-center justify-between p-2 mb-6">
-              <div className="flex items-center space-x-3">
-                <Shield className="w-10 h-10" />
-                <div>
-                  <h1 className="text-xl font-bold">LILERP</h1>
-                  <p className="text-xs text-blue-200">Responder</p>
-                </div>
-              </div>
-              <button onClick={() => setIsMenuOpen(false)} className="text-blue-200 hover:text-white">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-            <nav className="flex flex-col space-y-2 flex-1 overflow-y-auto">
-              <button
-                onClick={() => { setCurrentScreen('dashboard'); setActiveTab('overview'); setIsMenuOpen(false); }}
-                className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${currentScreen === 'dashboard' ? 'bg-blue-900' : ''}`}
-              >
-                <BarChart3 className="w-5 h-5" />
-                <span>Dashboard</span>
-              </button>
-              <button
-                onClick={() => { setCurrentScreen('reports'); setIsMenuOpen(false); }}
-                className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${currentScreen === 'reports' ? 'bg-blue-900' : ''}`}
-              >
-                <div className="flex items-center space-x-3">
-                  <AlertTriangle className="w-5 h-5" />
-                  <span>Reports</span>
-                </div>
-                {stats.pendingReports > 0 && (
-                  <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
-                )}
-              </button>
-              <button
-                onClick={() => { setCurrentScreen('profile'); setIsMenuOpen(false); }}
-                className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${currentScreen === 'profile' ? 'bg-blue-900' : ''}`}
-              >
-                <User className="w-5 h-5" />
-                <span>Profile</span>
-              </button>
-            </nav>
-            <div className="mt-auto pt-4 border-t border-blue-700">
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </aside>
-        </>
-      )}
-
-      <div className="flex flex-col min-h-screen">
-          {/* Header */}
-          <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-30">
+      <div className="flex min-h-screen">
+        {/* Sidebar */}
+        <DesktopSidebar
+          currentScreen={currentScreen}
+          stats={stats}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+  
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto">
+            {/* Header */}
+            <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
               <div className="container mx-auto px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <button onClick={() => setIsMenuOpen(true)} className="hidden sm:inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none">
-                      <Menu className="h-6 w-6" />
-                    </button>
-                    <div className="flex items-center space-x-3">
-                      <Shield className="w-8 h-8" />
-                      <div>
-                        <h1 className="text-xl font-bold">LILERP Responder</h1>
-                        <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
-                      </div>
+                    <Shield className="w-8 h-8" />
+                    <div>
+                      <h1 className="text-xl font-bold">LILERP Responder</h1>
+                      <p className="text-xs text-blue-100">Emergency Response Dashboard</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4">
@@ -702,9 +652,9 @@ function ResponderDashboard() {
                   </div>
                 </div>
               </div>
-          </header>
+            </header>
   
-          {/* Main Content */}
+            {/* Main Content */}
             <main className="container mx-auto px-4 py-8 pb-24 sm:pb-8">
               {/* Dashboard Screen */}
               {currentScreen === 'dashboard' && (
@@ -1046,9 +996,10 @@ function ResponderDashboard() {
                 </div>
               )}
             </main>
+        </div>
       </div>
   
-      {/* Bottom Navigation for Mobile */}
+      {/* Bottom Navigation */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-t-lg z-50">
         <div className="flex justify-around items-center h-16">
           <button
