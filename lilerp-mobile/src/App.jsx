@@ -549,10 +549,28 @@ const handleSubmitReport = async (e) => {
       return;
     }
     
+    // --- Automatic Urgency Detection ---
+    const criticalKeywords = [
+      'attack', 'weapon', 'gun', 'knife', 'blood', 'fire', 'dying', 'dead', 
+      'urgent', 'emergency', 'help immediately', 'assault', 'violence', 
+      'burning', 'shot', 'stabbed', 'injured', 'trapped', 'hostage'
+    ];
+
+    const reportText = (reportForm.description + ' ' + reportForm.voiceTranscription).toLowerCase();
+    
+    let detectedPriority = reportForm.urgency;
+    const isCritical = criticalKeywords.some(keyword => reportText.includes(keyword));
+
+    if (isCritical && reportForm.urgency !== 'critical') {
+      detectedPriority = 'critical';
+      toast.info('This report has been automatically flagged as critical due to its content.');
+    }
+    // --- End of Automatic Urgency Detection ---
+    
     const formData = new FormData()
     
     formData.append('type', reportForm.type)
-    formData.append('priority', reportForm.urgency)
+    formData.append('priority', detectedPriority)
     formData.append('title', reportForm.type)
     formData.append('description', reportForm.description)
     formData.append('location', JSON.stringify({
@@ -595,7 +613,7 @@ const handleSubmitReport = async (e) => {
       // Reset form
       setReportForm({
         type: '',
-        urgency: 'medium',
+        urgency: 'low',
         location: '',
         description: '',
         voiceTranscription: '',
