@@ -619,61 +619,61 @@ function ResponderDashboard() {
       <Toaster richColors position="top-center" />
       <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className="hidden sm:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0 sticky top-0 h-screen">
-          <div className="flex items-center space-x-3 p-2 mb-6">
-            <Shield className="w-10 h-10" />
-            <div>
-              <h1 className="text-xl font-bold">LILERP</h1>
-              <p className="text-xs text-blue-200">Responder</p>
-            </div>
-          </div>
-          <nav className="flex flex-col space-y-2">
-            <button
-              onClick={() => {
-                setCurrentScreen('dashboard')
-                setActiveTab('overview')
-              }}
-              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-                currentScreen === 'dashboard' ? 'bg-blue-900' : ''
-              }`}
-            >
-              <BarChart3 className="w-5 h-5" />
-              <span>Dashboard</span>
-            </button>
-            <button
-              onClick={() => setCurrentScreen('reports')}
-              className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-                currentScreen === 'reports' ? 'bg-blue-900' : ''
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <AlertTriangle className="w-5 h-5" />
-                <span>Reports</span>
-              </div>
-              {stats.pendingReports > 0 && (
-                <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
-              )}
-            </button>
-            <button
-              onClick={() => setCurrentScreen('profile')}
-              className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
-                currentScreen === 'profile' ? 'bg-blue-900' : ''
-              }`}
-            >
-              <User className="w-5 h-5" />
-              <span>Profile</span>
-            </button>
-          </nav>
-          <div className="mt-auto">
-            <button
-              onClick={handleLogout}
-              className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
-        </aside>
+<aside className="hidden sm:flex flex-col w-64 bg-blue-800 text-white p-4 flex-shrink-0 sticky top-0 h-screen overflow-y-auto">
+  <div className="flex items-center space-x-3 p-2 mb-6">
+    <Shield className="w-10 h-10" />
+    <div>
+      <h1 className="text-xl font-bold">LILERP</h1>
+      <p className="text-xs text-blue-200">Responder</p>
+    </div>
+  </div>
+  <nav className="flex flex-col space-y-2 flex-1">
+    <button
+      onClick={() => {
+        setCurrentScreen('dashboard')
+        setActiveTab('overview')
+      }}
+      className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+        currentScreen === 'dashboard' ? 'bg-blue-900' : ''
+      }`}
+    >
+      <BarChart3 className="w-5 h-5" />
+      <span>Dashboard</span>
+    </button>
+    <button
+      onClick={() => setCurrentScreen('reports')}
+      className={`flex items-center justify-between p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+        currentScreen === 'reports' ? 'bg-blue-900' : ''
+      }`}
+    >
+      <div className="flex items-center space-x-3">
+        <AlertTriangle className="w-5 h-5" />
+        <span>Reports</span>
+      </div>
+      {stats.pendingReports > 0 && (
+        <Badge className="bg-red-500 text-white">{stats.pendingReports}</Badge>
+      )}
+    </button>
+    <button
+      onClick={() => setCurrentScreen('profile')}
+      className={`flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition ${
+        currentScreen === 'profile' ? 'bg-blue-900' : ''
+      }`}
+    >
+      <User className="w-5 h-5" />
+      <span>Profile</span>
+    </button>
+  </nav>
+  <div className="mt-auto pt-4">
+    <button
+      onClick={handleLogout}
+      className="flex items-center space-x-3 p-3 rounded-lg text-left hover:bg-blue-700 transition w-full"
+    >
+      <LogOut className="w-5 h-5" />
+      <span>Logout</span>
+    </button>
+  </div>
+</aside>
 
         <div className="flex-1 flex flex-col min-w-0">
           {/* Header */}
