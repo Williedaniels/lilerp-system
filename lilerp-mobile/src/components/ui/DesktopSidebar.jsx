@@ -4,7 +4,7 @@ import { Shield, BarChart3, AlertTriangle, User, LogOut } from 'lucide-react';
 
 const DesktopSidebar = ({ currentScreen, stats, onNavigate, onLogout }) => {
   return (
-    <aside className="hidden md:block w-64 bg-blue-800 text-white flex-shrink-0">
+    <aside className="hidden sm:block w-64 bg-blue-800 text-white flex-shrink-0">
       <div className="flex flex-col h-screen sticky top-0 p-4">
         <div className="flex items-center space-x-3 p-2 mb-6">
           <Shield className="w-10 h-10" />
