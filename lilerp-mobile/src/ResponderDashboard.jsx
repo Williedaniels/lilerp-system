@@ -617,7 +617,7 @@ function ResponderDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster richColors position="top-center" />
-      <div className="sm:flex min-h-screen">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
         <aside className="hidden sm:flex flex-col w-64 bg-blue-800 text-white p-4 shrink-0 sticky top-0 h-screen">
           <div className="flex items-center space-x-3 p-2 mb-6">
