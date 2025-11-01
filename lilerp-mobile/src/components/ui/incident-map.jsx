@@ -104,7 +104,18 @@ const IncidentMap = ({ incidents, latitude, longitude, location, reporterName })
         zoom={13}
         style={{ height: '100%', width: '100%' }}
       >
-        {/* ... existing single marker logic ... */}
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[lat, lng]}>
+          <Popup>
+            <div className="text-sm">
+              <strong>{reporterName || 'Reporter Location'}</strong>
+              <p>{location?.address || location || 'Details not available'}</p>
+            </div>
+          </Popup>
+        </Marker>
       </MapContainer>
     </div>
   );
